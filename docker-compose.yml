@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - GNANI_API_KEY=${GNANI_API_KEY}
+      - GNANI_STT_ENDPOINT=${GNANI_STT_ENDPOINT:-https://api.gnani.ai/v2.5/stt}
+      - GNANI_TTS_ENDPOINT=${GNANI_TTS_ENDPOINT:-https://api.gnani.ai/v2.5/tts}
+      - EVON_API_KEY=${EVON_API_KEY}
+      - MOCK_GNANI_APIS=${MOCK_GNANI_APIS:-false}
+    volumes:
+      - ./dukaan_saathi.db:/app/dukaan_saathi.db
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+

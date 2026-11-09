@@ -23,3 +23,4 @@ start "Dukaan Saathi Backend" cmd /k "python -m uvicorn main:app --reload --port
 echo Starting frontend on http://localhost:5173 ...
 cd frontend
 npm run dev
+

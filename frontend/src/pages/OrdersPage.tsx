@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { api } from '../services/api';
 import { Order } from '../types';
-import { ShoppingBag, Eye, RefreshCw, X, Receipt } from 'lucide-react';
+import { ShoppingBag, Eye, RefreshCw, X, Receipt, Printer } from 'lucide-react';
 
 export const OrdersPage: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>([]);
@@ -188,7 +188,14 @@ export const OrdersPage: React.FC = () => {
               </div>
             </div>
 
-            <div className="bg-slate-50 px-5 py-3 border-t border-slate-100 text-right">
+            <div className="bg-slate-50 px-5 py-3 border-t border-slate-100 flex items-center justify-between">
+              <button
+                onClick={() => window.print()}
+                className="px-3.5 py-1.5 bg-amber-500 hover:bg-amber-600 text-white text-xs font-semibold rounded-xl flex items-center space-x-1.5 shadow-xs transition"
+              >
+                <Printer className="w-3.5 h-3.5" />
+                <span>प्रिंट पर्चा (Print Receipt)</span>
+              </button>
               <button
                 onClick={() => setSelectedOrder(null)}
                 className="px-4 py-1.5 bg-slate-800 hover:bg-slate-900 text-white text-xs font-semibold rounded-xl"
