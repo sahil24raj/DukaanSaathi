@@ -16,32 +16,55 @@ logging.basicConfig(
 )
 logger = logging.getLogger("dukaan_saathi")
 
-# Create database tables
-Base.metadata.create_all(bind=engine)
+# Initialize database safely with fallback to in-memory SQLite if filesystem is read-only
+def init_db_safely():
+    from . import database as db_mod
+    try:
+        Base.metadata.create_all(bind=db_mod.engine)
+        logger.info("Database tables verified/created successfully.")
+    except Exception as e:
+        logger.warning(f"Failed to create tables with default engine: {e}. Switching to in-memory SQLite...")
+        try:
+            from sqlalchemy import create_engine as ce
+            from sqlalchemy.pool import StaticPool
+            fallback_engine = ce(
+                "sqlite:///:memory:",
+                connect_args={"check_same_thread": False},
+                poolclass=StaticPool
+            )
+            Base.metadata.create_all(bind=fallback_engine)
+            db_mod.engine = fallback_engine
+            db_mod.SessionLocal.configure(bind=fallback_engine)
+            logger.info("Successfully switched to in-memory SQLite fallback.")
+        except Exception as fallback_err:
+            logger.error(f"Critical error creating database tables in fallback: {fallback_err}")
+
+init_db_safely()
 
 # Auto-seed database if empty on startup
 def auto_seed_products():
-    db = SessionLocal()
     try:
-        count = db.query(Product).count()
-        if count == 0:
-            logger.info("Initializing product catalog with seed data...")
-            for item in SEED_PRODUCTS:
-                prod = Product(
-                    name=item["name"],
-                    hindi_name=item["hindi_name"],
-                    aliases=item["aliases"],
-                    unit=item["unit"],
-                    price=item["price"],
-                    stock=item["stock"]
-                )
-                db.add(prod)
-            db.commit()
-            logger.info(f"Seeded {len(SEED_PRODUCTS)} initial kirana products.")
+        db = SessionLocal()
+        try:
+            count = db.query(Product).count()
+            if count == 0:
+                logger.info("Initializing product catalog with seed data...")
+                for item in SEED_PRODUCTS:
+                    prod = Product(
+                        name=item["name"],
+                        hindi_name=item["hindi_name"],
+                        aliases=item["aliases"],
+                        unit=item["unit"],
+                        price=item["price"],
+                        stock=item["stock"]
+                    )
+                    db.add(prod)
+                db.commit()
+                logger.info(f"Seeded {len(SEED_PRODUCTS)} initial kirana products.")
+        finally:
+            db.close()
     except Exception as e:
         logger.error(f"Error during auto-seed: {e}")
-    finally:
-        db.close()
 
 auto_seed_products()
 
