@@ -40,34 +40,36 @@ export const DemoAudioPage: React.FC<DemoAudioPageProps> = ({ onLoadSampleIntoAs
   };
 
   return (
-    <div className="py-6 px-4 max-w-5xl mx-auto space-y-6">
+    <div className="py-6 px-4 max-w-5xl mx-auto space-y-6 text-white">
       {/* Header */}
       <div>
-        <div className="inline-flex items-center space-x-2 px-3 py-1 bg-amber-50 rounded-full border border-amber-200 text-amber-800 text-xs font-semibold mb-2">
-          <Radio className="w-3.5 h-3.5 text-amber-600" />
+        <div className="inline-flex items-center space-x-2 px-3 py-1 bg-emerald-500/10 rounded-full border border-emerald-500/20 text-emerald-400 text-xs font-semibold mb-2 backdrop-blur-md">
+          <Radio className="w-3.5 h-3.5 text-emerald-400" />
           <span>रॉबस्ट नॉइज़ और टेलीफोनी ऑडियो टेस्टिंग (Noise & Telephony Benchmarks)</span>
         </div>
-        <h1 className="text-2xl font-black text-slate-900">डेमो ऑडियो सैंपल्स (Sample Voice Tests)</h1>
-        <p className="text-xs text-slate-500 mt-1 max-w-2xl">
+        <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+          डेमो ऑडियो सैंपल्स <span className="text-emerald-400 font-normal text-xl">(Sample Voice Tests)</span>
+        </h1>
+        <p className="text-xs sm:text-sm text-neutral-400 mt-1 max-w-2xl leading-relaxed">
           Real-world Indian kirana conditions: acoustic reverberation, loud bazaar crowd chatter, 8kHz telephony bandwidth, and fast bilingual dialects.
           All test files are synthetic simulations ensuring zero PII.
         </p>
       </div>
 
       {/* Privacy Guarantee Card */}
-      <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 flex items-center space-x-3 text-emerald-900 text-xs">
-        <ShieldCheck className="w-5 h-5 text-emerald-600 shrink-0" />
+      <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-2xl p-4 flex items-center space-x-3.5 text-emerald-300 text-xs backdrop-blur-md">
+        <ShieldCheck className="w-5 h-5 text-emerald-400 shrink-0" />
         <div>
-          <strong>Privacy & Synthetic Guarantee:</strong> All demo audio samples and datasets are 100% synthetically generated.
+          <strong className="text-white">Privacy & Synthetic Guarantee:</strong> All demo audio samples and datasets are 100% synthetically generated.
           No real customer calls, phone numbers, Aadhaar, PAN, or personal financial data are collected or processed.
         </div>
       </div>
 
       {/* Samples List */}
       {loading ? (
-        <div className="text-center py-16 bg-white rounded-3xl border border-slate-200 text-slate-400">
-          <div className="w-8 h-8 border-2 border-amber-500 border-t-transparent rounded-full animate-spin mx-auto mb-2" />
-          <p className="text-xs">सैंपल्स लोड हो रहे हैं...</p>
+        <div className="text-center py-16 bg-zinc-900/60 backdrop-blur-xl rounded-3xl border border-white/[0.08] text-neutral-400">
+          <div className="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto mb-2" />
+          <p className="text-xs font-medium">सैंपल्स लोड हो रहे हैं...</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -78,56 +80,56 @@ export const DemoAudioPage: React.FC<DemoAudioPageProps> = ({ onLoadSampleIntoAs
             return (
               <div
                 key={sample.id}
-                className="bg-white rounded-3xl p-5 border border-slate-200 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between"
+                className="bg-zinc-900/60 backdrop-blur-xl rounded-3xl p-5 border border-white/[0.08] shadow-2xl hover:border-emerald-500/30 transition-all duration-300 flex flex-col justify-between"
               >
                 <div>
                   {/* Category & Title */}
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-slate-100 text-slate-700">
+                    <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-zinc-800 text-neutral-300 border border-white/[0.05]">
                       {sample.category}
                     </span>
-                    <span className="text-xs font-semibold text-amber-700">{sample.title_hi}</span>
+                    <span className="text-xs font-semibold text-emerald-400">{sample.title_hi}</span>
                   </div>
 
-                  <h3 className="text-base font-bold text-slate-900">{sample.title}</h3>
-                  <p className="text-xs text-slate-500 mt-1">{sample.description}</p>
+                  <h3 className="text-base font-bold text-white">{sample.title}</h3>
+                  <p className="text-xs text-neutral-400 mt-1 leading-relaxed">{sample.description}</p>
 
                   {/* Synthetic Audio Player */}
-                  <div className="mt-4 bg-slate-50 p-3 rounded-2xl border border-slate-100">
-                    <div className="flex items-center justify-between text-[11px] text-slate-500 mb-1">
+                  <div className="mt-4 bg-zinc-800/60 p-3 rounded-2xl border border-white/[0.05]">
+                    <div className="flex items-center justify-between text-[11px] text-neutral-400 mb-1.5">
                       <span className="flex items-center">
-                        <Volume2 className="w-3.5 h-3.5 mr-1 text-slate-400" /> Play Synthetic WAV
+                        <Volume2 className="w-3.5 h-3.5 mr-1.5 text-emerald-400" /> Play Synthetic WAV
                       </span>
-                      <span className="font-mono text-[10px]">16kHz Mono</span>
+                      <span className="font-mono text-[10px] text-neutral-400">16kHz Mono</span>
                     </div>
                     <audio
                       controls
                       src={sample.audio_url}
-                      className="w-full h-8 mt-1"
+                      className="w-full h-8 mt-1 accent-emerald-500"
                       preload="none"
                     />
                   </div>
 
                   {/* Transcript */}
                   <div className="mt-4">
-                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">
+                    <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider block mb-1">
                       Ground Truth Transcript:
                     </span>
-                    <div className="p-2.5 bg-amber-50/70 border border-amber-200/60 rounded-xl text-xs font-medium text-slate-900 italic">
+                    <div className="p-3 bg-zinc-800/70 border border-white/[0.08] rounded-xl text-xs font-medium text-neutral-200 italic">
                       "{sample.sample_text}"
                     </div>
                   </div>
 
                   {/* Expected vs Extracted */}
                   <div className="mt-4">
-                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">
+                    <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider block mb-1">
                       Expected Order Items:
                     </span>
                     <div className="flex flex-wrap gap-1.5">
                       {sample.expected_items.map((it, idx) => (
                         <span
                           key={idx}
-                          className="text-xs bg-slate-100 text-slate-800 font-medium px-2 py-0.5 rounded-md"
+                          className="text-xs bg-zinc-800 text-neutral-300 font-medium px-2.5 py-1 rounded-lg border border-white/[0.05]"
                         >
                           {it.qty} {it.unit} {it.product}
                         </span>
@@ -137,18 +139,18 @@ export const DemoAudioPage: React.FC<DemoAudioPageProps> = ({ onLoadSampleIntoAs
 
                   {/* Live Extracted Order Result (if tested) */}
                   {result && (
-                    <div className="mt-4 p-3 bg-emerald-50 border border-emerald-200 rounded-xl animate-fadeIn">
-                      <div className="flex items-center justify-between text-xs font-bold text-emerald-900 mb-1">
+                    <div className="mt-4 p-3.5 bg-emerald-500/10 border border-emerald-500/25 rounded-2xl animate-fadeIn space-y-1">
+                      <div className="flex items-center justify-between text-xs font-bold text-emerald-300 mb-1">
                         <span className="flex items-center">
-                          <CheckCircle2 className="w-3.5 h-3.5 mr-1 text-emerald-600" />
+                          <CheckCircle2 className="w-4 h-4 mr-1.5 text-emerald-400" />
                           Extracted Order (Success)
                         </span>
-                        <span>₹{Math.round(result.total)}</span>
+                        <span className="font-mono text-sm text-emerald-400 font-extrabold">₹{Math.round(result.total).toLocaleString('en-IN')}</span>
                       </div>
-                      <p className="text-[11px] text-emerald-800 mb-1">
-                        Voice Reply: <em>"{result.hindi_reply}"</em>
+                      <p className="text-[11px] text-neutral-300 mb-1">
+                        Voice Reply: <em className="text-emerald-300">"{result.hindi_reply}"</em>
                       </p>
-                      <div className="text-[10px] text-emerald-700 font-mono">
+                      <div className="text-[10px] text-neutral-400 font-mono">
                         Parser: {result.parse_method} • Confidence: {Math.round(result.confidence * 100)}%
                       </div>
                     </div>
@@ -156,20 +158,20 @@ export const DemoAudioPage: React.FC<DemoAudioPageProps> = ({ onLoadSampleIntoAs
                 </div>
 
                 {/* Actions */}
-                <div className="mt-5 pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
+                <div className="mt-5 pt-3.5 border-t border-zinc-800/80 flex items-center justify-between gap-2.5">
                   <button
                     onClick={() => handleRunSample(sample)}
                     disabled={isTesting}
-                    className="flex-1 py-2 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold transition flex items-center justify-center space-x-1.5"
+                    className="flex-1 py-2.5 px-3 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-neutral-200 text-xs font-bold transition flex items-center justify-center space-x-1.5 cursor-pointer disabled:opacity-50"
                   >
-                    <Play className={`w-3.5 h-3.5 fill-slate-700 ${isTesting ? 'animate-spin' : ''}`} />
+                    <Play className={`w-3.5 h-3.5 fill-current text-emerald-400 ${isTesting ? 'animate-spin' : ''}`} />
                     <span>{isTesting ? 'Parsing...' : 'Benchmark Extract'}</span>
                   </button>
 
                   {onLoadSampleIntoAssistant && (
                     <button
                       onClick={() => onLoadSampleIntoAssistant(sample.sample_text)}
-                      className="py-2 px-3 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold transition flex items-center space-x-1 shadow-xs"
+                      className="py-2.5 px-3.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-neutral-950 text-xs font-bold transition flex items-center space-x-1 shadow-md shadow-emerald-500/20 cursor-pointer"
                       title="Run inside voice assistant hero"
                     >
                       <span>Try in Assistant</span>

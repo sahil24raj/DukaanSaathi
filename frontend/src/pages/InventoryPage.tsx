@@ -63,41 +63,41 @@ export const InventoryPage: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
-          <div className="inline-flex items-center space-x-1.5 px-3 py-1 bg-emerald-50 rounded-full border border-emerald-200/80 text-emerald-800 text-xs font-bold mb-1.5">
-            <Boxes className="w-3.5 h-3.5 text-emerald-700" />
+          <div className="inline-flex items-center space-x-1.5 px-3 py-1 bg-emerald-500/10 rounded-full border border-emerald-500/20 text-emerald-400 text-xs font-bold mb-1.5 backdrop-blur-md">
+            <Boxes className="w-3.5 h-3.5 text-emerald-400" />
             <span>Live Kirana Inventory</span>
           </div>
           <div className="flex items-center space-x-2">
-            <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-              दुकान का स्टॉक (Inventory Catalog)
+            <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+              दुकान का स्टॉक <span className="text-emerald-400 font-normal text-xl">(Inventory)</span>
             </h1>
-            <span className="bg-slate-100 text-slate-700 text-xs px-2.5 py-0.5 rounded-full font-bold font-mono tabular-nums">
+            <span className="bg-white/[0.08] text-neutral-300 border border-white/[0.1] text-xs px-2.5 py-0.5 rounded-full font-bold font-mono tabular-nums">
               {products.length} Items
             </span>
             {lowStockCount > 0 && (
-              <span className="bg-amber-50 text-amber-800 border border-amber-200 text-xs px-2.5 py-0.5 rounded-full font-bold flex items-center space-x-1">
-                <AlertTriangle className="w-3 h-3 text-amber-600" />
+              <span className="bg-amber-500/15 text-amber-300 border border-amber-500/30 text-xs px-2.5 py-0.5 rounded-full font-bold flex items-center space-x-1">
+                <AlertTriangle className="w-3 h-3 text-amber-400" />
                 <span>{lowStockCount} Low Stock (&lt;10)</span>
               </span>
             )}
           </div>
-          <p className="text-xs sm:text-sm text-slate-500 font-medium mt-1">
-            Real-time stock tracking with fuzzy alias matching for Hindi/Hinglish orders.
+          <p className="text-xs sm:text-sm text-neutral-400 font-medium mt-1">
+            Real-time stock tracking with fuzzy alias matching for Hindi/Hinglish speech orders.
           </p>
         </div>
 
         <div className="flex items-center space-x-2">
           <button
             onClick={handleReseed}
-            className="flex items-center space-x-1.5 px-3 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-xs font-bold text-slate-700 transition cursor-pointer"
+            className="flex items-center space-x-1.5 px-3 py-2 rounded-xl border border-white/[0.12] bg-zinc-900/60 hover:bg-zinc-800/80 text-xs font-bold text-neutral-300 transition cursor-pointer backdrop-blur-md"
             title="Reset default catalog"
           >
-            <Database className="w-3.5 h-3.5 text-slate-500" />
+            <Database className="w-3.5 h-3.5 text-neutral-400" />
             <span>कैटलॉग रीसेट</span>
           </button>
           <button
             onClick={fetchProducts}
-            className="flex items-center space-x-1.5 px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition shadow-xs cursor-pointer active:scale-95"
+            className="flex items-center space-x-1.5 px-3.5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-neutral-950 text-xs font-bold transition shadow-md shadow-emerald-500/20 cursor-pointer active:scale-95"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
             <span>रिफ्रेश</span>
@@ -107,20 +107,20 @@ export const InventoryPage: React.FC = () => {
 
       {/* Search Bar */}
       <div className="mb-6 relative max-w-md">
-        <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+        <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400" />
         <input
           type="text"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           placeholder="सर्च करें (उदा: chawal, tel, rice, salt, आटा)..."
-          className="w-full pl-10 pr-4 py-2.5 bg-white rounded-xl border border-slate-200 text-xs sm:text-sm font-medium focus:outline-none focus:border-emerald-500 transition shadow-2xs"
+          className="w-full pl-10 pr-4 py-2.5 bg-zinc-900/70 backdrop-blur-md rounded-xl border border-white/[0.12] text-xs sm:text-sm font-medium text-white placeholder-neutral-500 focus:outline-none focus:border-emerald-500/70 transition shadow-inner"
         />
       </div>
 
       {/* Products Grid */}
       {loading ? (
-        <div className="text-center py-16 bg-white rounded-2xl border border-slate-200 text-slate-400">
-          <div className="w-8 h-8 border-2 border-emerald-600 border-t-transparent rounded-full animate-spin mx-auto mb-2" />
+        <div className="text-center py-16 bg-zinc-900/60 backdrop-blur-xl rounded-2xl border border-white/[0.08] text-neutral-400">
+          <div className="w-8 h-8 border-2 border-emerald-400 border-t-transparent rounded-full animate-spin mx-auto mb-2" />
           <p className="text-xs font-medium">स्टॉक लोड हो रहा है...</p>
         </div>
       ) : (
@@ -131,33 +131,33 @@ export const InventoryPage: React.FC = () => {
             return (
               <div
                 key={p.id}
-                className={`bg-white rounded-2xl p-5 border transition-all hover:shadow-xs flex flex-col justify-between ${
+                className={`bg-zinc-900/60 backdrop-blur-xl rounded-2xl p-5 border transition-all hover:border-emerald-500/40 flex flex-col justify-between ${
                   isOut 
-                    ? 'border-rose-300 bg-rose-50/20' 
+                    ? 'border-rose-500/40 bg-rose-950/20' 
                     : isLow 
-                    ? 'border-amber-300 bg-amber-50/20' 
-                    : 'border-slate-200/90'
+                    ? 'border-amber-500/40 bg-amber-950/20' 
+                    : 'border-white/[0.08]'
                 }`}
               >
                 <div>
                   <div className="flex items-start justify-between">
                     <div>
-                      <h3 className="font-bold text-slate-900 text-sm sm:text-base">{p.name}</h3>
-                      <p className="text-xs font-semibold text-emerald-800">{p.hindi_name || '—'}</p>
+                      <h3 className="font-bold text-white text-sm sm:text-base">{p.name}</h3>
+                      <p className="text-xs font-semibold text-emerald-400">{p.hindi_name || '—'}</p>
                     </div>
-                    <span className="text-sm sm:text-base font-bold font-mono tabular-nums text-slate-900">
-                      ₹{p.price} <span className="text-xs font-normal text-slate-500">/{p.unit}</span>
+                    <span className="text-sm sm:text-base font-bold font-mono tabular-nums text-white">
+                      ₹{p.price} <span className="text-xs font-normal text-neutral-400">/{p.unit}</span>
                     </span>
                   </div>
 
                   {/* Aliases */}
                   <div className="mt-3">
-                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">
+                    <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider block mb-1">
                       वॉयस उपनाम (Matched Aliases)
                     </span>
                     <div className="flex flex-wrap gap-1">
                       {p.aliases.split(',').slice(0, 4).map((alias, i) => (
-                        <span key={i} className="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded font-medium">
+                        <span key={i} className="text-[10px] bg-white/[0.06] text-neutral-300 border border-white/[0.08] px-2 py-0.5 rounded font-medium">
                           {alias.trim()}
                         </span>
                       ))}
@@ -166,13 +166,13 @@ export const InventoryPage: React.FC = () => {
                 </div>
 
                 {/* Stock Controls */}
-                <div className="mt-5 pt-3 border-t border-slate-100 flex items-center justify-between">
+                <div className="mt-5 pt-3 border-t border-white/[0.08] flex items-center justify-between">
                   <div>
-                    <span className="text-[10px] text-slate-400 uppercase block font-bold">उपलब्ध स्टॉक</span>
+                    <span className="text-[10px] text-neutral-400 uppercase block font-bold">उपलब्ध स्टॉक</span>
                     <span className={`text-base font-black font-mono tabular-nums ${
-                      isOut ? 'text-rose-600' : isLow ? 'text-amber-600' : 'text-emerald-700'
+                      isOut ? 'text-rose-400' : isLow ? 'text-amber-400' : 'text-emerald-400'
                     }`}>
-                      {p.stock} <span className="text-xs font-normal text-slate-500">{p.unit}</span>
+                      {p.stock} <span className="text-xs font-normal text-neutral-400">{p.unit}</span>
                     </span>
                   </div>
 
@@ -180,7 +180,7 @@ export const InventoryPage: React.FC = () => {
                     <button
                       onClick={() => handleAdjustStock(p, -1)}
                       disabled={p.stock <= 0 || updatingId === p.id}
-                      className="w-8 h-8 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-40 flex items-center justify-center text-slate-700 transition cursor-pointer"
+                      className="w-8 h-8 rounded-lg border border-white/[0.12] bg-zinc-800/80 hover:bg-zinc-700/80 disabled:opacity-30 flex items-center justify-center text-white transition cursor-pointer"
                       title="Decrease stock"
                     >
                       <Minus className="w-3.5 h-3.5" />
@@ -188,10 +188,10 @@ export const InventoryPage: React.FC = () => {
                     <button
                       onClick={() => handleAdjustStock(p, 1)}
                       disabled={updatingId === p.id}
-                      className="w-8 h-8 rounded-lg bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 flex items-center justify-center text-emerald-800 transition cursor-pointer"
+                      className="w-8 h-8 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 flex items-center justify-center text-emerald-400 transition cursor-pointer"
                       title="Increase stock"
                     >
-                      <Plus className="w-3.5 h-3.5 text-emerald-700" />
+                      <Plus className="w-3.5 h-3.5" />
                     </button>
                   </div>
                 </div>
