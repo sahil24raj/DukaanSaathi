@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { VoiceRecorder } from '../components/VoiceRecorder';
 import { StatusIndicator } from '../components/StatusIndicator';
 import { OrderCard } from '../components/OrderCard';
-import { Acoustic3DCanvas } from '../components/Acoustic3DCanvas';
 import { api, playHindiAudio } from '../services/api';
 import { ParsedOrderResponse, ProcessingState, SystemStatus } from '../types';
 import { CheckCircle2, Store, Printer, ArrowRight, Activity } from 'lucide-react';
@@ -198,17 +197,41 @@ export const OrderTakingPage: React.FC<OrderTakingPageProps> = ({
           </div>
         </div>
 
-        {/* Mini 3D Sphere Visualizer */}
-        <div className="lg:col-span-4 h-48 sm:h-52 rounded-xl bg-black/40 border border-white/[0.06] overflow-hidden relative shadow-inner flex items-center justify-center">
-          <Acoustic3DCanvas 
-            isListening={processingState === 'transcribing' || processingState === 'speaking' || isConfirming}
-            className="w-full h-full"
-          />
-          <div className="absolute bottom-2 left-3 right-3 flex items-center justify-between text-[10px] text-zinc-500 font-mono pointer-events-none">
-            <span>3D SPATIAL CORE</span>
-            <span className={processingState === 'idle' ? 'text-zinc-600' : 'text-emerald-400 font-bold animate-pulse'}>
+        {/* Acoustic Telemetry & Frequency HUD */}
+        <div className="lg:col-span-4 rounded-xl bg-black/50 border border-white/[0.08] p-4 relative shadow-inner flex flex-col justify-between space-y-3 backdrop-blur-md">
+          <div className="flex items-center justify-between text-xs border-b border-white/[0.08] pb-2">
+            <span className="flex items-center space-x-2">
+              <span className={`w-2 h-2 rounded-full ${processingState !== 'idle' ? 'bg-emerald-400 animate-ping' : 'bg-emerald-500'}`} />
+              <span className="font-mono text-[11px] font-bold uppercase text-emerald-400">
+                Acoustic Core Active
+              </span>
+            </span>
+            <span className="font-mono text-[10px] text-zinc-400 bg-white/[0.05] px-2 py-0.5 rounded border border-white/[0.08]">
               {processingState.toUpperCase()}
             </span>
+          </div>
+
+          {/* Dynamic Audio Spectrum Equalizer Bars */}
+          <div className="flex items-end justify-between h-14 px-2 pt-1 gap-1">
+            {[40, 75, 55, 90, 60, 85, 45, 95, 70, 50, 80, 65, 88, 52].map((height, idx) => (
+              <div
+                key={idx}
+                className={`w-full rounded-t-sm transition-all duration-150 ${
+                  processingState !== 'idle'
+                    ? 'bg-gradient-to-t from-emerald-600 to-emerald-300'
+                    : 'bg-emerald-500/25'
+                }`}
+                style={{
+                  height: processingState !== 'idle' ? `${height}%` : `${(idx % 4 + 1) * 15}%`,
+                  animation: processingState !== 'idle' ? `pulse ${(idx % 3) * 0.2 + 0.3}s ease-in-out infinite alternate` : 'none',
+                }}
+              />
+            ))}
+          </div>
+
+          <div className="flex items-center justify-between text-[10px] text-zinc-400 font-mono pt-1 border-t border-white/[0.06]">
+            <span>3D Sphere: Fullscreen BG</span>
+            <span className="text-emerald-400 font-semibold">Interactive 360°</span>
           </div>
         </div>
       </div>
