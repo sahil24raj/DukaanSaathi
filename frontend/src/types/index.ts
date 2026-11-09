@@ -5,6 +5,8 @@ export interface Product {
   aliases: string;
   unit: string;
   price: number;
+  cost_price?: number;
+  category?: string;
   stock: number;
   created_at: string;
   updated_at: string;
@@ -52,8 +54,13 @@ export interface OrderItem {
 
 export interface Order {
   id: number;
+  customer_name?: string;
+  customer_phone?: string;
   customer_transcript?: string;
   hindi_response?: string;
+  payment_method?: 'cash' | 'upi' | 'udhaar';
+  discount?: number;
+  gst?: number;
   total_amount: number;
   status: string;
   created_at: string;
@@ -70,6 +77,10 @@ export interface TopProductStat {
 export interface DashboardStats {
   total_orders: number;
   total_revenue: number;
+  today_sales: number;
+  today_profit: number;
+  total_expenses: number;
+  pending_udhaar: number;
   top_selling_items: TopProductStat[];
   low_stock_products: Product[];
   recent_orders: Order[];
@@ -106,6 +117,33 @@ export interface DemoSample {
   }[];
 }
 
+export interface CustomerUdhaarRecord {
+  id: number;
+  customer_name: string;
+  customer_name_hi?: string;
+  phone: string;
+  total_due: number;
+  last_transaction_date: string;
+  transactions: {
+    id: number;
+    type: 'given' | 'received'; // given = udhaar diya, received = jama kiya
+    amount: number;
+    description: string;
+    date: string;
+  }[];
+}
+
+export interface CustomerProfile {
+  id: number;
+  name: string;
+  phone: string;
+  address?: string;
+  total_orders: number;
+  total_spent: number;
+  outstanding_udhaar: number;
+  recent_activity: string;
+}
+
 export type ProcessingState = 
   | 'idle'
   | 'listening'
@@ -115,4 +153,3 @@ export type ProcessingState =
   | 'speaking'
   | 'ready'
   | 'error';
-

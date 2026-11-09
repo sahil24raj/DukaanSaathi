@@ -1,17 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import { Navbar } from './components/Navbar';
 import { ApiKeyBanner } from './components/ApiKeyBanner';
+import { LandingPage } from './pages/LandingPage';
 import { OrderTakingPage } from './pages/OrderTakingPage';
-import { OrdersPage } from './pages/OrdersPage';
+import { SmartBillingPage } from './pages/SmartBillingPage';
+import { UdhaarManagementPage } from './pages/UdhaarManagementPage';
 import { InventoryPage } from './pages/InventoryPage';
+import { OrdersPage } from './pages/OrdersPage';
 import { DashboardPage } from './pages/DashboardPage';
+import { AnalyticsPage } from './pages/AnalyticsPage';
+import { CustomersPage } from './pages/CustomersPage';
 import { DemoAudioPage } from './pages/DemoAudioPage';
 import { AboutPage } from './pages/AboutPage';
 import { api } from './services/api';
 import { SystemStatus } from './types';
 
 export const App: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<string>('order');
+  const [activeTab, setActiveTab] = useState<string>('landing');
   const [systemStatus, setSystemStatus] = useState<SystemStatus | null>(null);
 
   useEffect(() => {
@@ -28,13 +33,12 @@ export const App: React.FC = () => {
 
   const handleLoadSampleIntoAssistant = (text: string) => {
     setActiveTab('order');
-    // Allow state transition
     setTimeout(() => {
       const quickButton = document.querySelector(`button[title="${text}"]`) as HTMLButtonElement;
       if (quickButton) {
         quickButton.click();
       }
-    }, 100);
+    }, 150);
   };
 
   return (
@@ -54,15 +58,29 @@ export const App: React.FC = () => {
 
       {/* Main Tab Content */}
       <main className="flex-1 pb-16">
+        {activeTab === 'landing' && (
+          <LandingPage
+            onGetStarted={() => setActiveTab('billing')}
+            onOpenVoiceDemo={() => setActiveTab('order')}
+          />
+        )}
         {activeTab === 'order' && (
           <OrderTakingPage
             systemStatus={systemStatus}
             onNavigateToOrders={() => setActiveTab('orders')}
           />
         )}
-        {activeTab === 'orders' && <OrdersPage />}
+        {activeTab === 'billing' && (
+          <SmartBillingPage
+            onOrderSaved={() => setActiveTab('orders')}
+          />
+        )}
+        {activeTab === 'udhaar' && <UdhaarManagementPage />}
         {activeTab === 'inventory' && <InventoryPage />}
+        {activeTab === 'orders' && <OrdersPage />}
         {activeTab === 'dashboard' && <DashboardPage />}
+        {activeTab === 'analytics' && <AnalyticsPage />}
+        {activeTab === 'customers' && <CustomersPage />}
         {activeTab === 'demo-audio' && (
           <DemoAudioPage
             onLoadSampleIntoAssistant={handleLoadSampleIntoAssistant}
@@ -74,12 +92,12 @@ export const App: React.FC = () => {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-slate-200/80 bg-white/60 py-4 px-4 text-center text-xs text-slate-500">
-        <p>
-          <strong>Dukaan Saathi (दुकान साथी)</strong> • Built for the <em>Great Indian AI Internship Challenge by Gnani AI</em>
+      <footer className="border-t border-slate-200/80 bg-white/70 py-5 px-4 text-center text-xs text-slate-500">
+        <p className="font-semibold text-slate-700">
+          <strong>Dukan Sathi (दुकान साथी)</strong> • Smart Digital Business Partner for Indian Kirana Stores
         </p>
-        <p className="text-[11px] text-slate-400 mt-0.5">
-          Developed by <strong>Sahil</strong> • Gnani Prisma v2.5 STT & Timbre v2.5 TTS
+        <p className="text-[11px] text-slate-400 mt-1">
+          Developed by <strong>Sahil</strong> • Powered by Gnani Prisma v2.5 STT & Timbre v2.5 TTS
         </p>
       </footer>
     </div>
@@ -87,4 +105,3 @@ export const App: React.FC = () => {
 };
 
 export default App;
-
