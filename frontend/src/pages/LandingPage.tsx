@@ -8,8 +8,9 @@ import {
   CreditCard, 
   Receipt, 
   ChevronDown, 
-  Zap 
+  RotateCcw
 } from 'lucide-react';
+import { Acoustic3DCanvas } from '../components/Acoustic3DCanvas';
 
 interface LandingPageProps {
   onGetStarted: () => void;
@@ -18,37 +19,73 @@ interface LandingPageProps {
 
 export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onOpenVoiceDemo }) => {
   const [activeFaq, setActiveFaq] = useState<number | null>(0);
-  const demoUtterance = 'Bhaiya, do kilo chawal aur ek litre refined oil chahiye.';
+  const [isSimulatingVoice, setIsSimulatingVoice] = useState<boolean>(false);
+  const [simulatedSample, setSimulatedSample] = useState<number>(0);
+
+  const demoSamples = [
+    {
+      text: 'Bhaiya, do kilo chawal aur ek litre refined oil chahiye.',
+      items: [
+        { name: 'Chawal (चावल)', qty: '2 kg', price: 120 },
+        { name: 'Refined Oil (तेल)', qty: '1 L', price: 140 }
+      ],
+      total: 260
+    },
+    {
+      text: 'Paanch kg atta aur do packet Parle-G biscuit dena jaldi se.',
+      items: [
+        { name: 'Atta (आटा)', qty: '5 kg', price: 180 },
+        { name: 'Biscuit (बिस्कुट)', qty: '2 pkt', price: 20 }
+      ],
+      total: 200
+    },
+    {
+      text: 'Aadha kilo cheeni aur ek packet Tata namak de do.',
+      items: [
+        { name: 'Cheeni (चीनी)', qty: '0.5 kg', price: 24 },
+        { name: 'Tata Namak (नमक)', qty: '1 pkt', price: 28 }
+      ],
+      total: 52
+    }
+  ];
+
+  const currentSample = demoSamples[simulatedSample];
+
+  const handleCycleSample = () => {
+    setIsSimulatingVoice(true);
+    setSimulatedSample((prev) => (prev + 1) % demoSamples.length);
+    setTimeout(() => setIsSimulatingVoice(false), 800);
+  };
 
   const features = [
     {
       icon: Mic,
-      title: 'आवाज़ से बिलिंग (Voice-First Order Taking)',
-      desc: 'टाइपिंग और डायरी भूल जाइए। बस बोलिए: "2 किलो चीनी, 1 लीटर तेल" और सिस्टम तुरंत बिल, मात्रा और स्टॉक कैलकुलेट कर देगा।'
+      title: 'आवाज़ से बिलिंग (Voice-First Billing)',
+      desc: 'टाइपिंग छोड़िए। बस बोलिए: "2 किलो चीनी, 1 लीटर तेल" और सिस्टम तुरंत बिल, मात्रा और स्टॉक कैलकुलेट कर देगा।'
     },
     {
       icon: Receipt,
-      title: '5-सेकंड POS बिलिंग व थर्मल प्रिंट',
-      desc: 'भीड़ के समय तेज़ी से बिल बनाएं। 80mm/58mm थर्मल प्रिंटर से पर्चा निकालें या 1-क्लिक में WhatsApp बिल भेजें।'
+      title: 'तेज़ POS और थर्मल प्रिंट (5-Second POS)',
+      desc: 'काउंटर रश में 5 सेकंड में बिल बनाएं। 80mm/58mm थर्मल प्रिंटर से पर्चा निकालें या WhatsApp पर भेजें।'
     },
     {
       icon: CreditCard,
-      title: 'डिजिटल उधार बही-खाता (Khata Ledger)',
-      desc: 'ग्राहक के नाम से उधारी जोड़ें और जमा दर्ज करें। WhatsApp पर ऑटोमैटिक पेमेंट रिमाइंडर भेजें बिना किसी झिझक के।'
+      title: 'डिजिटल बही-खाता (Udhaar Khata)',
+      desc: 'ग्राहक के नाम से उधारी जोड़ें और जमा दर्ज करें। हिसाब में शून्य गलती और WhatsApp पेमेंट रिमाइंडर की सुविधा।'
     },
     {
       icon: Boxes,
       title: 'लाइव स्टॉक ट्रैकिंग (Live Inventory)',
-      desc: 'बिल बनते ही स्टॉक स्वतः घटता है। कम स्टॉक होने पर नारंगी अलर्ट मिलता है ताकि बिक्री कभी न रुके।'
+      desc: 'बिल बनते ही स्टॉक स्वतः घटता है। कम स्टॉक होने पर तत्काल अलर्ट मिलता है ताकि बिक्री कभी न रुके।'
     },
     {
       icon: TrendingUp,
-      title: 'दैनिक मुनाफा व बिक्री रिपोर्ट (Analytics)',
+      title: 'दैनिक मुनाफा व रिपोर्ट (Daily Analytics)',
       desc: 'आज कितनी कुल बिक्री हुई, कितना नकद आया, कितना UPI और कौन सा सामान सबसे ज्यादा बिका — सब एक नज़र में।'
     },
     {
       icon: ShieldCheck,
-      title: '100% सुरक्षित और स्थानीय डेटा (Safe & Local)',
+      title: '100% सुरक्षित और स्थानीय डेटा (Local Engine)',
       desc: 'कोई गैर-ज़रूरी फोन नंबर या आधार डेटा नहीं। ऑफलाइन मोड और स्थानीय SQLite डेटाबेस के साथ सुरक्षित।'
     }
   ];
@@ -100,138 +137,169 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onOpenVo
   ];
 
   return (
-    <div className="bg-slate-50 text-slate-800">
+    <div className="bg-[#09090b] text-neutral-200 min-h-screen selection:bg-emerald-500/30 selection:text-emerald-200">
       
-      {/* Hero Section */}
-      <section className="relative overflow-hidden pt-10 pb-16 md:pt-16 md:pb-24 border-b border-slate-200/90 bg-white">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6">
-          <div className="text-center max-w-3xl mx-auto">
+      {/* 3D Interactive Hero Section */}
+      <section className="relative overflow-hidden pt-12 pb-20 md:pt-20 md:pb-32 border-b border-white/[0.08]">
+        {/* Subtle Ambient Radial Lighting */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-emerald-600/[0.08] blur-[140px] pointer-events-none rounded-full" />
+        
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
             
-            {/* Domain Badge */}
-            <div className="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-emerald-50 text-emerald-800 text-xs font-bold mb-6 border border-emerald-200/80 shadow-2xs">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span>Voice AI for Indian Kirana & Retail Stores</span>
-            </div>
+            {/* Left Content (7 Cols) */}
+            <div className="lg:col-span-7 space-y-6 text-left">
+              {/* Domain Badge */}
+              <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-xs font-semibold border border-emerald-500/20 shadow-xs">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                <span>Voice AI for Indian Kirana & Retail Stores</span>
+              </div>
 
-            {/* Main Headline */}
-            <h1 className="text-3xl sm:text-5xl md:text-6xl font-black text-slate-900 tracking-tight leading-tight">
-              अब दुकान संभालेगा आपका <span className="text-emerald-700">स्मार्ट साथी</span>
-            </h1>
+              {/* High-Impact Headline */}
+              <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight leading-[1.12]">
+                अब दुकान संभालेगा आपका{' '}
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-300">
+                  स्मार्ट साथी
+                </span>
+              </h1>
 
-            {/* Subheadline */}
-            <p className="mt-5 text-base sm:text-lg md:text-xl text-slate-600 font-medium leading-relaxed max-w-2xl mx-auto">
-              Sales, stock, udhaar aur hisaab — sab kuch ek jagah. Bas boliye aur Dukaan Saathi turant bill banayega.
-            </p>
+              {/* Subheadline */}
+              <p className="text-base sm:text-lg text-neutral-400 font-normal leading-relaxed max-w-xl">
+                Sales, stock, udhaar aur hisaab — sab kuch ek jagah. Bas boliye aur Dukaan Saathi turant bill banayega.
+              </p>
 
-            {/* Call to Actions */}
-            <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3.5">
-              <button
-                onClick={onGetStarted}
-                className="w-full sm:w-auto px-7 py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-bold text-sm shadow-sm shadow-emerald-700/25 transition-all flex items-center justify-center space-x-2 cursor-pointer"
-              >
-                <span>POS बिलिंग शुरू करें (Start Billing)</span>
-                <ArrowRight className="w-4 h-4" />
-              </button>
+              {/* Conversion Buttons */}
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5 pt-2">
+                <button
+                  onClick={onGetStarted}
+                  className="inline-flex items-center justify-center space-x-2 px-6 py-3.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 active:bg-emerald-600 text-neutral-950 font-bold text-sm transition-all shadow-lg shadow-emerald-500/25 active:scale-95 cursor-pointer"
+                >
+                  <span>POS बिलिंग शुरू करें (Start Billing)</span>
+                  <ArrowRight className="w-4 h-4 stroke-[2.5]" />
+                </button>
 
-              <button
-                onClick={onOpenVoiceDemo}
-                className="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-slate-50 hover:bg-emerald-50 text-slate-800 hover:text-emerald-900 border border-slate-200 hover:border-emerald-300 font-bold text-sm transition-all flex items-center justify-center space-x-2 cursor-pointer"
-              >
-                <Mic className="w-4 h-4 text-emerald-600" />
-                <span>लाइव आवाज़ डेमो (Try Voice AI)</span>
-              </button>
-            </div>
+                <button
+                  onClick={onOpenVoiceDemo}
+                  className="inline-flex items-center justify-center space-x-2 px-6 py-3.5 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] text-white border border-white/[0.1] hover:border-emerald-500/40 font-semibold text-sm transition-all active:scale-95 cursor-pointer"
+                >
+                  <Mic className="w-4 h-4 text-emerald-400" />
+                  <span>लाइव वॉयस असिस्टेंट (Boliye)</span>
+                </button>
+              </div>
 
-            {/* Real Operational Metrics */}
-            <div className="mt-12 grid grid-cols-3 gap-2 sm:gap-6 pt-8 border-t border-slate-100 text-center">
-              <div>
-                <div className="text-2xl sm:text-3xl font-extrabold font-mono text-slate-900 tabular-nums">
-                  &lt; 280ms
+              {/* Real Operational Metrics */}
+              <div className="grid grid-cols-3 gap-4 pt-6 border-t border-white/[0.08] max-w-lg">
+                <div>
+                  <div className="text-2xl sm:text-3xl font-black font-mono tabular-nums text-white">
+                    &lt; 280ms
+                  </div>
+                  <div className="text-[11px] text-neutral-400 font-medium mt-0.5">
+                    Gnani STT Latency
+                  </div>
                 </div>
-                <div className="text-xs font-semibold text-slate-500 mt-0.5">
-                  STT Voice Latency
+                <div>
+                  <div className="text-2xl sm:text-3xl font-black font-mono tabular-nums text-emerald-400">
+                    100%
+                  </div>
+                  <div className="text-[11px] text-neutral-400 font-medium mt-0.5">
+                    Offline Rule Fallback
+                  </div>
+                </div>
+                <div>
+                  <div className="text-2xl sm:text-3xl font-black font-mono tabular-nums text-white">
+                    ₹0
+                  </div>
+                  <div className="text-[11px] text-neutral-400 font-medium mt-0.5">
+                    No Proprietary Machine
+                  </div>
                 </div>
               </div>
-              <div className="border-x border-slate-100">
-                <div className="text-2xl sm:text-3xl font-extrabold font-mono text-emerald-700 tabular-nums">
-                  100%
+            </div>
+
+            {/* Right Interactive 3D Audio Visualizer & Live POS Terminal (5 Cols) */}
+            <div className="lg:col-span-5 relative">
+              <div className="relative rounded-3xl bg-[#121215] border border-white/[0.1] p-6 shadow-2xl overflow-hidden group">
+                
+                {/* 3D WebGL Canvas Layer (300px height) */}
+                <div className="relative w-full h-[260px] rounded-2xl bg-neutral-950/70 overflow-hidden border border-white/[0.06] mb-4">
+                  <Acoustic3DCanvas isListening={isSimulatingVoice} />
+                  
+                  {/* Overlay HUD Badges */}
+                  <div className="absolute top-3 left-3 pointer-events-none flex items-center space-x-2">
+                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                    <span className="text-[10px] font-mono font-bold tracking-wider uppercase text-emerald-400 bg-emerald-950/80 px-2 py-0.5 rounded border border-emerald-800/60">
+                      3D Spatial Acoustic Core
+                    </span>
+                  </div>
+                  <div className="absolute bottom-3 right-3 pointer-events-none">
+                    <span className="text-[10px] font-mono text-neutral-400 bg-black/60 px-2 py-0.5 rounded">
+                      Interactive 360&deg; Drag
+                    </span>
+                  </div>
                 </div>
-                <div className="text-xs font-semibold text-slate-500 mt-0.5">
-                  Offline-Safe Fallback
+
+                {/* Real-time Order Simulation HUD */}
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="font-mono text-neutral-400 uppercase tracking-wider text-[10px] font-bold">
+                      Customer Spoken Order (ग्राहक की आवाज):
+                    </span>
+                    <button
+                      onClick={handleCycleSample}
+                      className="inline-flex items-center space-x-1 text-[11px] font-bold text-emerald-400 hover:text-emerald-300 transition cursor-pointer"
+                    >
+                      <RotateCcw className="w-3 h-3" />
+                      <span>Next Sample</span>
+                    </button>
+                  </div>
+
+                  <div className="p-3.5 rounded-xl bg-black/50 border border-white/[0.08]">
+                    <p className="text-xs sm:text-sm font-semibold text-white">
+                      &ldquo;{currentSample.text}&rdquo;
+                    </p>
+                  </div>
+
+                  {/* Extracted Bill Items */}
+                  <div className="divide-y divide-white/[0.06] pt-1">
+                    {currentSample.items.map((it, idx) => (
+                      <div key={idx} className="py-1.5 flex justify-between items-center text-xs">
+                        <span className="text-neutral-300 font-medium">
+                          {it.name} <span className="text-neutral-500 font-mono">({it.qty})</span>
+                        </span>
+                        <span className="font-mono font-bold text-white tabular-nums">
+                          ₹{it.price}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Grand Total */}
+                  <div className="pt-2 border-t border-white/[0.08] flex items-center justify-between">
+                    <span className="text-xs font-bold uppercase text-neutral-400">
+                      Calculated Bill
+                    </span>
+                    <span className="text-xl font-black font-mono tabular-nums text-emerald-400">
+                      ₹{currentSample.total}
+                    </span>
+                  </div>
+
                 </div>
-              </div>
-              <div>
-                <div className="text-2xl sm:text-3xl font-extrabold font-mono text-slate-900 tabular-nums">
-                  ₹0
-                </div>
-                <div className="text-xs font-semibold text-slate-500 mt-0.5">
-                  No Expensive Hardware
-                </div>
+
               </div>
             </div>
 
           </div>
-
-          {/* Interactive Live Demo Preview Box */}
-          <div className="mt-12 max-w-3xl mx-auto rounded-2xl border border-slate-200 bg-slate-50/70 p-5 sm:p-6 shadow-xs">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-200">
-              <div className="flex items-center space-x-2">
-                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
-                <span className="text-xs font-bold text-slate-700 uppercase tracking-wide">
-                  Live Interactive Voice Console
-                </span>
-              </div>
-              <span className="text-xs font-mono text-slate-400">Gnani Prisma v2.5</span>
-            </div>
-
-            <div className="my-4 bg-white rounded-xl p-4 border border-slate-200/80 shadow-2xs">
-              <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide">
-                बोलचाल का वाक्य (Spoken Input):
-              </p>
-              <p className="text-base font-bold text-slate-900 mt-1">
-                &ldquo;{demoUtterance}&rdquo;
-              </p>
-              <div className="mt-3 pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2">
-                <div className="flex items-center gap-2">
-                  <span className="text-[11px] font-bold px-2 py-0.5 rounded bg-emerald-50 text-emerald-800 border border-emerald-200">
-                    Chawal: 2 kg @ ₹60 = ₹120
-                  </span>
-                  <span className="text-[11px] font-bold px-2 py-0.5 rounded bg-emerald-50 text-emerald-800 border border-emerald-200">
-                    Refined Oil: 1 L @ ₹140 = ₹140
-                  </span>
-                </div>
-                <span className="text-sm font-extrabold font-mono tabular-nums text-emerald-700">
-                  Total: ₹260
-                </span>
-              </div>
-            </div>
-
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
-              <div className="flex items-center gap-1.5 text-xs text-slate-500">
-                <Zap className="w-3.5 h-3.5 text-emerald-600" />
-                <span>Try asking in Hindi, Hinglish, or Local units (Aadha kilo, Paanch packet)</span>
-              </div>
-              <button
-                onClick={onOpenVoiceDemo}
-                className="w-full sm:w-auto inline-flex items-center justify-center space-x-1.5 px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all active:scale-95 cursor-pointer"
-              >
-                <Mic className="w-3.5 h-3.5" />
-                <span>Test Live Voice Mic</span>
-              </button>
-            </div>
-          </div>
-
         </div>
       </section>
 
-      {/* 4-Pillar Bento Grid Features */}
-      <section className="py-16 md:py-24 max-w-6xl mx-auto px-4 sm:px-6">
-        <div className="text-center max-w-2xl mx-auto mb-12">
-          <span className="text-xs font-bold text-emerald-700 uppercase tracking-wider bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
-            दुकानदार की ज़रूरतें (Tailored For Kirana)
+      {/* 6 Core Kirana Capabilities (Bento Style) */}
+      <section className="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center max-w-2xl mx-auto mb-14">
+          <span className="text-xs font-bold text-emerald-400 uppercase tracking-widest bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20">
+            दुकानदार की ज़रूरतें (Engineered For Retail)
           </span>
-          <h2 className="text-2xl sm:text-4xl font-extrabold text-slate-900 tracking-tight mt-3">
-            किराना व्यापार को आसान बनाने वाले 6 मुख्य टूल्स
+          <h2 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight mt-3">
+            किराना व्यापार को आसान बनाने वाले 6 टूल्स
           </h2>
         </div>
 
@@ -241,16 +309,16 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onOpenVo
             return (
               <div
                 key={i}
-                className="p-6 rounded-2xl bg-white border border-slate-200/90 shadow-2xs hover:border-emerald-300 hover:shadow-xs transition-all flex flex-col justify-between"
+                className="p-6 rounded-2xl bg-[#121215] border border-white/[0.08] hover:border-emerald-500/40 hover:bg-[#16161b] transition-all flex flex-col justify-between group"
               >
                 <div>
-                  <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center mb-4 border border-emerald-100">
+                  <div className="w-10 h-10 rounded-xl bg-white/[0.05] border border-white/[0.08] text-emerald-400 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                     <Icon className="w-5 h-5 stroke-[2.2]" />
                   </div>
-                  <h3 className="text-base font-bold text-slate-900 tracking-tight mb-2">
+                  <h3 className="text-base font-bold text-white tracking-tight mb-2">
                     {f.title}
                   </h3>
-                  <p className="text-xs sm:text-sm text-slate-500 leading-relaxed font-medium">
+                  <p className="text-xs sm:text-sm text-neutral-400 leading-relaxed font-normal">
                     {f.desc}
                   </p>
                 </div>
@@ -260,35 +328,37 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onOpenVo
         </div>
       </section>
 
-      {/* Comparison Section: Diary vs Complex POS vs Dukaan Saathi */}
-      <section className="py-14 bg-white border-y border-slate-200/90">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6">
-          <div className="text-center max-w-2xl mx-auto mb-10">
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+      {/* Comparison: Diary vs Heavy POS vs Dukaan Saathi */}
+      <section className="py-16 bg-[#101014] border-y border-white/[0.08]">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-2xl mx-auto mb-12">
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
               पारंपरिक तरीके बनाम दुकान साथी
             </h2>
-            <p className="text-xs sm:text-sm text-slate-500 mt-2 font-medium">
-              क्यों हज़ारों छोटे दुकानदार डायरी और जटिल सॉफ्टवेयर छोड़ रहे हैं
+            <p className="text-xs sm:text-sm text-neutral-400 mt-2">
+              कागज़ की डायरी और भारी ₹40,000 की मशीनों के मुकाबले दुकान साथी क्यों बेहतर है
             </p>
           </div>
 
-          <div className="overflow-x-auto rounded-2xl border border-slate-200 shadow-2xs">
+          <div className="overflow-x-auto rounded-2xl border border-white/[0.08]">
             <table className="w-full text-left text-xs sm:text-sm">
-              <thead className="bg-slate-50 text-slate-700 font-bold uppercase tracking-wider border-b border-slate-200">
+              <thead className="bg-[#18181e] text-neutral-300 font-bold uppercase tracking-wider border-b border-white/[0.08]">
                 <tr>
                   <th className="py-3.5 px-4 sm:px-6">सुविधा (Feature)</th>
-                  <th className="py-3.5 px-4 text-slate-400 font-semibold">पेन-कॉपी डायरी</th>
-                  <th className="py-3.5 px-4 text-slate-400 font-semibold">भारी POS मशीन</th>
-                  <th className="py-3.5 px-4 sm:px-6 text-emerald-800 bg-emerald-50/80 font-bold">दुकान साथी (Dukaan Saathi)</th>
+                  <th className="py-3.5 px-4 text-neutral-500 font-medium">पेन-कॉपी डायरी</th>
+                  <th className="py-3.5 px-4 text-neutral-500 font-medium">भारी POS मशीन</th>
+                  <th className="py-3.5 px-4 sm:px-6 text-emerald-400 bg-emerald-950/40 font-bold border-l border-emerald-500/20">
+                    दुकान साथी (Dukaan Saathi)
+                  </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody className="divide-y divide-white/[0.06]">
                 {comparisonRows.map((row, idx) => (
-                  <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
-                    <td className="py-3.5 px-4 sm:px-6 font-bold text-slate-900">{row.feature}</td>
-                    <td className="py-3.5 px-4 text-slate-500">{row.traditional}</td>
-                    <td className="py-3.5 px-4 text-slate-500">{row.complexPos}</td>
-                    <td className="py-3.5 px-4 sm:px-6 font-bold text-emerald-700 bg-emerald-50/40">
+                  <tr key={idx} className="hover:bg-white/[0.02] transition-colors">
+                    <td className="py-3.5 px-4 sm:px-6 font-bold text-white">{row.feature}</td>
+                    <td className="py-3.5 px-4 text-neutral-400">{row.traditional}</td>
+                    <td className="py-3.5 px-4 text-neutral-400">{row.complexPos}</td>
+                    <td className="py-3.5 px-4 sm:px-6 font-bold text-emerald-400 bg-emerald-950/20 border-l border-emerald-500/20">
                       ✓ {row.dukaanSaathi}
                     </td>
                   </tr>
@@ -299,13 +369,13 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onOpenVo
         </div>
       </section>
 
-      {/* FAQ Section */}
-      <section className="py-16 md:py-20 max-w-4xl mx-auto px-4 sm:px-6">
-        <div className="text-center mb-10">
-          <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+      {/* FAQ Accordion */}
+      <section className="py-20 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-12">
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
             अक्सर पूछे जाने वाले सवाल (FAQs)
           </h2>
-          <p className="text-xs sm:text-sm text-slate-500 mt-1 font-medium">
+          <p className="text-xs sm:text-sm text-neutral-400 mt-1">
             दुकानदारों के सामान्य सवालों के स्पष्ट और सीधे जवाब
           </p>
         </div>
@@ -316,17 +386,17 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onOpenVo
             return (
               <div 
                 key={index}
-                className="rounded-xl border border-slate-200 bg-white overflow-hidden transition-all shadow-2xs"
+                className="rounded-xl border border-white/[0.08] bg-[#121215] overflow-hidden transition-all"
               >
                 <button
                   onClick={() => setActiveFaq(isOpen ? null : index)}
-                  className="w-full py-4 px-5 text-left flex items-center justify-between gap-4 font-bold text-sm sm:text-base text-slate-900 hover:text-emerald-700 transition-colors cursor-pointer"
+                  className="w-full py-4 px-5 text-left flex items-center justify-between gap-4 font-bold text-sm sm:text-base text-white hover:text-emerald-400 transition-colors cursor-pointer"
                 >
                   <span>{faq.q}</span>
-                  <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${isOpen ? 'rotate-180 text-emerald-700' : ''}`} />
+                  <ChevronDown className={`w-4 h-4 text-neutral-400 transition-transform ${isOpen ? 'rotate-180 text-emerald-400' : ''}`} />
                 </button>
                 {isOpen && (
-                  <div className="px-5 pb-4 text-xs sm:text-sm text-slate-600 leading-relaxed font-medium border-t border-slate-100 pt-3">
+                  <div className="px-5 pb-4 text-xs sm:text-sm text-neutral-300 leading-relaxed font-normal border-t border-white/[0.06] pt-3">
                     {faq.a}
                   </div>
                 )}
@@ -336,19 +406,19 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onOpenVo
         </div>
       </section>
 
-      {/* Bottom CTA Banner */}
-      <section className="py-12 bg-emerald-800 text-white">
+      {/* Bottom Conversion Banner */}
+      <section className="py-16 bg-gradient-to-br from-emerald-950 via-[#0a1612] to-[#09090b] border-t border-emerald-500/20 text-white">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 text-center">
-          <h2 className="text-2xl sm:text-3xl font-black tracking-tight">
+          <h2 className="text-2xl sm:text-4xl font-black tracking-tight text-white">
             आज ही अपनी दुकान को डिजिटल और स्मार्ट बनाएं
           </h2>
-          <p className="mt-2 text-sm text-emerald-100 max-w-xl mx-auto font-medium">
+          <p className="mt-3 text-sm text-neutral-300 max-w-xl mx-auto font-normal">
             कोई क्रेडिट कार्ड या भारी सेटअप नहीं। सीधे ब्राउज़र में चलाएं और पहले दिन से समय बचाएं।
           </p>
-          <div className="mt-6">
+          <div className="mt-8">
             <button
               onClick={onGetStarted}
-              className="px-8 py-3.5 rounded-xl bg-white hover:bg-emerald-50 text-emerald-900 font-extrabold text-sm shadow-md transition-all active:scale-95 cursor-pointer"
+              className="px-8 py-3.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 active:bg-emerald-600 text-neutral-950 font-extrabold text-sm shadow-xl shadow-emerald-500/25 transition-all active:scale-95 cursor-pointer"
             >
               POS काउंटर खोलें (Open POS Counter)
             </button>

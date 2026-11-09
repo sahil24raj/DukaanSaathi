@@ -83,3 +83,4 @@ export const HeroSection: React.FC<HeroProps> = ({ onStartDemo, onOpenVideo }) =
   );
 };
 ```
+

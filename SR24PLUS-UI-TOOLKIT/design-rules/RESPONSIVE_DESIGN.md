@@ -65,3 +65,4 @@ xl:  1280px  /* Desktop workstations */
 2xl: 1536px  /* High-resolution displays */
 ```
 Always verify layouts at `375px` (iPhone SE / standard phone), `768px` (iPad), and `1440px` (MacBook / Desktop).
+

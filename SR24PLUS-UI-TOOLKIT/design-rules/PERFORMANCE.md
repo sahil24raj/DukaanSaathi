@@ -77,3 +77,4 @@ export const HeroSection: React.FC = () => {
 - Use Tailwind CSS with automatic purge / Content scanning.
 - Avoid importing entire icon libraries (`import * as Icons from 'lucide-react'`). Import named exports (`import { Check, Mic } from 'lucide-react'`) to enable tree-shaking.
 - Eliminate unused npm packages immediately.
+

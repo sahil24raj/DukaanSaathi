@@ -118,3 +118,4 @@ export const ShowcaseExperience: React.FC = () => {
 - **Asset Preloading**: Always call `useGLTF.preload(url)` at the top module scope for critical models to avoid layout shift.
 - **Occlusion on `<Html>`**: Use `occlude="blending"` or `occlude={[ref1, ref2]}` if HTML labels should hide behind 3D geometry.
 - **DRACO Decoder**: Place DRACO decoder binaries in `/public/draco/` and configure `useGLTF(url, '/draco/')` for 70%+ smaller GLB network payloads.
+

@@ -110,3 +110,4 @@ All skills and libraries preserved in this toolkit remain under their respective
 - **Taste Skill**: MIT by Leon (`Leonxlnx/taste-skill`).
 - **UI UX Pro Max**: MIT by Next Level Builder (`nextlevelbuilder/ui-ux-pro-max-skill`).
 - **Three.js / R3F / Drei / Motion / React Bits / Magic UI**: MIT.
+

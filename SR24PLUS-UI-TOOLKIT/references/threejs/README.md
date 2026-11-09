@@ -198,3 +198,4 @@ export class SceneController {
   }
   ```
 - **WebGL Capability Detection**: If WebGL 2.0 is unavailable or blocked, render an accessible 2D vector image or CSS illustration fallback with ARIA descriptive labels.
+

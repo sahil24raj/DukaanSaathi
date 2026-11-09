@@ -42,7 +42,7 @@ export const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col font-sans">
+    <div className="min-h-screen bg-[#09090b] text-slate-100 flex flex-col font-sans selection:bg-emerald-500/30 selection:text-emerald-300 antialiased">
       {/* API Key Notification Banner */}
       <ApiKeyBanner
         systemStatus={systemStatus}
@@ -92,13 +92,22 @@ export const App: React.FC = () => {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-slate-200/80 bg-white/70 py-5 px-4 text-center text-xs text-slate-500">
-        <p className="font-semibold text-slate-700">
-          <strong>Dukan Sathi (दुकान साथी)</strong> • Smart Digital Business Partner for Indian Kirana Stores
-        </p>
-        <p className="text-[11px] text-slate-400 mt-1">
-          Developed by <strong>Sahil</strong> • Powered by Gnani Prisma v2.5 STT & Timbre v2.5 TTS
-        </p>
+      <footer className="border-t border-white/[0.08] bg-[#09090b]/80 backdrop-blur-md py-6 px-4 text-center text-xs text-zinc-500">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
+          <div className="flex items-center space-x-2">
+            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            <span className="font-semibold text-zinc-300">
+              Dukan Sathi (दुकान साथी)
+            </span>
+            <span className="text-zinc-600">•</span>
+            <span className="text-zinc-400">Enterprise Voice POS for Indian Retail</span>
+          </div>
+          <div className="flex items-center space-x-4 text-[11px] text-zinc-500">
+            <span>Powered by <span className="text-zinc-300 font-mono">Gnani Prisma v2.5</span> & <span className="text-zinc-300 font-mono">Timbre v2.5</span></span>
+            <span className="text-zinc-700">|</span>
+            <span className="text-zinc-400">SR24PLUS Industrial Design</span>
+          </div>
+        </div>
       </footer>
     </div>
   );

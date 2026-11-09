@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { 
   Globe, 
   Mic, 
@@ -6,11 +6,11 @@ import {
   Boxes, 
   CreditCard, 
   BarChart3, 
-  Users, 
-  Radio, 
-  Info,
   ShoppingBag,
-  Store
+  Store,
+  ChevronDown,
+  Sparkles,
+  Plus
 } from 'lucide-react';
 import { SystemStatus } from '../types';
 
@@ -21,137 +21,162 @@ interface NavbarProps {
 }
 
 export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab, systemStatus }) => {
-  const navItems = [
-    { id: 'landing', label: 'Home', labelHi: 'होम', icon: Globe },
-    { id: 'order', label: 'Voice AI', labelHi: 'बोलिए', icon: Mic },
+  const [moreOpen, setMoreOpen] = useState(false);
+
+  const mainNavItems = [
+    { id: 'landing', label: 'Overview', labelHi: 'होम', icon: Globe },
+    { id: 'order', label: 'Voice AI', labelHi: 'वॉयस काउंटर', icon: Mic, badge: 'Live' },
     { id: 'billing', label: 'POS Billing', labelHi: 'बिलिंग', icon: Receipt },
-    { id: 'udhaar', label: 'Udhaar Khata', labelHi: 'उधार खाता', icon: CreditCard },
+    { id: 'udhaar', label: 'Udhaar Khata', labelHi: 'खाता', icon: CreditCard },
     { id: 'inventory', label: 'Stock', labelHi: 'स्टॉक', icon: Boxes },
-    { id: 'orders', label: 'Orders', labelHi: 'आर्डर लिस्ट', icon: ShoppingBag },
-    { id: 'analytics', label: 'Reports', labelHi: 'रिपोर्ट्स', icon: BarChart3 },
-    { id: 'customers', label: 'Customers', labelHi: 'ग्राहक', icon: Users },
-    { id: 'demo-audio', label: 'Audio Samples', labelHi: 'सैंपल्स', icon: Radio },
-    { id: 'about', label: 'About', labelHi: 'जानकारी', icon: Info },
+    { id: 'orders', label: 'Orders', labelHi: 'आर्डर', icon: ShoppingBag },
+  ];
+
+  const secondaryNavItems = [
+    { id: 'analytics', label: 'Analytics & Reports', labelHi: 'रिपोर्ट', icon: BarChart3 },
+    { id: 'customers', label: 'Customer Directory', labelHi: 'ग्राहक', icon: Store },
+    { id: 'demo-audio', label: 'Benchmark Audio Lab', labelHi: 'सैंपल्स', icon: Sparkles },
+    { id: 'about', label: 'System & Architecture', labelHi: 'जानकारी', icon: Store },
   ];
 
   const isConnected = systemStatus?.gnani_api_key_configured || false;
 
   return (
-    <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200/90 shadow-2xs">
+    <header className="sticky top-0 z-50 bg-[#09090b]/85 backdrop-blur-xl border-b border-white/[0.08] text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
+        <div className="flex items-center justify-between h-14">
           
-          {/* Brand Logo & Name */}
+          {/* Brandmark */}
           <div 
-            className="flex items-center space-x-3 cursor-pointer group"
+            className="flex items-center space-x-3 cursor-pointer group select-none"
             onClick={() => setActiveTab('landing')}
           >
-            {/* Professional SVG Brand Glyph (No cartoon emojis!) */}
-            <div className="w-10 h-10 rounded-xl bg-emerald-600 flex items-center justify-center text-white shadow-sm shadow-emerald-700/20 group-hover:bg-emerald-700 transition-colors">
-              <Store className="w-5 h-5 text-white stroke-[2.2]" />
-            </div>
-            <div>
-              <div className="flex items-center space-x-2">
-                <span className="font-bold text-lg text-slate-900 tracking-tight">Dukaan Saathi</span>
-                <span className="text-[11px] px-2 py-0.5 rounded-full font-bold bg-emerald-50 text-emerald-800 border border-emerald-200/70">
-                  दुकान साथी
-                </span>
+            <div className="relative w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-500 to-emerald-700 p-0.5 flex items-center justify-center shadow-sm shadow-emerald-500/20 group-hover:scale-105 transition-transform duration-200">
+              <div className="w-full h-full bg-[#09090b] rounded-[6px] flex items-center justify-center">
+                <Store className="w-4 h-4 text-emerald-400 stroke-[2.2]" />
               </div>
-              <p className="text-[11px] font-medium text-slate-500 hidden sm:block">
-                Voice Assistant for Indian Kirana & Retail
-              </p>
+            </div>
+            <div className="flex items-baseline space-x-1.5">
+              <span className="font-bold text-sm tracking-tight text-white font-sans">
+                Dukaan<span className="text-emerald-400">Saathi</span>
+              </span>
+              <span className="text-[10px] font-medium text-neutral-400 font-sans tracking-wide">
+                दुकान साथी
+              </span>
             </div>
           </div>
 
-          {/* Navigation Links (Desktop) */}
-          <nav className="hidden xl:flex items-center space-x-1">
-            {navItems.map((item) => {
+          {/* Central Navigation Tabs */}
+          <nav className="hidden lg:flex items-center space-x-1">
+            {mainNavItems.map((item) => {
               const Icon = item.icon;
               const isActive = activeTab === item.id;
               return (
                 <button
                   key={item.id}
-                  onClick={() => setActiveTab(item.id)}
-                  className={`flex items-center space-x-1.5 px-3 py-2 rounded-lg text-xs font-semibold transition-all ${
+                  onClick={() => {
+                    setActiveTab(item.id);
+                    setMoreOpen(false);
+                  }}
+                  className={`relative flex items-center space-x-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all duration-150 cursor-pointer ${
                     isActive
-                      ? 'bg-emerald-50 text-emerald-800 border border-emerald-200/80 shadow-2xs'
-                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/80'
+                      ? 'text-white bg-white/[0.08] shadow-xs'
+                      : 'text-neutral-400 hover:text-neutral-200 hover:bg-white/[0.04]'
                   }`}
                 >
-                  <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-emerald-700' : 'text-slate-400'}`} />
+                  <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-emerald-400' : 'text-neutral-500'}`} />
                   <span>{item.label}</span>
+                  {item.badge && (
+                    <span className="text-[9px] font-mono font-bold bg-emerald-500/20 text-emerald-400 px-1 py-0.2 rounded border border-emerald-500/30">
+                      {item.badge}
+                    </span>
+                  )}
+                  {isActive && (
+                    <span className="absolute bottom-0 left-2 right-2 h-[2px] bg-emerald-400 rounded-full" />
+                  )}
                 </button>
               );
             })}
+
+            {/* More Dropdown */}
+            <div className="relative">
+              <button
+                onClick={() => setMoreOpen(!moreOpen)}
+                className={`flex items-center space-x-1 px-2.5 py-1.5 rounded-md text-xs font-medium transition-colors cursor-pointer ${
+                  moreOpen ? 'text-white bg-white/[0.08]' : 'text-neutral-400 hover:text-neutral-200 hover:bg-white/[0.04]'
+                }`}
+              >
+                <span>More</span>
+                <ChevronDown className={`w-3 h-3 transition-transform ${moreOpen ? 'rotate-180' : ''}`} />
+              </button>
+
+              {moreOpen && (
+                <div className="absolute right-0 top-full mt-2 w-52 rounded-xl bg-[#121215] border border-white/[0.1] shadow-2xl p-1.5 z-50 animate-fadeIn">
+                  {secondaryNavItems.map((sec) => (
+                    <button
+                      key={sec.id}
+                      onClick={() => {
+                        setActiveTab(sec.id);
+                        setMoreOpen(false);
+                      }}
+                      className="w-full flex items-center space-x-2 px-3 py-2 rounded-lg text-xs font-medium text-neutral-300 hover:text-white hover:bg-white/[0.06] transition text-left cursor-pointer"
+                    >
+                      <sec.icon className="w-3.5 h-3.5 text-neutral-400" />
+                      <span>{sec.label}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
           </nav>
 
-          {/* Medium Screen Navigation (Main shortcuts) */}
-          <nav className="hidden md:flex xl:hidden items-center space-x-1">
-            {[navItems[0], navItems[1], navItems[2], navItems[3], navItems[4], navItems[6]].map((item) => {
-              const Icon = item.icon;
-              const isActive = activeTab === item.id;
-              return (
-                <button
-                  key={item.id}
-                  onClick={() => setActiveTab(item.id)}
-                  className={`flex items-center space-x-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                    isActive
-                      ? 'bg-emerald-50 text-emerald-800 border border-emerald-200/80 shadow-2xs'
-                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/80'
-                  }`}
-                >
-                  <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-emerald-700' : 'text-slate-400'}`} />
-                  <span>{item.label}</span>
-                </button>
-              );
-            })}
-          </nav>
-
-          {/* Right Action / System Status Badge */}
-          <div className="flex items-center space-x-2.5">
+          {/* Right Action & Connectivity Indicators */}
+          <div className="flex items-center space-x-3">
+            {/* Live Engine Status Chip */}
             <div 
               onClick={() => setActiveTab('about')}
-              title={isConnected ? 'Gnani AI Cloud Connected' : 'Running in Local Fallback Mode'}
-              className={`flex items-center space-x-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium border cursor-pointer transition-colors ${
-                isConnected 
-                  ? 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100'
-                  : 'bg-amber-50 text-amber-800 border-amber-200 hover:bg-amber-100'
-              }`}
+              title={isConnected ? 'Gnani Prisma & Timbre Cloud Connected' : 'Running in Local Speech Mode'}
+              className="flex items-center space-x-2 px-2.5 py-1 rounded-full bg-white/[0.04] border border-white/[0.08] hover:border-white/[0.15] cursor-pointer transition text-[11px]"
             >
-              <span className={`w-2 h-2 rounded-full ${isConnected ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'}`} />
-              <span className="hidden sm:inline font-semibold">
-                {isConnected ? 'Gnani v2.5 Online' : 'Local Fallback Engine'}
+              <span className="relative flex h-2 w-2">
+                <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${
+                  isConnected ? 'bg-emerald-400' : 'bg-amber-400'
+                }`} />
+                <span className={`relative inline-flex rounded-full h-2 w-2 ${
+                  isConnected ? 'bg-emerald-500' : 'bg-amber-500'
+                }`} />
+              </span>
+              <span className="font-mono text-neutral-300 text-[11px]">
+                {isConnected ? 'Gnani v2.5' : 'Offline'}
               </span>
             </div>
 
-            {/* Quick POS Action Button */}
+            {/* Quick POS Trigger Action */}
             <button
               onClick={() => setActiveTab('billing')}
-              className="inline-flex items-center space-x-1 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all shadow-xs active:scale-95"
+              className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 active:bg-emerald-600 text-neutral-950 font-bold text-xs transition-all shadow-sm shadow-emerald-500/20 active:scale-95 cursor-pointer"
             >
-              <Receipt className="w-3.5 h-3.5" />
-              <span>POS Bill</span>
+              <Plus className="w-3.5 h-3.5 stroke-[3]" />
+              <span>New Bill</span>
             </button>
           </div>
 
         </div>
       </div>
 
-      {/* Mobile Sub-Navigation Bar */}
-      <div className="md:hidden flex items-center justify-around py-2 px-1 border-t border-slate-100 bg-slate-50/90 overflow-x-auto text-[11px]">
-        {[navItems[0], navItems[1], navItems[2], navItems[3], navItems[4], navItems[5]].map((item) => {
-          const Icon = item.icon;
+      {/* Mobile Sticky Tab Scroll Strip */}
+      <div className="lg:hidden flex items-center space-x-1 px-3 py-1.5 border-t border-white/[0.06] bg-[#09090b] overflow-x-auto text-xs">
+        {mainNavItems.map((item) => {
           const isActive = activeTab === item.id;
           return (
             <button
               key={item.id}
               onClick={() => setActiveTab(item.id)}
-              className={`flex flex-col items-center py-1 px-2 rounded-lg ${
-                isActive ? 'text-emerald-700 font-bold bg-white shadow-2xs' : 'text-slate-500 font-medium'
+              className={`px-3 py-1 rounded-md shrink-0 text-xs font-medium transition ${
+                isActive ? 'text-white bg-white/[0.1] font-bold' : 'text-neutral-400'
               }`}
             >
-              <Icon className="w-4 h-4 mb-0.5" />
-              <span>{item.labelHi}</span>
+              {item.labelHi}
             </button>
           );
         })}

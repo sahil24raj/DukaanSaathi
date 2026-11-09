@@ -127,3 +127,4 @@ export const ProductionSceneCanvas: React.FC = () => {
 - **Touch Targets**: Prevent 3D canvas from swallowing page scroll on touch screens by applying `touch-action: pan-y` on the canvas container CSS.
 - **Pointer Event Propagation**: Always use `e.stopPropagation()` in 3D pointer handlers when raycasting nested objects.
 - **Fallback Content**: Always provide accessible HTML content inside `<Suspense fallback={<LoadingSkeleton />}>` or overlay for screen readers (`aria-hidden="true"` on canvas).
+

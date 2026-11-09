@@ -77,3 +77,4 @@ export const SpotlightCard: React.FC<SpotlightCardProps> = ({
 1. **Never use generic purple glow**: Use brand-specific tinting (e.g. emerald/green for Kirana billing, deep indigo/blue for enterprise SaaS).
 2. **Performance (Pointer Events)**: Ensure spotlight gradient container has `pointer-events: none` to prevent mouse event throttling on child buttons and inputs.
 3. **Mobile Handling**: On touch devices without hover capability, disable mouse position tracking via `@media (hover: hover)`.
+

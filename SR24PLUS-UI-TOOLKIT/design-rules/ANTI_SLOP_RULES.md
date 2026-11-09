@@ -54,3 +54,4 @@ Before marking any UI task complete, run through this 10-point audit:
 - [ ] 8. Are numbers tabular (`tabular-nums`) in data tables and currency displays?
 - [ ] 9. Do animations complete in <300ms without blocking interaction?
 - [ ] 10. Does the page convey its core value within 3 seconds of viewing?
+

@@ -110,3 +110,4 @@ export const ProductionBentoSection: React.FC = () => {
 - Avoid decorative animated blobs that burn CPU cycles without conveying information.
 - Always tie bento card visualizations to **real product state** or functional mockups, not abstract floating 3D spheres.
 - Maintain consistent padding, border radius, and typography hierarchy across all cards.
+

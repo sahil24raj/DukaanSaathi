@@ -87,3 +87,4 @@ Follow an 8-point grid with 4-point micro-adjustments:
 - Micro: `4px` (gap-1), `8px` (gap-2), `12px` (gap-3)
 - Standard: `16px` (p-4), `24px` (p-6), `32px` (p-8)
 - Macro / Layout: `48px` (py-12), `64px` (py-16), `96px` (py-24)
+

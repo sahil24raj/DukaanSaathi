@@ -72,3 +72,4 @@ WebGL memory leaks crash mobile tabs. Adhere strictly to these rules:
   - Stop automated spinning, oscillations, and flying cameras.
   - Position the 3D model statically in its primary informational pose.
 - Provide descriptive `alt` text or ARIA live regions in the accompanying HTML structure so screen readers understand the 3D content.
+

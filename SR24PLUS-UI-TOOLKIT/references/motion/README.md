@@ -148,3 +148,4 @@ export const StaggeredCardList: React.FC<{ items: string[] }> = ({ items }) => {
    const animation = shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 };
    ```
 3. **Exit Animations**: Always wrap components using exit animations in `<AnimatePresence mode="wait">` to prevent layout jumps.
+

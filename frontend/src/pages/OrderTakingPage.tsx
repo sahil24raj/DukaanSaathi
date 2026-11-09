@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 import { VoiceRecorder } from '../components/VoiceRecorder';
 import { StatusIndicator } from '../components/StatusIndicator';
 import { OrderCard } from '../components/OrderCard';
+import { Acoustic3DCanvas } from '../components/Acoustic3DCanvas';
 import { api, playHindiAudio } from '../services/api';
 import { ParsedOrderResponse, ProcessingState, SystemStatus } from '../types';
-import { CheckCircle2, Store, Printer, ArrowRight } from 'lucide-react';
+import { CheckCircle2, Store, Printer, ArrowRight, Activity } from 'lucide-react';
 
 interface OrderTakingPageProps {
   systemStatus?: SystemStatus | null;
@@ -162,59 +163,91 @@ export const OrderTakingPage: React.FC<OrderTakingPageProps> = ({
   };
 
   return (
-    <div className="py-6 px-4 max-w-4xl mx-auto">
+    <div className="py-8 px-4 max-w-5xl mx-auto space-y-6">
       
-      {/* Hero Header */}
-      <div className="text-center mb-6">
-        <div className="inline-flex items-center space-x-1.5 px-3 py-1 bg-emerald-50 rounded-full border border-emerald-200/80 text-emerald-800 text-xs font-bold mb-2">
-          <Store className="w-3.5 h-3.5 text-emerald-700" />
-          <span>दुकानदार व ग्राहक वॉयस सहायक</span>
+      {/* Visual Header with 3D Core Integration */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center p-6 rounded-2xl bg-zinc-900/60 border border-white/[0.08] backdrop-blur-xl relative overflow-hidden">
+        {/* Subtle radial glow */}
+        <div className="absolute top-0 right-1/4 w-72 h-72 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
+
+        <div className="lg:col-span-8 space-y-3">
+          <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold">
+            <Store className="w-3.5 h-3.5" />
+            <span>लाइव वॉयस बिलिंग काउंटर • Live Voice Billing</span>
+          </div>
+
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+            बोलिए, दुकान साथी तुरंत बिल बनाएगा
+          </h1>
+          <p className="text-xs sm:text-sm text-zinc-400 font-medium leading-relaxed max-w-xl">
+            माइक बटन दबाएं और हिंदी या हिंग्लिश में बोलें। यह सीधे Gnani AI स्पीच इंजन से कनेक्ट होकर सामान, मात्रा, और स्टॉक की जांच कर तुरंत बिल व रसीद तैयार करता है।
+          </p>
+
+          <div className="flex flex-wrap items-center gap-3 pt-1 text-xs text-zinc-500">
+            <span className="flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <strong className="text-zinc-300 font-mono">Gnani Prisma v2.5</strong> STT
+            </span>
+            <span>•</span>
+            <span className="flex items-center gap-1.5">
+              <Activity className="w-3 h-3 text-emerald-400" />
+              <span className="text-zinc-300">Deterministic Parsing</span>
+            </span>
+            <span>•</span>
+            <span className="text-zinc-400">Offline Fallback Ready</span>
+          </div>
         </div>
-        <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-          दुकान साथी — बोलकर बिल बनाएं
-        </h1>
-        <p className="text-xs sm:text-sm text-slate-500 mt-1 max-w-lg mx-auto font-medium">
-          माइक दबाएं और हिंदी या हिंग्लिश में बोलें। दुकान साथी सामान, मात्रा और स्टॉक की जांच कर तुरंत हिसाब बताएगा।
-        </p>
+
+        {/* Mini 3D Sphere Visualizer */}
+        <div className="lg:col-span-4 h-48 sm:h-52 rounded-xl bg-black/40 border border-white/[0.06] overflow-hidden relative shadow-inner flex items-center justify-center">
+          <Acoustic3DCanvas 
+            isListening={processingState === 'transcribing' || processingState === 'speaking' || isConfirming}
+            className="w-full h-full"
+          />
+          <div className="absolute bottom-2 left-3 right-3 flex items-center justify-between text-[10px] text-zinc-500 font-mono pointer-events-none">
+            <span>3D SPATIAL CORE</span>
+            <span className={processingState === 'idle' ? 'text-zinc-600' : 'text-emerald-400 font-bold animate-pulse'}>
+              {processingState.toUpperCase()}
+            </span>
+          </div>
+        </div>
       </div>
 
       {/* Pipeline Status Stepper */}
-      <div className="mb-6">
-        <StatusIndicator
-          state={processingState}
-          errorMessage={errorMessage}
-          sourceInfo={engineTag}
-        />
-      </div>
+      <StatusIndicator
+        state={processingState}
+        errorMessage={errorMessage}
+        sourceInfo={engineTag}
+      />
 
       {/* Success Banner if Order Placed */}
       {orderSuccessAlert && (
-        <div className="mb-6 p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-950 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-xs">
+        <div className="p-4 rounded-xl bg-emerald-950/40 border border-emerald-500/30 text-emerald-200 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-lg animate-in fade-in slide-in-from-top-2">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-full bg-emerald-600 flex items-center justify-center text-white shrink-0">
+            <div className="w-10 h-10 rounded-full bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 shrink-0">
               <CheckCircle2 className="w-5 h-5 stroke-[2.5]" />
             </div>
             <div>
-              <h4 className="font-bold text-sm">
-                ऑर्डर #{orderSuccessAlert.id} सफलतापूर्वक दर्ज हुआ!
+              <h4 className="font-bold text-sm text-emerald-300">
+                ऑर्डर #{orderSuccessAlert.id} दर्ज हुआ!
               </h4>
-              <p className="text-xs text-emerald-700">
-                कुल राशि: <strong className="font-mono tabular-nums text-emerald-900">₹{orderSuccessAlert.total}</strong> • स्टॉक अपडेट हो गया है
+              <p className="text-xs text-emerald-400/80">
+                कुल राशि: <strong className="font-mono tabular-nums text-white">₹{orderSuccessAlert.total}</strong> • स्टॉक और खाता अपडेट हो गया
               </p>
             </div>
           </div>
           <div className="flex items-center space-x-2 w-full sm:w-auto">
             <button
               onClick={() => window.print()}
-              className="flex-1 sm:flex-none inline-flex items-center justify-center space-x-1.5 px-3 py-1.5 rounded-lg bg-white border border-emerald-300 text-emerald-800 hover:bg-emerald-100 text-xs font-bold transition-colors cursor-pointer"
+              className="flex-1 sm:flex-none inline-flex items-center justify-center space-x-1.5 px-3 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 border border-white/[0.08] text-zinc-200 text-xs font-semibold transition-colors cursor-pointer"
             >
-              <Printer className="w-3.5 h-3.5" />
+              <Printer className="w-3.5 h-3.5 text-zinc-400" />
               <span>पर्चा प्रिंट</span>
             </button>
             {onNavigateToOrders && (
               <button
                 onClick={onNavigateToOrders}
-                className="flex-1 sm:flex-none inline-flex items-center justify-center space-x-1.5 px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all cursor-pointer"
+                className="flex-1 sm:flex-none inline-flex items-center justify-center space-x-1.5 px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-all cursor-pointer shadow-sm shadow-emerald-900/50"
               >
                 <span>आर्डर लिस्ट देखें</span>
                 <ArrowRight className="w-3.5 h-3.5" />

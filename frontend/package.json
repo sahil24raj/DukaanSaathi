@@ -10,11 +10,13 @@
     "postinstall": "node -e \"const fs=require('fs'),p='node_modules/rollup/dist/native.js';if(fs.existsSync(p)){let c=fs.readFileSync(p,'utf8');c=c.replace(/const nativeModule = requireWithFriendlyError[\\s\\S]*?\\);/,'let nativeModule; try { nativeModule = requireWithFriendlyError(existsSync(path.join(__dirname, localName)) ? localName : \\`@rollup/rollup-\\${packageBase}\\`); } catch (e) { nativeModule = require(\\'@rollup/wasm-node/dist/native.js\\'); }');fs.writeFileSync(p,c);}\""
   },
   "dependencies": {
+    "@types/three": "^0.187.0",
     "clsx": "^2.1.1",
     "lucide-react": "^0.359.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "tailwind-merge": "^2.2.2"
+    "tailwind-merge": "^2.2.2",
+    "three": "^0.187.0"
   },
   "devDependencies": {
     "@rollup/wasm-node": "^4.68.0",
