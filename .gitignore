@@ -48,3 +48,9 @@ frontend/build/
 .DS_Store
 Thumbs.db
 
+# Standalone Toolkits (Managed in sahil24raj/SR24plus-engineering-toolkit)
+SR24PLUS-ENGINEERING-TOOLKIT/
+SR24PLUS-UI-TOOLKIT/
+remote_check/
+
+
