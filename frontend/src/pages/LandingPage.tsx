@@ -154,9 +154,9 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onOpenVo
               </div>
 
               {/* High-Impact Headline */}
-              <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight leading-[1.12]">
+              <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight leading-[1.15]">
                 अब दुकान संभालेगा आपका{' '}
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-300 to-emerald-200">
+                <span className="text-emerald-400 drop-shadow-[0_0_25px_rgba(52,211,153,0.35)]">
                   स्मार्ट साथी
                 </span>
               </h1>

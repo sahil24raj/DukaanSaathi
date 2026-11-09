@@ -179,7 +179,10 @@ export const Background3DCanvas: React.FC<Background3DCanvasProps> = ({
     };
 
     const handlePointerDown = (e: MouseEvent) => {
-      // If clicking directly on non-interactive background areas
+      const target = e.target as HTMLElement;
+      if (target && (target.closest('button') || target.closest('input') || target.closest('a') || target.closest('select') || target.closest('textarea') || target.closest('[role="button"]'))) {
+        return;
+      }
       isDragging = true;
       previousPointerX = e.clientX;
       previousPointerY = e.clientY;
