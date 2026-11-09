@@ -200,3 +200,4 @@ export const Acoustic3DCanvas: React.FC<Acoustic3DCanvasProps> = ({
     />
   );
 };
+

@@ -8,9 +8,10 @@ import {
   CreditCard, 
   Receipt, 
   ChevronDown, 
-  RotateCcw
+  RotateCcw,
+  Sparkles,
+  Volume2
 } from 'lucide-react';
-import { Acoustic3DCanvas } from '../components/Acoustic3DCanvas';
 
 interface LandingPageProps {
   onGetStarted: () => void;
@@ -19,7 +20,6 @@ interface LandingPageProps {
 
 export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onOpenVoiceDemo }) => {
   const [activeFaq, setActiveFaq] = useState<number | null>(0);
-  const [isSimulatingVoice, setIsSimulatingVoice] = useState<boolean>(false);
   const [simulatedSample, setSimulatedSample] = useState<number>(0);
 
   const demoSamples = [
@@ -52,9 +52,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onOpenVo
   const currentSample = demoSamples[simulatedSample];
 
   const handleCycleSample = () => {
-    setIsSimulatingVoice(true);
     setSimulatedSample((prev) => (prev + 1) % demoSamples.length);
-    setTimeout(() => setIsSimulatingVoice(false), 800);
   };
 
   const features = [
@@ -137,12 +135,12 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onOpenVo
   ];
 
   return (
-    <div className="bg-[#09090b] text-neutral-200 min-h-screen selection:bg-emerald-500/30 selection:text-emerald-200">
+    <div className="bg-transparent text-neutral-200 min-h-screen selection:bg-emerald-500/30 selection:text-emerald-200">
       
       {/* 3D Interactive Hero Section */}
       <section className="relative overflow-hidden pt-12 pb-20 md:pt-20 md:pb-32 border-b border-white/[0.08]">
         {/* Subtle Ambient Radial Lighting */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-emerald-600/[0.08] blur-[140px] pointer-events-none rounded-full" />
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-emerald-600/[0.06] blur-[150px] pointer-events-none rounded-full" />
         
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
@@ -150,7 +148,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onOpenVo
             {/* Left Content (7 Cols) */}
             <div className="lg:col-span-7 space-y-6 text-left">
               {/* Domain Badge */}
-              <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-xs font-semibold border border-emerald-500/20 shadow-xs">
+              <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-xs font-semibold border border-emerald-500/20 shadow-xs backdrop-blur-md">
                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                 <span>Voice AI for Indian Kirana & Retail Stores</span>
               </div>
@@ -158,13 +156,13 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onOpenVo
               {/* High-Impact Headline */}
               <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight leading-[1.12]">
                 अब दुकान संभालेगा आपका{' '}
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-300">
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-300 to-emerald-200">
                   स्मार्ट साथी
                 </span>
               </h1>
 
               {/* Subheadline */}
-              <p className="text-base sm:text-lg text-neutral-400 font-normal leading-relaxed max-w-xl">
+              <p className="text-base sm:text-lg text-neutral-300 font-normal leading-relaxed max-w-xl">
                 Sales, stock, udhaar aur hisaab — sab kuch ek jagah. Bas boliye aur Dukaan Saathi turant bill banayega.
               </p>
 
@@ -180,7 +178,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onOpenVo
 
                 <button
                   onClick={onOpenVoiceDemo}
-                  className="inline-flex items-center justify-center space-x-2 px-6 py-3.5 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] text-white border border-white/[0.1] hover:border-emerald-500/40 font-semibold text-sm transition-all active:scale-95 cursor-pointer"
+                  className="inline-flex items-center justify-center space-x-2 px-6 py-3.5 rounded-xl bg-zinc-900/60 hover:bg-zinc-800/80 text-white border border-white/[0.12] hover:border-emerald-500/50 font-semibold text-sm transition-all backdrop-blur-md active:scale-95 cursor-pointer shadow-md"
                 >
                   <Mic className="w-4 h-4 text-emerald-400" />
                   <span>लाइव वॉयस असिस्टेंट (Boliye)</span>
@@ -216,71 +214,91 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onOpenVo
               </div>
             </div>
 
-            {/* Right Interactive 3D Audio Visualizer & Live POS Terminal (5 Cols) */}
+            {/* Right Live Interactive POS Terminal Glass HUD (5 Cols) */}
             <div className="lg:col-span-5 relative">
-              <div className="relative rounded-3xl bg-[#121215] border border-white/[0.1] p-6 shadow-2xl overflow-hidden group">
+              <div className="relative rounded-3xl bg-zinc-950/50 backdrop-blur-xl border border-white/[0.12] p-6 shadow-2xl overflow-hidden group">
                 
-                {/* 3D WebGL Canvas Layer (300px height) */}
-                <div className="relative w-full h-[260px] rounded-2xl bg-neutral-950/70 overflow-hidden border border-white/[0.06] mb-4">
-                  <Acoustic3DCanvas isListening={isSimulatingVoice} />
-                  
-                  {/* Overlay HUD Badges */}
-                  <div className="absolute top-3 left-3 pointer-events-none flex items-center space-x-2">
-                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                    <span className="text-[10px] font-mono font-bold tracking-wider uppercase text-emerald-400 bg-emerald-950/80 px-2 py-0.5 rounded border border-emerald-800/60">
-                      3D Spatial Acoustic Core
+                {/* HUD Header */}
+                <div className="flex items-center justify-between pb-4 border-b border-white/[0.08] mb-4">
+                  <div className="flex items-center space-x-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
+                    <span className="text-[11px] font-mono font-bold tracking-wider uppercase text-emerald-400">
+                      LIVE VOICE BILLING HUD
                     </span>
                   </div>
-                  <div className="absolute bottom-3 right-3 pointer-events-none">
-                    <span className="text-[10px] font-mono text-neutral-400 bg-black/60 px-2 py-0.5 rounded">
-                      Interactive 360&deg; Drag
-                    </span>
+                  <div className="flex items-center space-x-1.5 text-[10px] text-zinc-400 font-mono bg-white/[0.05] px-2.5 py-1 rounded-full border border-white/[0.08]">
+                    <Sparkles className="w-3 h-3 text-emerald-400" />
+                    <span>Gnani Prisma v2.5</span>
                   </div>
                 </div>
 
-                {/* Real-time Order Simulation HUD */}
-                <div className="space-y-3">
+                {/* Voice Simulation Prompter */}
+                <div className="space-y-4">
                   <div className="flex items-center justify-between text-xs">
-                    <span className="font-mono text-neutral-400 uppercase tracking-wider text-[10px] font-bold">
-                      Customer Spoken Order (ग्राहक की आवाज):
+                    <span className="font-mono text-zinc-400 uppercase tracking-wider text-[10px] font-bold flex items-center gap-1.5">
+                      <Volume2 className="w-3.5 h-3.5 text-emerald-400" />
+                      <span>Customer Voice Order:</span>
                     </span>
                     <button
                       onClick={handleCycleSample}
-                      className="inline-flex items-center space-x-1 text-[11px] font-bold text-emerald-400 hover:text-emerald-300 transition cursor-pointer"
+                      className="inline-flex items-center space-x-1 text-[11px] font-bold text-emerald-400 hover:text-emerald-300 transition cursor-pointer bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20"
                     >
                       <RotateCcw className="w-3 h-3" />
-                      <span>Next Sample</span>
+                      <span>Next Order</span>
                     </button>
                   </div>
 
-                  <div className="p-3.5 rounded-xl bg-black/50 border border-white/[0.08]">
-                    <p className="text-xs sm:text-sm font-semibold text-white">
+                  <div className="p-4 rounded-xl bg-black/60 border border-white/[0.08] relative group-hover:border-emerald-500/30 transition-colors">
+                    <p className="text-xs sm:text-sm font-semibold text-white leading-relaxed">
                       &ldquo;{currentSample.text}&rdquo;
                     </p>
+                    <div className="mt-2 flex items-center justify-between text-[11px] text-zinc-500 font-mono">
+                      <span>Hindi Natural Speech</span>
+                      <span className="text-emerald-400 font-bold">100% Parsed</span>
+                    </div>
                   </div>
 
                   {/* Extracted Bill Items */}
-                  <div className="divide-y divide-white/[0.06] pt-1">
-                    {currentSample.items.map((it, idx) => (
-                      <div key={idx} className="py-1.5 flex justify-between items-center text-xs">
-                        <span className="text-neutral-300 font-medium">
-                          {it.name} <span className="text-neutral-500 font-mono">({it.qty})</span>
-                        </span>
-                        <span className="font-mono font-bold text-white tabular-nums">
-                          ₹{it.price}
-                        </span>
-                      </div>
-                    ))}
+                  <div>
+                    <div className="text-[10px] font-mono uppercase tracking-wider text-zinc-500 pb-1.5">
+                      Live Parsed Line Items
+                    </div>
+                    <div className="divide-y divide-white/[0.06] bg-black/30 rounded-xl px-3 py-1 border border-white/[0.06]">
+                      {currentSample.items.map((it, idx) => (
+                        <div key={idx} className="py-2 flex justify-between items-center text-xs">
+                          <span className="text-neutral-200 font-medium">
+                            {it.name} <span className="text-neutral-500 font-mono text-[11px]">({it.qty})</span>
+                          </span>
+                          <span className="font-mono font-bold text-white tabular-nums">
+                            ₹{it.price}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
 
                   {/* Grand Total */}
                   <div className="pt-2 border-t border-white/[0.08] flex items-center justify-between">
-                    <span className="text-xs font-bold uppercase text-neutral-400">
-                      Calculated Bill
-                    </span>
-                    <span className="text-xl font-black font-mono tabular-nums text-emerald-400">
+                    <div>
+                      <span className="text-xs font-bold uppercase text-neutral-400 block">
+                        Calculated Total
+                      </span>
+                      <span className="text-[10px] text-zinc-500 font-mono">GST & Discounts Auto-applied</span>
+                    </div>
+                    <span className="text-2xl font-black font-mono tabular-nums text-emerald-400">
                       ₹{currentSample.total}
                     </span>
+                  </div>
+
+                  {/* Action inside HUD */}
+                  <div className="pt-2">
+                    <button
+                      onClick={onOpenVoiceDemo}
+                      className="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition flex items-center justify-center space-x-2 cursor-pointer shadow-md shadow-emerald-900/40"
+                    >
+                      <Mic className="w-3.5 h-3.5" />
+                      <span>माइक से नया आर्डर बोलें (Try Live Voice)</span>
+                    </button>
                   </div>
 
                 </div>
@@ -295,7 +313,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onOpenVo
       {/* 6 Core Kirana Capabilities (Bento Style) */}
       <section className="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-2xl mx-auto mb-14">
-          <span className="text-xs font-bold text-emerald-400 uppercase tracking-widest bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20">
+          <span className="text-xs font-bold text-emerald-400 uppercase tracking-widest bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20 backdrop-blur-md">
             दुकानदार की ज़रूरतें (Engineered For Retail)
           </span>
           <h2 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight mt-3">
@@ -309,7 +327,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onOpenVo
             return (
               <div
                 key={i}
-                className="p-6 rounded-2xl bg-[#121215] border border-white/[0.08] hover:border-emerald-500/40 hover:bg-[#16161b] transition-all flex flex-col justify-between group"
+                className="p-6 rounded-2xl bg-zinc-900/40 backdrop-blur-xl border border-white/[0.08] hover:border-emerald-500/40 hover:bg-zinc-900/60 transition-all flex flex-col justify-between group shadow-lg"
               >
                 <div>
                   <div className="w-10 h-10 rounded-xl bg-white/[0.05] border border-white/[0.08] text-emerald-400 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
@@ -329,7 +347,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onOpenVo
       </section>
 
       {/* Comparison: Diary vs Heavy POS vs Dukaan Saathi */}
-      <section className="py-16 bg-[#101014] border-y border-white/[0.08]">
+      <section className="py-16 bg-zinc-950/30 backdrop-blur-xl border-y border-white/[0.08]">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-2xl mx-auto mb-12">
             <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
@@ -340,9 +358,9 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onOpenVo
             </p>
           </div>
 
-          <div className="overflow-x-auto rounded-2xl border border-white/[0.08]">
+          <div className="overflow-x-auto rounded-2xl border border-white/[0.08] bg-zinc-900/40 backdrop-blur-xl">
             <table className="w-full text-left text-xs sm:text-sm">
-              <thead className="bg-[#18181e] text-neutral-300 font-bold uppercase tracking-wider border-b border-white/[0.08]">
+              <thead className="bg-zinc-900/80 text-neutral-300 font-bold uppercase tracking-wider border-b border-white/[0.08]">
                 <tr>
                   <th className="py-3.5 px-4 sm:px-6">सुविधा (Feature)</th>
                   <th className="py-3.5 px-4 text-neutral-500 font-medium">पेन-कॉपी डायरी</th>
@@ -386,7 +404,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onOpenVo
             return (
               <div 
                 key={index}
-                className="rounded-xl border border-white/[0.08] bg-[#121215] overflow-hidden transition-all"
+                className="rounded-xl border border-white/[0.08] bg-zinc-900/40 backdrop-blur-xl overflow-hidden transition-all shadow-md"
               >
                 <button
                   onClick={() => setActiveFaq(isOpen ? null : index)}

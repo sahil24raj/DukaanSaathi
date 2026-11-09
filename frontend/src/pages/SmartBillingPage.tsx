@@ -134,29 +134,29 @@ export const SmartBillingPage: React.FC<SmartBillingPageProps> = ({ onOrderSaved
   };
 
   return (
-    <div className="py-6 px-4 max-w-7xl mx-auto">
+    <div className="py-8 px-4 max-w-7xl mx-auto space-y-6">
       
       {/* Page Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-6 rounded-2xl bg-zinc-900/60 border border-white/[0.08] backdrop-blur-xl">
         <div>
-          <div className="inline-flex items-center space-x-1.5 px-3 py-1 bg-emerald-50 rounded-full border border-emerald-200/80 text-emerald-800 text-xs font-bold mb-1.5">
-            <Receipt className="w-3.5 h-3.5 text-emerald-700" />
-            <span>5-Second POS Billing Station</span>
+          <div className="inline-flex items-center space-x-1.5 px-3 py-1 bg-emerald-500/10 rounded-full border border-emerald-500/20 text-emerald-400 text-xs font-semibold mb-2">
+            <Receipt className="w-3.5 h-3.5" />
+            <span>हाई-स्पीड POS काउंटर • 5-Second POS Station</span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
             स्मार्ट बिलिंग काउंटर (Point of Sale)
           </h1>
-          <p className="text-xs sm:text-sm text-slate-500 font-medium">
-            सामान पर क्लिक करें, तुरंत मात्रा व छूट जोड़ें और 1-क्लिक में रसीद प्रिंट करें।
+          <p className="text-xs sm:text-sm text-zinc-400 font-medium mt-1">
+            सामान पर क्लिक करें, मात्रा तय करें और 1-क्लिक में थर्मल रसीद प्रिंट करें।
           </p>
         </div>
 
         {cart.length > 0 && (
           <button
             onClick={clearCart}
-            className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 text-xs font-bold transition cursor-pointer"
+            className="inline-flex items-center space-x-1.5 px-3.5 py-2 rounded-xl border border-white/[0.08] bg-zinc-800/80 hover:bg-zinc-700/80 text-zinc-300 text-xs font-semibold transition cursor-pointer"
           >
-            <RotateCcw className="w-3.5 h-3.5 text-slate-400" />
+            <RotateCcw className="w-3.5 h-3.5 text-zinc-400" />
             <span>कार्ट खाली करें (Reset)</span>
           </button>
         )}
@@ -164,40 +164,40 @@ export const SmartBillingPage: React.FC<SmartBillingPageProps> = ({ onOrderSaved
 
       {/* Completed Invoice View (Thermal Print Ready) */}
       {completedOrder ? (
-        <div className="max-w-xl mx-auto bg-white rounded-2xl border border-slate-200 p-6 shadow-xs my-8 animate-fadeIn">
-          <div className="text-center pb-5 border-b border-slate-200">
-            <div className="w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center mx-auto mb-2 text-emerald-700">
+        <div className="max-w-xl mx-auto bg-zinc-900/90 rounded-2xl border border-white/[0.08] p-6 shadow-2xl my-8 animate-fadeIn">
+          <div className="text-center pb-5 border-b border-white/[0.08]">
+            <div className="w-12 h-12 rounded-full bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center mx-auto mb-2 text-emerald-400">
               <Check className="w-6 h-6 stroke-[2.5]" />
             </div>
-            <h2 className="text-xl font-black text-slate-900">बिल सफलतापूर्वक तैयार हुआ!</h2>
-            <p className="text-xs text-slate-500 font-medium mt-0.5">
+            <h2 className="text-xl font-bold text-white">बिल सफलतापूर्वक तैयार हुआ!</h2>
+            <p className="text-xs text-zinc-400 font-medium mt-0.5">
               ऑर्डर #{completedOrder.id} • {new Date(completedOrder.created_at).toLocaleTimeString('en-IN')}
             </p>
           </div>
 
           {/* Thermal Receipt Preview Area */}
-          <div id="thermal-receipt" className="my-5 p-4 rounded-xl bg-slate-50 border border-slate-200 text-xs font-mono">
-            <div className="text-center pb-3 border-b border-dashed border-slate-300">
-              <p className="font-bold text-sm text-slate-900">DUKAAN SAATHI STORE</p>
-              <p className="text-[10px] text-slate-500">Main Bazaar, Kirana Counter</p>
-              <p className="text-[10px] text-slate-500">Order #{completedOrder.id} | Paid: {paymentMethod.toUpperCase()}</p>
+          <div id="thermal-receipt" className="my-5 p-4 rounded-xl bg-black/60 border border-white/[0.08] text-xs font-mono text-zinc-300">
+            <div className="text-center pb-3 border-b border-dashed border-zinc-700">
+              <p className="font-bold text-sm text-white">DUKAAN SAATHI STORE</p>
+              <p className="text-[10px] text-zinc-500">Main Bazaar, Kirana Counter</p>
+              <p className="text-[10px] text-zinc-400">Order #{completedOrder.id} | Paid: {paymentMethod.toUpperCase()}</p>
             </div>
 
-            <div className="py-3 border-b border-dashed border-slate-300 space-y-1">
+            <div className="py-3 border-b border-dashed border-zinc-700 space-y-1">
               {completedOrder.items.map((item, i) => (
                 <div key={i} className="flex justify-between text-xs">
                   <span className="truncate max-w-[180px]">{item.matched_product || item.raw_item} x {item.quantity}{item.unit}</span>
-                  <span className="font-bold tabular-nums">₹{item.line_total}</span>
+                  <span className="font-bold tabular-nums text-white">₹{item.line_total}</span>
                 </div>
               ))}
             </div>
 
             <div className="pt-3 space-y-1">
-              <div className="flex justify-between font-bold text-sm text-slate-900">
+              <div className="flex justify-between font-bold text-sm text-white">
                 <span>GRAND TOTAL:</span>
-                <span className="tabular-nums">₹{completedOrder.total_amount}</span>
+                <span className="tabular-nums text-emerald-400">₹{completedOrder.total_amount}</span>
               </div>
-              <p className="text-center text-[10px] text-slate-400 mt-3 pt-2 border-t border-slate-200">
+              <p className="text-center text-[10px] text-zinc-500 mt-3 pt-2 border-t border-zinc-800">
                 *** Dhanyawad! Phir Aaiyega ***
               </p>
             </div>
@@ -206,14 +206,14 @@ export const SmartBillingPage: React.FC<SmartBillingPageProps> = ({ onOrderSaved
           <div className="flex gap-3 mt-6">
             <button
               onClick={() => window.print()}
-              className="flex-1 inline-flex items-center justify-center space-x-1.5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs transition cursor-pointer shadow-xs active:scale-95"
+              className="flex-1 inline-flex items-center justify-center space-x-1.5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition cursor-pointer shadow-md shadow-emerald-900/40 active:scale-95"
             >
               <Printer className="w-4 h-4" />
               <span>पर्चा प्रिंट (Thermal Print)</span>
             </button>
             <button
               onClick={() => setCompletedOrder(null)}
-              className="flex-1 inline-flex items-center justify-center space-x-1.5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs transition cursor-pointer"
+              className="flex-1 inline-flex items-center justify-center space-x-1.5 py-2.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-200 border border-white/[0.08] font-bold text-xs transition cursor-pointer"
             >
               <span>नया बिल बनाएं (Next Bill)</span>
               <ArrowRight className="w-4 h-4" />
@@ -229,13 +229,13 @@ export const SmartBillingPage: React.FC<SmartBillingPageProps> = ({ onOrderSaved
             
             {/* Search Bar */}
             <div className="relative">
-              <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+              <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" />
               <input
                 type="text"
                 value={search}
                 onChange={e => setSearch(e.target.value)}
                 placeholder="सामान खोजें (Type name or alias: chawal, tel, sugar, atta, biscuit)..."
-                className="w-full pl-10 pr-4 py-2.5 bg-white rounded-xl border border-slate-200 text-xs sm:text-sm font-medium focus:outline-none focus:border-emerald-500 shadow-2xs"
+                className="w-full pl-10 pr-4 py-3 bg-zinc-900/80 rounded-xl border border-white/[0.08] text-xs sm:text-sm font-medium text-white placeholder:text-zinc-500 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/30"
               />
             </div>
 
@@ -245,20 +245,20 @@ export const SmartBillingPage: React.FC<SmartBillingPageProps> = ({ onOrderSaved
                 <button
                   key={p.id}
                   onClick={() => addToCart(p)}
-                  className="bg-white p-3.5 rounded-xl border border-slate-200 hover:border-emerald-500 hover:shadow-xs transition text-left flex flex-col justify-between group active:scale-98 cursor-pointer"
+                  className="bg-zinc-900/70 p-3.5 rounded-xl border border-white/[0.08] hover:border-emerald-500/50 hover:bg-zinc-800/70 transition text-left flex flex-col justify-between group active:scale-98 cursor-pointer"
                 >
                   <div>
-                    <h4 className="font-bold text-xs sm:text-sm text-slate-900 group-hover:text-emerald-700 transition">
+                    <h4 className="font-bold text-xs sm:text-sm text-zinc-100 group-hover:text-emerald-400 transition">
                       {p.name}
                     </h4>
-                    <span className="text-xs text-emerald-700 font-medium">{p.hindi_name}</span>
+                    <span className="text-xs text-zinc-400 font-medium">{p.hindi_name}</span>
                   </div>
 
-                  <div className="mt-3 pt-2 border-t border-slate-100 flex items-center justify-between w-full">
-                    <span className="text-xs sm:text-sm font-bold font-mono tabular-nums text-slate-900">
-                      ₹{p.price} <span className="text-[10px] font-normal text-slate-500">/{p.unit}</span>
+                  <div className="mt-3 pt-2 border-t border-white/[0.06] flex items-center justify-between w-full">
+                    <span className="text-xs sm:text-sm font-bold font-mono tabular-nums text-white">
+                      ₹{p.price} <span className="text-[10px] font-normal text-zinc-400">/{p.unit}</span>
                     </span>
-                    <span className="text-[10px] font-semibold bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded">
+                    <span className="text-[10px] font-semibold bg-zinc-800 text-zinc-300 px-1.5 py-0.5 rounded border border-white/[0.05]">
                       स्टॉक: {p.stock}
                     </span>
                   </div>
@@ -268,74 +268,74 @@ export const SmartBillingPage: React.FC<SmartBillingPageProps> = ({ onOrderSaved
           </div>
 
           {/* Cart & Billing Checkout Drawer (Right 5 Columns) */}
-          <div className="lg:col-span-5 bg-white rounded-2xl p-5 border border-slate-200/90 shadow-xs flex flex-col justify-between space-y-4">
+          <div className="lg:col-span-5 bg-zinc-900/80 rounded-2xl p-5 border border-white/[0.08] backdrop-blur-xl flex flex-col justify-between space-y-4">
             <div>
               {/* Customer Name Input */}
               <div className="mb-4 space-y-1.5">
-                <label className="text-xs font-bold text-slate-700 uppercase tracking-wide block">
+                <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider block">
                   ग्राहक का नाम / खाता (Customer Name)
                 </label>
                 <div className="relative">
-                  <User className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                  <User className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
                   <input
                     type="text"
                     value={customerName}
                     onChange={e => setCustomerName(e.target.value)}
                     placeholder="उदा: Raju Bhai, Sharma ji (वैकल्पिक)"
-                    className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-medium focus:outline-none focus:border-emerald-500"
+                    className="w-full pl-9 pr-3 py-2 bg-black/40 border border-white/[0.08] rounded-xl text-xs font-medium text-white placeholder:text-zinc-500 focus:outline-none focus:border-emerald-500/50"
                   />
                 </div>
               </div>
 
               {/* Items Table */}
-              <div className="border-b border-slate-200 pb-2 mb-2 flex justify-between text-xs font-bold text-slate-400 uppercase tracking-wider">
+              <div className="border-b border-white/[0.08] pb-2 mb-2 flex justify-between text-xs font-bold text-zinc-500 uppercase tracking-wider">
                 <span>सामान (Item)</span>
                 <span>मात्रा व दर (Qty & Price)</span>
               </div>
 
               {cart.length === 0 ? (
-                <div className="py-12 text-center text-slate-400 text-xs font-medium">
-                  <ShoppingBag className="w-8 h-8 mx-auto mb-2 text-slate-300" />
+                <div className="py-12 text-center text-zinc-500 text-xs font-medium">
+                  <ShoppingBag className="w-8 h-8 mx-auto mb-2 text-zinc-600" />
                   कार्ट खाली है। बाएं तरफ से सामान जोड़ें।
                 </div>
               ) : (
-                <div className="divide-y divide-slate-100 max-h-60 overflow-y-auto pr-1">
+                <div className="divide-y divide-white/[0.04] max-h-60 overflow-y-auto pr-1">
                   {cart.map((it, idx) => (
                     <div key={idx} className="py-2.5 flex items-center justify-between text-xs">
                       <div>
-                        <span className="font-bold text-slate-900">{it.product.name}</span>
-                        <span className="text-[11px] text-slate-500 block tabular-nums">
+                        <span className="font-bold text-zinc-100">{it.product.name}</span>
+                        <span className="text-[11px] text-zinc-400 block tabular-nums">
                           ₹{it.product.price} / {it.product.unit}
                         </span>
                       </div>
 
                       <div className="flex items-center space-x-2">
                         {/* Stepper */}
-                        <div className="flex items-center bg-slate-100 rounded-lg p-0.5">
+                        <div className="flex items-center bg-zinc-800 rounded-lg p-0.5 border border-white/[0.05]">
                           <button
                             onClick={() => updateQuantity(it.product.id, it.quantity - (it.product.unit === 'packet' || it.product.unit === 'bottle' ? 1 : 0.5))}
-                            className="w-5 h-5 flex items-center justify-center bg-white rounded shadow-2xs hover:bg-emerald-50 text-slate-700"
+                            className="w-5 h-5 flex items-center justify-center bg-zinc-700 hover:bg-zinc-600 rounded text-zinc-200"
                           >
                             <Minus className="w-3 h-3" />
                           </button>
-                          <span className="w-10 text-center font-bold font-mono tabular-nums text-slate-800">
+                          <span className="w-10 text-center font-bold font-mono tabular-nums text-zinc-200">
                             {it.quantity}
                           </span>
                           <button
                             onClick={() => updateQuantity(it.product.id, it.quantity + (it.product.unit === 'packet' || it.product.unit === 'bottle' ? 1 : 0.5))}
-                            className="w-5 h-5 flex items-center justify-center bg-white rounded shadow-2xs hover:bg-emerald-50 text-slate-700"
+                            className="w-5 h-5 flex items-center justify-center bg-zinc-700 hover:bg-zinc-600 rounded text-zinc-200"
                           >
                             <Plus className="w-3 h-3" />
                           </button>
                         </div>
 
-                        <span className="font-bold font-mono tabular-nums text-slate-900 w-12 text-right">
+                        <span className="font-bold font-mono tabular-nums text-white w-12 text-right">
                           ₹{Math.round(it.quantity * it.product.price)}
                         </span>
 
                         <button
                           onClick={() => removeFromCart(it.product.id)}
-                          className="text-slate-300 hover:text-rose-600 transition p-1"
+                          className="text-zinc-500 hover:text-rose-400 transition p-1"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
@@ -347,10 +347,10 @@ export const SmartBillingPage: React.FC<SmartBillingPageProps> = ({ onOrderSaved
             </div>
 
             {/* Calculations & Payment Options */}
-            <div className="pt-3 border-t border-slate-200 space-y-3">
+            <div className="pt-3 border-t border-white/[0.08] space-y-3">
               {/* Payment Method Selector */}
               <div>
-                <span className="text-[11px] font-bold text-slate-600 uppercase tracking-wider block mb-1.5">
+                <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider block mb-1.5">
                   भुगतान का प्रकार (Payment Method)
                 </span>
                 <div className="grid grid-cols-3 gap-2">
@@ -358,8 +358,8 @@ export const SmartBillingPage: React.FC<SmartBillingPageProps> = ({ onOrderSaved
                     onClick={() => setPaymentMethod('cash')}
                     className={`py-2 rounded-xl text-xs font-bold border transition cursor-pointer ${
                       paymentMethod === 'cash'
-                        ? 'bg-emerald-50 border-emerald-500 text-emerald-800 ring-2 ring-emerald-400/20'
-                        : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                        ? 'bg-emerald-500/20 border-emerald-500 text-emerald-400 ring-1 ring-emerald-400/30'
+                        : 'bg-zinc-800/80 border-white/[0.06] text-zinc-400 hover:bg-zinc-700/80'
                     }`}
                   >
                     नकद (Cash)
@@ -368,8 +368,8 @@ export const SmartBillingPage: React.FC<SmartBillingPageProps> = ({ onOrderSaved
                     onClick={() => setPaymentMethod('upi')}
                     className={`py-2 rounded-xl text-xs font-bold border transition cursor-pointer ${
                       paymentMethod === 'upi'
-                        ? 'bg-indigo-50 border-indigo-500 text-indigo-800 ring-2 ring-indigo-400/20'
-                        : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                        ? 'bg-indigo-500/20 border-indigo-500 text-indigo-400 ring-1 ring-indigo-400/30'
+                        : 'bg-zinc-800/80 border-white/[0.06] text-zinc-400 hover:bg-zinc-700/80'
                     }`}
                   >
                     UPI / QR
@@ -378,8 +378,8 @@ export const SmartBillingPage: React.FC<SmartBillingPageProps> = ({ onOrderSaved
                     onClick={() => setPaymentMethod('udhaar')}
                     className={`py-2 rounded-xl text-xs font-bold border transition cursor-pointer ${
                       paymentMethod === 'udhaar'
-                        ? 'bg-amber-50 border-amber-500 text-amber-800 ring-2 ring-amber-400/20'
-                        : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                        ? 'bg-amber-500/20 border-amber-500 text-amber-400 ring-1 ring-amber-400/30'
+                        : 'bg-zinc-800/80 border-white/[0.06] text-zinc-400 hover:bg-zinc-700/80'
                     }`}
                   >
                     उधार (Credit)
@@ -388,10 +388,10 @@ export const SmartBillingPage: React.FC<SmartBillingPageProps> = ({ onOrderSaved
               </div>
 
               {/* Subtotal & Discounts */}
-              <div className="space-y-1.5 text-xs text-slate-600 font-medium">
+              <div className="space-y-1.5 text-xs text-zinc-400 font-medium">
                 <div className="flex justify-between">
                   <span>उप-कुल (Subtotal):</span>
-                  <span className="font-bold font-mono tabular-nums text-slate-900">₹{subtotal}</span>
+                  <span className="font-bold font-mono tabular-nums text-white">₹{subtotal}</span>
                 </div>
 
                 <div className="flex justify-between items-center">
@@ -399,7 +399,7 @@ export const SmartBillingPage: React.FC<SmartBillingPageProps> = ({ onOrderSaved
                   <select
                     value={discountPercent}
                     onChange={e => setDiscountPercent(Number(e.target.value))}
-                    className="text-xs bg-slate-50 border border-slate-200 rounded px-2 py-1 font-semibold"
+                    className="text-xs bg-zinc-800 border border-white/[0.08] text-white rounded px-2 py-1 font-semibold focus:outline-none"
                   >
                     <option value={0}>0%</option>
                     <option value={2}>2%</option>
@@ -414,28 +414,28 @@ export const SmartBillingPage: React.FC<SmartBillingPageProps> = ({ onOrderSaved
                       type="checkbox"
                       checked={applyGst}
                       onChange={e => setApplyGst(e.target.checked)}
-                      className="rounded text-emerald-600 focus:ring-0"
+                      className="rounded bg-zinc-800 border-white/[0.1] text-emerald-500 focus:ring-0"
                     />
                     <span>5% GST लागू करें</span>
                   </label>
-                  <span className="font-mono tabular-nums">{applyGst ? `+ ₹${gstAmount}` : '₹0'}</span>
+                  <span className="font-mono tabular-nums text-zinc-300">{applyGst ? `+ ₹${gstAmount}` : '₹0'}</span>
                 </div>
               </div>
 
               {/* Grand Total */}
-              <div className="pt-2 border-t border-slate-200 flex justify-between items-center">
-                <span className="text-sm font-bold text-slate-800">कुल बिल (Total):</span>
-                <span className="text-2xl font-black font-mono tabular-nums text-emerald-700">₹{grandTotal}</span>
+              <div className="pt-2 border-t border-white/[0.08] flex justify-between items-center">
+                <span className="text-sm font-bold text-zinc-300">कुल बिल (Total):</span>
+                <span className="text-2xl font-black font-mono tabular-nums text-emerald-400">₹{grandTotal}</span>
               </div>
 
               {/* Checkout Button */}
               <button
                 onClick={handleCheckout}
                 disabled={isSubmitting || cart.length === 0}
-                className={`w-full py-3 rounded-xl text-white font-bold text-xs sm:text-sm shadow-xs transition flex items-center justify-center space-x-2 cursor-pointer ${
+                className={`w-full py-3 rounded-xl text-white font-bold text-xs sm:text-sm shadow-md transition flex items-center justify-center space-x-2 cursor-pointer ${
                   isSubmitting || cart.length === 0
-                    ? 'bg-slate-300 cursor-not-allowed'
-                    : 'bg-emerald-600 hover:bg-emerald-700 active:scale-98 shadow-emerald-700/20'
+                    ? 'bg-zinc-800 text-zinc-500 cursor-not-allowed border border-white/[0.05]'
+                    : 'bg-emerald-600 hover:bg-emerald-500 active:scale-98 shadow-emerald-900/50'
                 }`}
               >
                 <Check className="w-4 h-4 stroke-[2.5]" />
