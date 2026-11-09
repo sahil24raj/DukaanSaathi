@@ -3,14 +3,30 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    --brand-primary: #059669;
+    --brand-dark: #064e3b;
+    --brand-light: #ecfdf5;
+    --surface-bg: #f8fafc;
+    --surface-card: #ffffff;
+    --border-color: #e2e8f0;
+  }
+
   body {
-    background-color: #faf8f5;
-    color: #1e293b;
+    background-color: #f8fafc;
+    color: #0f172a;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Tabular numbers for all pricing and quantities */
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
   }
 }
 
-/* Custom scrollbars */
+/* Crisp Clean Scrollbars */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -26,17 +42,42 @@
   background: #94a3b8;
 }
 
-/* Pulse glow for Voice Mic Button */
-@keyframes voice-glow {
+/* Professional Sound Wave Bars */
+@keyframes soundwave {
   0%, 100% {
-    box-shadow: 0 0 0 0 rgba(234, 100, 9, 0.4), 0 10px 25px -5px rgba(234, 100, 9, 0.3);
+    height: 6px;
   }
   50% {
-    box-shadow: 0 0 0 20px rgba(234, 100, 9, 0), 0 20px 30px -5px rgba(234, 100, 9, 0.4);
+    height: 28px;
   }
 }
 
-.mic-active-glow {
-  animation: voice-glow 1.5s infinite ease-in-out;
-}
+.wave-bar-1 { animation: soundwave 0.8s infinite ease-in-out; }
+.wave-bar-2 { animation: soundwave 1.1s infinite ease-in-out 0.15s; }
+.wave-bar-3 { animation: soundwave 0.7s infinite ease-in-out 0.3s; }
+.wave-bar-4 { animation: soundwave 1.0s infinite ease-in-out 0.45s; }
+.wave-bar-5 { animation: soundwave 0.9s infinite ease-in-out 0.2s; }
 
+/* Thermal Receipt Print Styles */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #thermal-receipt, #thermal-receipt * {
+    visibility: visible;
+  }
+  #thermal-receipt {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 80mm;
+    margin: 0;
+    padding: 10px;
+    font-family: monospace;
+    font-size: 11px;
+    color: #000;
+  }
+  .no-print {
+    display: none !important;
+  }
+}

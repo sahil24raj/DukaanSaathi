@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Mic, Square, Upload, Sparkles } from 'lucide-react';
+import { Mic, Square, Upload, Radio } from 'lucide-react';
 import { ProcessingState } from '../types';
 
 interface VoiceRecorderProps {
@@ -22,7 +22,7 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
   const timerRef = useRef<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Suggested quick test queries for rapid evaluation
+  // Real-world Kirana voice queries
   const quickTestOrders = [
     { label: '2 kg Chawal + 1 L Oil', text: 'Bhaiya, do kilo chawal aur ek litre refined oil chahiye.' },
     { label: '5 kg Atta + 2 Biscuits', text: 'paanch kg atta aur do packet biscuit dena' },
@@ -54,12 +54,11 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
 
       mediaRecorder.onstop = () => {
         const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/wav' });
-        // Stop all tracks to release microphone
         stream.getTracks().forEach((track) => track.stop());
         onAudioRecorded(audioBlob, 'mic_recording.wav');
       };
 
-      mediaRecorder.start(250); // Slice chunks every 250ms
+      mediaRecorder.start(250);
       setIsRecording(true);
       setRecordSeconds(0);
 
@@ -106,96 +105,109 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
   };
 
   return (
-    <div className="flex flex-col items-center justify-center p-6 bg-white rounded-3xl shadow-sm border border-amber-100/80 max-w-2xl mx-auto">
-      {/* Central Hero Mic Button */}
-      <div className="relative my-4 flex items-center justify-center">
-        {/* Ripple rings while recording */}
+    <div className="flex flex-col items-center justify-center p-6 sm:p-8 bg-white rounded-2xl shadow-xs border border-slate-200/90 max-w-2xl mx-auto">
+      
+      {/* Central Tactile Mic Button */}
+      <div className="relative my-3 flex items-center justify-center">
         {isRecording && (
-          <>
-            <div className="absolute w-36 h-36 rounded-full bg-orange-400/30 animate-ping pointer-events-none" />
-            <div className="absolute w-44 h-44 rounded-full bg-orange-300/20 animate-pulse pointer-events-none" />
-          </>
+          <div className="absolute -inset-3 rounded-full border-2 border-rose-500/40 animate-ping pointer-events-none" />
         )}
 
         <button
           onClick={handleMicClick}
           disabled={disabled || (state !== 'idle' && state !== 'ready' && !isRecording)}
           aria-label={isRecording ? 'ऑर्डर रोकना (Stop Recording)' : 'बोलिए (Speak Order)'}
-          className={`relative z-10 w-28 h-28 sm:w-32 sm:h-32 rounded-full flex flex-col items-center justify-center transition-all duration-300 ${
+          className={`relative z-10 w-28 h-28 sm:w-32 sm:h-32 rounded-full flex flex-col items-center justify-center transition-all duration-200 shadow-md ${
             isRecording
-              ? 'bg-red-600 text-white mic-active-glow scale-105'
-              : 'bg-gradient-to-tr from-amber-500 via-orange-500 to-amber-600 hover:from-amber-600 hover:to-orange-700 text-white shadow-xl shadow-orange-500/30 hover:scale-105 active:scale-95'
+              ? 'bg-rose-600 hover:bg-rose-700 text-white shadow-rose-600/30 ring-4 ring-rose-200'
+              : 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-700/25 ring-4 ring-emerald-50 active:scale-95'
           } ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
         >
           {isRecording ? (
             <>
-              <Square className="w-10 h-10 fill-white mb-1" />
-              <span className="text-xs font-bold uppercase tracking-wider">{formatTime(recordSeconds)}</span>
-              <span className="text-[11px] font-medium text-red-100">Stop Recording</span>
+              <Square className="w-8 h-8 fill-white mb-1" />
+              <span className="text-xs font-mono font-bold tracking-wider">{formatTime(recordSeconds)}</span>
+              <span className="text-[10px] font-semibold text-rose-100">रोकें (Stop)</span>
             </>
           ) : (
             <>
-              <Mic className="w-10 h-10 sm:w-12 sm:h-12 mb-1 drop-shadow" />
-              <span className="text-sm font-bold tracking-wide">बोलिए</span>
-              <span className="text-[10px] font-medium text-amber-100 tracking-wider uppercase">Boliye / Tap</span>
+              <Mic className="w-9 h-9 sm:w-10 sm:h-10 mb-1" />
+              <span className="text-base font-extrabold tracking-tight">बोलिए</span>
+              <span className="text-[10px] font-semibold text-emerald-100 uppercase tracking-wider">Tap & Speak</span>
             </>
           )}
         </button>
       </div>
 
-      {/* Recording Subtitle & Status */}
+      {/* Recording Waveform Visualization */}
+      {isRecording && (
+        <div className="flex items-center gap-1.5 my-3 h-8">
+          <span className="w-1 bg-rose-500 rounded-full wave-bar-1" />
+          <span className="w-1 bg-rose-500 rounded-full wave-bar-2" />
+          <span className="w-1 bg-rose-500 rounded-full wave-bar-3" />
+          <span className="w-1 bg-rose-500 rounded-full wave-bar-4" />
+          <span className="w-1 bg-rose-500 rounded-full wave-bar-5" />
+          <span className="w-1 bg-rose-500 rounded-full wave-bar-2" />
+          <span className="w-1 bg-rose-500 rounded-full wave-bar-4" />
+          <span className="w-1 bg-rose-500 rounded-full wave-bar-1" />
+        </div>
+      )}
+
+      {/* Status Instruction */}
       <div className="text-center mt-2">
-        <h3 className="text-base font-semibold text-slate-800">
+        <h3 className="text-base font-bold text-slate-900">
           {isRecording ? 'सुन रहे हैं... बोलिए (Listening...)' : 'दुकानदार या ग्राहक की आवाज में बोलें'}
         </h3>
-        <p className="text-xs text-slate-500 max-w-sm mx-auto mt-1">
+        <p className="text-xs text-slate-500 max-w-sm mx-auto mt-1 leading-relaxed">
           {isRecording
             ? 'उदा: "भैया 2 किलो चावल और 1 लीटर रिफाइंड तेल दे दो"'
-            : 'Tap the mic and speak any grocery order in natural Hindi or Hinglish'}
+            : 'Hindi / Hinglish voice assistant powered by Gnani Prisma v2.5 STT'}
         </p>
       </div>
 
       {/* Secondary Controls: File Upload & Quick Utterance Chips */}
       <div className="w-full mt-6 pt-5 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3">
         {/* Upload Audio File */}
-        <div>
+        <div className="flex items-center space-x-2">
           <input
             type="file"
             ref={fileInputRef}
             onChange={handleFileUpload}
-            accept="audio/*,.wav,.mp3,.m4a,.ogg"
+            accept="audio/wav,audio/mp3,audio/webm,audio/*"
             className="hidden"
           />
           <button
             onClick={() => fileInputRef.current?.click()}
             disabled={disabled || isRecording}
-            className="flex items-center space-x-2 text-xs text-slate-600 hover:text-amber-700 bg-slate-50 hover:bg-amber-50 border border-slate-200 hover:border-amber-200 px-3 py-1.5 rounded-lg transition"
+            className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100 text-xs font-semibold text-slate-700 transition-colors cursor-pointer"
           >
-            <Upload className="w-3.5 h-3.5" />
-            <span>Upload WAV audio</span>
+            <Upload className="w-3.5 h-3.5 text-slate-500" />
+            <span>Upload WAV File</span>
           </button>
         </div>
 
-        {/* Quick Test Pre-fills */}
-        {onTextOrderDirect && (
-          <div className="flex items-center space-x-1.5 flex-wrap justify-center">
-            <span className="text-[11px] text-slate-400 flex items-center mr-1">
-              <Sparkles className="w-3 h-3 mr-1 text-amber-500" /> Test text:
-            </span>
-            {quickTestOrders.map((item, idx) => (
-              <button
-                key={idx}
-                onClick={() => onTextOrderDirect(item.text)}
-                disabled={disabled || isRecording}
-                className="text-[11px] bg-slate-100 hover:bg-amber-100 text-slate-700 hover:text-amber-900 px-2 py-1 rounded-md transition border border-slate-200/60"
-                title={item.text}
-              >
-                {item.label}
-              </button>
-            ))}
-          </div>
-        )}
+        {/* Quick Sample Order Pills */}
+        <div className="text-xs text-slate-400 font-medium">
+          या नीचे दिया कोई भी सैंपल टेस्ट करें:
+        </div>
       </div>
+
+      {/* Sample Query Buttons */}
+      <div className="w-full mt-3 flex flex-wrap gap-1.5 justify-center">
+        {quickTestOrders.map((sample, idx) => (
+          <button
+            key={idx}
+            title={sample.text}
+            onClick={() => onTextOrderDirect && onTextOrderDirect(sample.text)}
+            disabled={disabled || isRecording}
+            className="inline-flex items-center space-x-1 px-2.5 py-1.5 rounded-lg bg-slate-50 hover:bg-emerald-50 text-slate-700 hover:text-emerald-800 border border-slate-200/80 hover:border-emerald-300 text-xs font-medium transition-all cursor-pointer"
+          >
+            <Radio className="w-3 h-3 text-slate-400 group-hover:text-emerald-600" />
+            <span>{sample.label}</span>
+          </button>
+        ))}
+      </div>
+
     </div>
   );
 };

@@ -4,7 +4,7 @@ import { StatusIndicator } from '../components/StatusIndicator';
 import { OrderCard } from '../components/OrderCard';
 import { api, playHindiAudio } from '../services/api';
 import { ParsedOrderResponse, ProcessingState, SystemStatus } from '../types';
-import { CheckCircle2, Store } from 'lucide-react';
+import { CheckCircle2, Store, Printer, ArrowRight } from 'lucide-react';
 
 interface OrderTakingPageProps {
   systemStatus?: SystemStatus | null;
@@ -67,7 +67,7 @@ export const OrderTakingPage: React.FC<OrderTakingPageProps> = ({
     }
   };
 
-  // Direct text order parsing (for quick evaluation or typed queries)
+  // Direct text order parsing
   const handleTextOrderDirect = async (text: string) => {
     try {
       setErrorMessage('');
@@ -98,14 +98,12 @@ export const OrderTakingPage: React.FC<OrderTakingPageProps> = ({
     }
   };
 
-  // Replay speech response
   const handleReplaySpeech = () => {
     if (parsedOrder?.hindi_reply) {
       playHindiAudio(parsedOrder.hindi_reply, audioBase64);
     }
   };
 
-  // Modify quantity inside order
   const handleUpdateItemQuantity = (index: number, newQty: number) => {
     if (!parsedOrder) return;
     const updatedItems = [...parsedOrder.items];
@@ -122,7 +120,6 @@ export const OrderTakingPage: React.FC<OrderTakingPageProps> = ({
     });
   };
 
-  // Remove item from order
   const handleRemoveItem = (index: number) => {
     if (!parsedOrder) return;
     const updatedItems = parsedOrder.items.filter((_, i) => i !== index);
@@ -134,7 +131,6 @@ export const OrderTakingPage: React.FC<OrderTakingPageProps> = ({
     });
   };
 
-  // Confirm and persist order
   const handleConfirmOrder = async () => {
     if (!parsedOrder || parsedOrder.items.length === 0) return;
     setIsConfirming(true);
@@ -167,17 +163,18 @@ export const OrderTakingPage: React.FC<OrderTakingPageProps> = ({
 
   return (
     <div className="py-6 px-4 max-w-4xl mx-auto">
+      
       {/* Hero Header */}
       <div className="text-center mb-6">
-        <div className="inline-flex items-center space-x-2 px-3 py-1 bg-amber-50 rounded-full border border-amber-200 text-amber-800 text-xs font-semibold mb-2">
-          <Store className="w-3.5 h-3.5 text-amber-600" />
-          <span>दुकानदार और ग्राहकों के लिए स्मार्ट वॉइस सहायक</span>
+        <div className="inline-flex items-center space-x-1.5 px-3 py-1 bg-emerald-50 rounded-full border border-emerald-200/80 text-emerald-800 text-xs font-bold mb-2">
+          <Store className="w-3.5 h-3.5 text-emerald-700" />
+          <span>दुकानदार व ग्राहक वॉयस सहायक</span>
         </div>
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-          दुकान साथी — आसान बोलकर बिलिंग
+        <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+          दुकान साथी — बोलकर बिल बनाएं
         </h1>
-        <p className="text-xs sm:text-sm text-slate-500 mt-1 max-w-lg mx-auto">
-          Just click the mic, speak in Hindi or Hinglish. Dukaan Saathi understands quantities, checks stock, and replies back in Hindi!
+        <p className="text-xs sm:text-sm text-slate-500 mt-1 max-w-lg mx-auto font-medium">
+          माइक दबाएं और हिंदी या हिंग्लिश में बोलें। दुकान साथी सामान, मात्रा और स्टॉक की जांच कर तुरंत हिसाब बताएगा।
         </p>
       </div>
 
@@ -192,40 +189,50 @@ export const OrderTakingPage: React.FC<OrderTakingPageProps> = ({
 
       {/* Success Banner if Order Placed */}
       {orderSuccessAlert && (
-        <div className="mb-6 p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-900 flex items-center justify-between shadow-xs animate-fadeIn">
+        <div className="mb-6 p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-950 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-xs">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 shrink-0">
-              <CheckCircle2 className="w-6 h-6" />
+            <div className="w-10 h-10 rounded-full bg-emerald-600 flex items-center justify-center text-white shrink-0">
+              <CheckCircle2 className="w-5 h-5 stroke-[2.5]" />
             </div>
             <div>
-              <h4 className="text-sm font-bold">
-                ऑर्डर नंबर #{orderSuccessAlert.id} सफलतापूर्वक दर्ज हुआ!
+              <h4 className="font-bold text-sm">
+                ऑर्डर #{orderSuccessAlert.id} सफलतापूर्वक दर्ज हुआ!
               </h4>
               <p className="text-xs text-emerald-700">
-                कुल बिल: ₹{Math.round(orderSuccessAlert.total)} • स्टॉक स्वतः अपडेट हो गया है।
+                कुल राशि: <strong className="font-mono tabular-nums text-emerald-900">₹{orderSuccessAlert.total}</strong> • स्टॉक अपडेट हो गया है
               </p>
             </div>
           </div>
-          {onNavigateToOrders && (
+          <div className="flex items-center space-x-2 w-full sm:w-auto">
             <button
-              onClick={onNavigateToOrders}
-              className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 transition"
+              onClick={() => window.print()}
+              className="flex-1 sm:flex-none inline-flex items-center justify-center space-x-1.5 px-3 py-1.5 rounded-lg bg-white border border-emerald-300 text-emerald-800 hover:bg-emerald-100 text-xs font-bold transition-colors cursor-pointer"
             >
-              आर्डर देखें (View Orders)
+              <Printer className="w-3.5 h-3.5" />
+              <span>पर्चा प्रिंट</span>
             </button>
-          )}
+            {onNavigateToOrders && (
+              <button
+                onClick={onNavigateToOrders}
+                className="flex-1 sm:flex-none inline-flex items-center justify-center space-x-1.5 px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all cursor-pointer"
+              >
+                <span>आर्डर लिस्ट देखें</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+            )}
+          </div>
         </div>
       )}
 
-      {/* Voice Recorder Hero */}
+      {/* Mic Audio Recorder Component */}
       <VoiceRecorder
         state={processingState}
         onAudioRecorded={handleAudioRecorded}
         onTextOrderDirect={handleTextOrderDirect}
-        disabled={isConfirming}
+        disabled={processingState !== 'idle' && processingState !== 'ready'}
       />
 
-      {/* Parsed Order Card */}
+      {/* Extracted Order Card */}
       {parsedOrder && (
         <OrderCard
           order={parsedOrder}
@@ -239,21 +246,6 @@ export const OrderTakingPage: React.FC<OrderTakingPageProps> = ({
         />
       )}
 
-      {/* Quick Tips / Instructions for Kirana Shopkeeper */}
-      <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs text-slate-500">
-        <div className="p-3 bg-white/70 rounded-xl border border-slate-200/70">
-          <span className="font-semibold text-slate-700 block mb-1">🗣️ किसी भी भाषा में बोलें</span>
-          हिंदी, हिंग्लिश या इंग्लिश में आर्डर बोलें। उदा: "दो किलो चावल, एक लीटर तेल"।
-        </div>
-        <div className="p-3 bg-white/70 rounded-xl border border-slate-200/70">
-          <span className="font-semibold text-slate-700 block mb-1">⚖️ संख्या और यूनिट समझ</span>
-          आधा किलो, 1 packet, 2 litre, 500g जैसी मात्राओं की स्वचालित पहचान।
-        </div>
-        <div className="p-3 bg-white/70 rounded-xl border border-slate-200/70">
-          <span className="font-semibold text-slate-700 block mb-1">🔊 बोलकर पुष्टि</span>
-          Gnani Timbre आवाज़ में तुरंत बिल और सामान बोलकर ग्राहक को सुनाता है।
-        </div>
-      </div>
     </div>
   );
 };

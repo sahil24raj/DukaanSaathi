@@ -2,16 +2,13 @@ import React, { useState } from 'react';
 import { 
   Mic, 
   ArrowRight, 
-  CheckCircle2, 
-  Sparkles, 
   ShieldCheck, 
   TrendingUp, 
   Boxes, 
   CreditCard, 
   Receipt, 
-  Play, 
-  Volume2,
-  ChevronDown
+  ChevronDown, 
+  Zap 
 } from 'lucide-react';
 
 interface LandingPageProps {
@@ -20,45 +17,73 @@ interface LandingPageProps {
 }
 
 export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onOpenVoiceDemo }) => {
-  const [activeFaq, setActiveFaq] = useState<number | null>(null);
+  const [activeFaq, setActiveFaq] = useState<number | null>(0);
+  const demoUtterance = 'Bhaiya, do kilo chawal aur ek litre refined oil chahiye.';
 
   const features = [
     {
       icon: Mic,
-      title: 'आवाज़ से बिलिंग (Voice-First Billing)',
-      desc: 'टाइपिंग छोड़िए। बस बोलिए: "2 किलो चीनी, 1 लीटर तेल" और सिस्टम तुरंत बिल, मात्रा और स्टॉक कैलकुलेट कर देगा।'
+      title: 'आवाज़ से बिलिंग (Voice-First Order Taking)',
+      desc: 'टाइपिंग और डायरी भूल जाइए। बस बोलिए: "2 किलो चीनी, 1 लीटर तेल" और सिस्टम तुरंत बिल, मात्रा और स्टॉक कैलकुलेट कर देगा।'
     },
     {
       icon: Receipt,
-      title: 'तेज़ POS और कच्चा/पक्का बिल',
-      desc: 'काउंटर रश में 5 सेकंड में बिल बनाएं। 80mm थर्मल प्रिंटर या WhatsApp पर्चा भेजने की पूरी सुविधा।'
+      title: '5-सेकंड POS बिलिंग व थर्मल प्रिंट',
+      desc: 'भीड़ के समय तेज़ी से बिल बनाएं। 80mm/58mm थर्मल प्रिंटर से पर्चा निकालें या 1-क्लिक में WhatsApp बिल भेजें।'
     },
     {
       icon: CreditCard,
-      title: 'डिजिटल बही-खाता (Udhaar Ledger)',
-      desc: 'ग्राहक के नाम से उधारी जोड़ें और जमा दर्ज करें। हिसाब में शून्य गलती और समय पर पेमेंट याद दिलाने की सुविधा।'
+      title: 'डिजिटल उधार बही-खाता (Khata Ledger)',
+      desc: 'ग्राहक के नाम से उधारी जोड़ें और जमा दर्ज करें। WhatsApp पर ऑटोमैटिक पेमेंट रिमाइंडर भेजें बिना किसी झिझक के।'
     },
     {
       icon: Boxes,
-      title: 'लाइव स्टॉक ट्रैकिंग (Smart Inventory)',
-      desc: 'सामान बिकते ही स्टॉक स्वतः घटता है। 10 से कम यूनिट होने पर तुरंत अलर्ट मिलता है ताकि बिक्री न रुके।'
+      title: 'लाइव स्टॉक ट्रैकिंग (Live Inventory)',
+      desc: 'बिल बनते ही स्टॉक स्वतः घटता है। कम स्टॉक होने पर नारंगी अलर्ट मिलता है ताकि बिक्री कभी न रुके।'
     },
     {
       icon: TrendingUp,
-      title: 'दैनिक मुनाफा व रिपोर्ट (Analytics)',
-      desc: 'आज कितनी कुल बिक्री हुई, नकद कितना, UPI कितना, और कौन सा सामान सबसे ज्यादा बिका — सब एक नज़र में।'
+      title: 'दैनिक मुनाफा व बिक्री रिपोर्ट (Analytics)',
+      desc: 'आज कितनी कुल बिक्री हुई, कितना नकद आया, कितना UPI और कौन सा सामान सबसे ज्यादा बिका — सब एक नज़र में।'
     },
     {
       icon: ShieldCheck,
-      title: '100% सुरक्षित और स्थानीय (Safe & Local)',
+      title: '100% सुरक्षित और स्थानीय डेटा (Safe & Local)',
       desc: 'कोई गैर-ज़रूरी फोन नंबर या आधार डेटा नहीं। ऑफलाइन मोड और स्थानीय SQLite डेटाबेस के साथ सुरक्षित।'
+    }
+  ];
+
+  const comparisonRows = [
+    {
+      feature: 'आर्डर लेने की गति (Speed)',
+      traditional: 'पेन-कॉपी पर 2-3 मिनट',
+      complexPos: 'कीबोर्ड/बारकोड पर 1-2 मिनट',
+      dukaanSaathi: 'सिर्फ 3 सेकंड — बोलकर'
+    },
+    {
+      feature: 'उधार हिसाब (Udhaar Tracking)',
+      traditional: 'डायरी के पन्ने पलटना, हिसाब में चूक',
+      complexPos: 'जटिल एकाउंटिंग सॉफ्टवेयर',
+      dukaanSaathi: '1-क्लिक ग्राहक खाता + WhatsApp पर्चा'
+    },
+    {
+      feature: 'भाषा और बोलचाल (Language)',
+      traditional: 'स्थानीय बोली',
+      complexPos: 'सिर्फ अंग्रेज़ी',
+      dukaanSaathi: 'हिंदी, हिंग्लिश और बोलचाल की भाषा'
+    },
+    {
+      feature: 'हार्डवेयर की आवश्यकता (Hardware)',
+      traditional: 'कागज़ और डायरी',
+      complexPos: '₹40,000+ का भारी कंप्यूटर/मशीन',
+      dukaanSaathi: 'कोई भी सामान्य फोन, टैबलेट या लैपटॉप'
     }
   ];
 
   const faqs = [
     {
       q: 'क्या यह ऐप हिंदी और हिंग्लिश समझता है?',
-      a: 'हाँ, दुकान साथी को विशेष रूप से भारतीय बोलचाल की हिंदी और हिंग्लिश के लिए तैयार किया गया है। यह "आधा किलो", "डेढ़ लीटर", "दो पैकेट" जैसी सभी स्थानीय इकाइयों को सटीक समझता है।'
+      a: 'हाँ, दुकान साथी को विशेष रूप से भारतीय किराना स्टोर की बोलचाल की हिंदी और हिंग्लिश के लिए तैयार किया गया है। यह "आधा किलो", "डेढ़ लीटर", "दो पैकेट" जैसी सभी स्थानीय इकाइयों को सटीक समझता है।'
     },
     {
       q: 'अगर दुकान में इंटरनेट न हो या धीमा हो तो?',
@@ -75,351 +100,262 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onOpenVo
   ];
 
   return (
-    <div className="bg-[#faf8f5] text-slate-800">
+    <div className="bg-slate-50 text-slate-800">
+      
       {/* Hero Section */}
-      <section className="relative overflow-hidden pt-8 pb-16 md:pt-14 md:pb-24 border-b border-amber-200/60">
+      <section className="relative overflow-hidden pt-10 pb-16 md:pt-16 md:pb-24 border-b border-slate-200/90 bg-white">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
           <div className="text-center max-w-3xl mx-auto">
-            {/* Pill */}
-            <div className="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-amber-100 text-amber-900 text-xs font-semibold mb-5 border border-amber-200 shadow-xs">
-              <Sparkles className="w-4 h-4 text-amber-700" />
-              <span>भारतीय किराना और रिटेल दुकानों के लिए पहला वॉइस असिस्टेंट</span>
+            
+            {/* Domain Badge */}
+            <div className="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-emerald-50 text-emerald-800 text-xs font-bold mb-6 border border-emerald-200/80 shadow-2xs">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span>Voice AI for Indian Kirana & Retail Stores</span>
             </div>
 
             {/* Main Headline */}
             <h1 className="text-3xl sm:text-5xl md:text-6xl font-black text-slate-900 tracking-tight leading-tight">
-              अब दुकान संभालेगा आपका <span className="text-amber-600 underline decoration-amber-300 decoration-wavy underline-offset-6">स्मार्ट साथी</span>
+              अब दुकान संभालेगा आपका <span className="text-emerald-700">स्मार्ट साथी</span>
             </h1>
 
             {/* Subheadline */}
-            <p className="mt-5 text-base sm:text-lg md:text-xl text-slate-600 font-medium leading-relaxed">
-              Sales, stock, udhaar aur hisaab — sab kuch ek jagah. Bas boliye aur Dukan Sathi kaam karega.
+            <p className="mt-5 text-base sm:text-lg md:text-xl text-slate-600 font-medium leading-relaxed max-w-2xl mx-auto">
+              Sales, stock, udhaar aur hisaab — sab kuch ek jagah. Bas boliye aur Dukaan Saathi turant bill banayega.
             </p>
 
             {/* Call to Actions */}
             <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3.5">
               <button
                 onClick={onGetStarted}
-                className="w-full sm:w-auto px-7 py-3.5 rounded-2xl bg-amber-600 hover:bg-amber-700 active:scale-95 text-white font-bold text-base shadow-lg shadow-amber-600/25 transition flex items-center justify-center space-x-2"
+                className="w-full sm:w-auto px-7 py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-bold text-sm shadow-sm shadow-emerald-700/25 transition-all flex items-center justify-center space-x-2 cursor-pointer"
               >
-                <span>दुकान खोलें (Open App)</span>
-                <ArrowRight className="w-5 h-5" />
+                <span>POS बिलिंग शुरू करें (Start Billing)</span>
+                <ArrowRight className="w-4 h-4" />
               </button>
 
               <button
                 onClick={onOpenVoiceDemo}
-                className="w-full sm:w-auto px-6 py-3.5 rounded-2xl bg-white hover:bg-amber-50 text-slate-800 hover:text-amber-900 border border-slate-300 hover:border-amber-300 font-semibold text-base transition flex items-center justify-center space-x-2"
+                className="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-slate-50 hover:bg-emerald-50 text-slate-800 hover:text-emerald-900 border border-slate-200 hover:border-emerald-300 font-bold text-sm transition-all flex items-center justify-center space-x-2 cursor-pointer"
               >
-                <Play className="w-4 h-4 fill-slate-700 text-slate-700" />
-                <span>लाइव वॉइस डेमो देखें (Try Voice)</span>
+                <Mic className="w-4 h-4 text-emerald-600" />
+                <span>लाइव आवाज़ डेमो (Try Voice AI)</span>
               </button>
             </div>
 
-            {/* Live Trust Metrics */}
-            <div className="mt-10 grid grid-cols-3 gap-2 sm:gap-6 pt-6 border-t border-slate-200/80 text-center">
+            {/* Real Operational Metrics */}
+            <div className="mt-12 grid grid-cols-3 gap-2 sm:gap-6 pt-8 border-t border-slate-100 text-center">
               <div>
-                <span className="text-xl sm:text-2xl font-black text-slate-900">100%</span>
-                <p className="text-xs text-slate-500 font-medium mt-0.5">हिंदी और हिंग्लिश सपोर्ट</p>
+                <div className="text-2xl sm:text-3xl font-extrabold font-mono text-slate-900 tabular-nums">
+                  &lt; 280ms
+                </div>
+                <div className="text-xs font-semibold text-slate-500 mt-0.5">
+                  STT Voice Latency
+                </div>
+              </div>
+              <div className="border-x border-slate-100">
+                <div className="text-2xl sm:text-3xl font-extrabold font-mono text-emerald-700 tabular-nums">
+                  100%
+                </div>
+                <div className="text-xs font-semibold text-slate-500 mt-0.5">
+                  Offline-Safe Fallback
+                </div>
               </div>
               <div>
-                <span className="text-xl sm:text-2xl font-black text-slate-900">&lt; 1 Sec</span>
-                <p className="text-xs text-slate-500 font-medium mt-0.5">वॉइस से बिल तैयार</p>
-              </div>
-              <div>
-                <span className="text-xl sm:text-2xl font-black text-slate-900">0%</span>
-                <p className="text-xs text-slate-500 font-medium mt-0.5">टाइपिंग का झंझट</p>
+                <div className="text-2xl sm:text-3xl font-extrabold font-mono text-slate-900 tabular-nums">
+                  ₹0
+                </div>
+                <div className="text-xs font-semibold text-slate-500 mt-0.5">
+                  No Expensive Hardware
+                </div>
               </div>
             </div>
+
           </div>
 
-          {/* Interactive Hero Visual Interface Preview */}
-          <div className="mt-12 bg-white rounded-3xl border border-slate-200 shadow-xl overflow-hidden max-w-4xl mx-auto">
-            <div className="bg-slate-900 text-white px-5 py-3 flex items-center justify-between text-xs font-semibold">
+          {/* Interactive Live Demo Preview Box */}
+          <div className="mt-12 max-w-3xl mx-auto rounded-2xl border border-slate-200 bg-slate-50/70 p-5 sm:p-6 shadow-xs">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-200">
               <div className="flex items-center space-x-2">
-                <span className="w-3 h-3 rounded-full bg-red-500 inline-block" />
-                <span className="w-3 h-3 rounded-full bg-amber-500 inline-block" />
-                <span className="w-3 h-3 rounded-full bg-emerald-500 inline-block" />
-                <span className="ml-2 font-mono text-slate-300">Dukan Sathi Counter View</span>
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
+                <span className="text-xs font-bold text-slate-700 uppercase tracking-wide">
+                  Live Interactive Voice Console
+                </span>
               </div>
-              <span className="bg-emerald-950 text-emerald-400 border border-emerald-800 px-2 py-0.5 rounded text-[11px]">
-                Gnani AI Prisma & Timbre Active
-              </span>
+              <span className="text-xs font-mono text-slate-400">Gnani Prisma v2.5</span>
             </div>
 
-            <div className="p-6 md:p-8 bg-slate-50/50">
-              <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
-                {/* Voice Simulation */}
-                <div className="md:col-span-5 bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-4">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-amber-800 bg-amber-50 px-2.5 py-1 rounded-md">
-                      ग्राहक की आवाज़ (Spoken Input)
-                    </span>
-                    <Volume2 className="w-4 h-4 text-amber-600 animate-pulse" />
-                  </div>
-                  <p className="text-sm font-semibold text-slate-800 italic bg-slate-50 p-3 rounded-xl border border-slate-200">
-                    "राजू को दो किलो चीनी और एक पैकेट बिस्कुट दे दो।"
-                  </p>
-                  <div className="p-3 bg-emerald-50 rounded-xl border border-emerald-200 text-xs space-y-1">
-                    <span className="font-bold text-emerald-900 block">दुकान साथी का जवाब (Voice Response):</span>
-                    <p className="text-emerald-800 font-medium">
-                      "राजू के खाते में 2 किलो चीनी (₹96) और 1 पैकेट बिस्कुट (₹20). कुल ₹116 दर्ज करें?"
-                    </p>
-                  </div>
+            <div className="my-4 bg-white rounded-xl p-4 border border-slate-200/80 shadow-2xs">
+              <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide">
+                बोलचाल का वाक्य (Spoken Input):
+              </p>
+              <p className="text-base font-bold text-slate-900 mt-1">
+                &ldquo;{demoUtterance}&rdquo;
+              </p>
+              <div className="mt-3 pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2">
+                <div className="flex items-center gap-2">
+                  <span className="text-[11px] font-bold px-2 py-0.5 rounded bg-emerald-50 text-emerald-800 border border-emerald-200">
+                    Chawal: 2 kg @ ₹60 = ₹120
+                  </span>
+                  <span className="text-[11px] font-bold px-2 py-0.5 rounded bg-emerald-50 text-emerald-800 border border-emerald-200">
+                    Refined Oil: 1 L @ ₹140 = ₹140
+                  </span>
                 </div>
-
-                {/* Instant POS Slip */}
-                <div className="md:col-span-7 bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-3">
-                  <div className="flex items-center justify-between pb-2 border-b border-slate-100">
-                    <div>
-                      <h4 className="font-extrabold text-sm text-slate-900">कच्चा पर्चा #104</h4>
-                      <p className="text-xs text-slate-400">Customer: Raju (नियमित ग्राहक)</p>
-                    </div>
-                    <span className="text-xs font-bold text-amber-800 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded">
-                      उधार खाता (Udhaar)
-                    </span>
-                  </div>
-
-                  <div className="space-y-1.5 text-xs">
-                    <div className="flex justify-between py-1">
-                      <span className="font-medium text-slate-700">2 kg Sugar (चीनी) @ ₹48</span>
-                      <span className="font-bold text-slate-900">₹96.00</span>
-                    </div>
-                    <div className="flex justify-between py-1">
-                      <span className="font-medium text-slate-700">1 packet Parle-G @ ₹20</span>
-                      <span className="font-bold text-slate-900">₹20.00</span>
-                    </div>
-                  </div>
-
-                  <div className="pt-2 border-t border-slate-200 flex justify-between items-center">
-                    <span className="text-xs font-semibold text-slate-500">कुल बिल (Total):</span>
-                    <span className="text-xl font-black text-slate-900">₹116.00</span>
-                  </div>
-
-                  <div className="pt-2 flex gap-2">
-                    <button 
-                      onClick={onGetStarted}
-                      className="flex-1 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs transition"
-                    >
-                      बिल कन्फर्म करें (Save Bill)
-                    </button>
-                    <button 
-                      onClick={onGetStarted}
-                      className="px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs transition"
-                    >
-                      प्रिंट पर्चा
-                    </button>
-                  </div>
-                </div>
+                <span className="text-sm font-extrabold font-mono tabular-nums text-emerald-700">
+                  Total: ₹260
+                </span>
               </div>
+            </div>
+
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
+              <div className="flex items-center gap-1.5 text-xs text-slate-500">
+                <Zap className="w-3.5 h-3.5 text-emerald-600" />
+                <span>Try asking in Hindi, Hinglish, or Local units (Aadha kilo, Paanch packet)</span>
+              </div>
+              <button
+                onClick={onOpenVoiceDemo}
+                className="w-full sm:w-auto inline-flex items-center justify-center space-x-1.5 px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all active:scale-95 cursor-pointer"
+              >
+                <Mic className="w-3.5 h-3.5" />
+                <span>Test Live Voice Mic</span>
+              </button>
             </div>
           </div>
+
         </div>
       </section>
 
-      {/* Feature Grid */}
-      <section className="py-16 md:py-20 max-w-6xl mx-auto px-4 sm:px-6">
+      {/* 4-Pillar Bento Grid Features */}
+      <section className="py-16 md:py-24 max-w-6xl mx-auto px-4 sm:px-6">
         <div className="text-center max-w-2xl mx-auto mb-12">
-          <h2 className="text-2xl sm:text-3xl font-black text-slate-900">
-            दुकान की हर ज़रूरत के लिए व्यावहारिक समाधान
+          <span className="text-xs font-bold text-emerald-700 uppercase tracking-wider bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
+            दुकानदार की ज़रूरतें (Tailored For Kirana)
+          </span>
+          <h2 className="text-2xl sm:text-4xl font-extrabold text-slate-900 tracking-tight mt-3">
+            किराना व्यापार को आसान बनाने वाले 6 मुख्य टूल्स
           </h2>
-          <p className="text-sm text-slate-600 mt-2">
-            बिना किसी जटिल मेनू या कंप्यूटर कोर्स के। आपकी भाषा में, आपकी सुविधा से।
-          </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {features.map((feat, idx) => {
-            const Icon = feat.icon;
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          {features.map((f, i) => {
+            const Icon = f.icon;
             return (
-              <div 
-                key={idx}
-                className="bg-white p-6 rounded-3xl border border-slate-200 shadow-xs hover:border-amber-300 hover:shadow-md transition space-y-3"
+              <div
+                key={i}
+                className="p-6 rounded-2xl bg-white border border-slate-200/90 shadow-2xs hover:border-emerald-300 hover:shadow-xs transition-all flex flex-col justify-between"
               >
-                <div className="w-11 h-11 rounded-2xl bg-amber-500/10 text-amber-600 flex items-center justify-center">
-                  <Icon className="w-5 h-5" />
+                <div>
+                  <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center mb-4 border border-emerald-100">
+                    <Icon className="w-5 h-5 stroke-[2.2]" />
+                  </div>
+                  <h3 className="text-base font-bold text-slate-900 tracking-tight mb-2">
+                    {f.title}
+                  </h3>
+                  <p className="text-xs sm:text-sm text-slate-500 leading-relaxed font-medium">
+                    {f.desc}
+                  </p>
                 </div>
-                <h3 className="text-base font-bold text-slate-900">{feat.title}</h3>
-                <p className="text-xs text-slate-600 leading-relaxed">{feat.desc}</p>
               </div>
             );
           })}
         </div>
       </section>
 
-      {/* Simple 3-Step "How It Works" */}
-      <section className="py-16 bg-white border-y border-slate-200">
+      {/* Comparison Section: Diary vs Complex POS vs Dukaan Saathi */}
+      <section className="py-14 bg-white border-y border-slate-200/90">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
-          <div className="text-center max-w-2xl mx-auto mb-12">
-            <h2 className="text-2xl sm:text-3xl font-black text-slate-900">
-              यह कैसे काम करता है? (How It Works)
+          <div className="text-center max-w-2xl mx-auto mb-10">
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+              पारंपरिक तरीके बनाम दुकान साथी
             </h2>
-            <p className="text-sm text-slate-600 mt-2">
-              केवल 3 सरल चरणों में आपकी दुकान का काम पूरा
+            <p className="text-xs sm:text-sm text-slate-500 mt-2 font-medium">
+              क्यों हज़ारों छोटे दुकानदार डायरी और जटिल सॉफ्टवेयर छोड़ रहे हैं
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
-            <div className="space-y-3">
-              <div className="w-14 h-14 rounded-2xl bg-amber-100 text-amber-900 font-black text-xl flex items-center justify-center mx-auto">
-                1
-              </div>
-              <h3 className="text-base font-bold text-slate-900">माइक दबाएं और बोलें</h3>
-              <p className="text-xs text-slate-600 max-w-xs mx-auto">
-                ग्राहक का आर्डर हिंदी या हिंग्लिश में बोलें। कोई टाइपिंग या बारकोड स्कैनिंग ज़रूरी नहीं।
-              </p>
-            </div>
-
-            <div className="space-y-3">
-              <div className="w-14 h-14 rounded-2xl bg-emerald-100 text-emerald-900 font-black text-xl flex items-center justify-center mx-auto">
-                2
-              </div>
-              <h3 className="text-base font-bold text-slate-900">सिस्टम समझता और जोड़ता है</h3>
-              <p className="text-xs text-slate-600 max-w-xs mx-auto">
-                Gnani AI मात्रा, सामान, रेट और स्टॉक की जांच कर तुरंत कुल बिल कैलकुलेट करता है।
-              </p>
-            </div>
-
-            <div className="space-y-3">
-              <div className="w-14 h-14 rounded-2xl bg-blue-100 text-blue-900 font-black text-xl flex items-center justify-center mx-auto">
-                3
-              </div>
-              <h3 className="text-base font-bold text-slate-900">पर्चा प्रिंट करें या सेव करें</h3>
-              <p className="text-xs text-slate-600 max-w-xs mx-auto">
-                नकद, UPI या उधार चुनकर एक क्लिक में बिल पक्का करें। स्टॉक और खाता स्वतः अपडेट।
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Pricing / Plan Section */}
-      <section className="py-16 max-w-4xl mx-auto px-4 sm:px-6 text-center">
-        <h2 className="text-2xl sm:text-3xl font-black text-slate-900">
-          भारतीय दुकानदारों के लिए पारदर्शी योजना
-        </h2>
-        <p className="text-sm text-slate-600 mt-2">
-          शुरुआत बिल्कुल मुफ्त। कोई छुपा हुआ शुल्क नहीं।
-        </p>
-
-        <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6 text-left max-w-2xl mx-auto">
-          {/* Free Tier */}
-          <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-xs space-y-4">
-            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">फ्री प्लान (Free Starter)</span>
-            <div className="flex items-baseline space-x-1">
-              <span className="text-3xl font-black text-slate-900">₹0</span>
-              <span className="text-xs text-slate-500">/ हमेशा मुफ्त</span>
-            </div>
-            <ul className="space-y-2 text-xs text-slate-600">
-              <li className="flex items-center space-x-2">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                <span>असीमित वॉइस ऑर्डर बिलिंग</span>
-              </li>
-              <li className="flex items-center space-x-2">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                <span>कैटलॉग और इन्वेंटरी मैनेजमेंट</span>
-              </li>
-              <li className="flex items-center space-x-2">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                <span>दैनिक बिक्री रिपोर्ट व कच्चा पर्चा प्रिंट</span>
-              </li>
-            </ul>
-            <button
-              onClick={onGetStarted}
-              className="w-full py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs transition"
-            >
-              मुफ्त शुरू करें
-            </button>
-          </div>
-
-          {/* Pro Merchant */}
-          <div className="bg-amber-50 p-6 rounded-3xl border border-amber-300 shadow-md space-y-4 relative">
-            <span className="absolute top-4 right-4 text-[10px] font-bold bg-amber-600 text-white px-2 py-0.5 rounded-full">
-              लोकप्रिय
-            </span>
-            <span className="text-xs font-bold text-amber-900 uppercase tracking-wider">प्रो व्यापारी (Pro Dukaan)</span>
-            <div className="flex items-baseline space-x-1">
-              <span className="text-3xl font-black text-amber-950">₹199</span>
-              <span className="text-xs text-amber-800">/ महीना</span>
-            </div>
-            <ul className="space-y-2 text-xs text-slate-700">
-              <li className="flex items-center space-x-2">
-                <CheckCircle2 className="w-4 h-4 text-amber-700 shrink-0" />
-                <span>सब कुछ जो फ्री प्लान में है</span>
-              </li>
-              <li className="flex items-center space-x-2">
-                <CheckCircle2 className="w-4 h-4 text-amber-700 shrink-0" />
-                <span>WhatsApp पर स्वचालित बिल व पेमेंट लिंक</span>
-              </li>
-              <li className="flex items-center space-x-2">
-                <CheckCircle2 className="w-4 h-4 text-amber-700 shrink-0" />
-                <span>उधार वसूली के लिए ऑटो रिमाइंडर SMS</span>
-              </li>
-            </ul>
-            <button
-              onClick={onGetStarted}
-              className="w-full py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shadow-xs transition"
-            >
-              प्रो चुनें
-            </button>
+          <div className="overflow-x-auto rounded-2xl border border-slate-200 shadow-2xs">
+            <table className="w-full text-left text-xs sm:text-sm">
+              <thead className="bg-slate-50 text-slate-700 font-bold uppercase tracking-wider border-b border-slate-200">
+                <tr>
+                  <th className="py-3.5 px-4 sm:px-6">सुविधा (Feature)</th>
+                  <th className="py-3.5 px-4 text-slate-400 font-semibold">पेन-कॉपी डायरी</th>
+                  <th className="py-3.5 px-4 text-slate-400 font-semibold">भारी POS मशीन</th>
+                  <th className="py-3.5 px-4 sm:px-6 text-emerald-800 bg-emerald-50/80 font-bold">दुकान साथी (Dukaan Saathi)</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {comparisonRows.map((row, idx) => (
+                  <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
+                    <td className="py-3.5 px-4 sm:px-6 font-bold text-slate-900">{row.feature}</td>
+                    <td className="py-3.5 px-4 text-slate-500">{row.traditional}</td>
+                    <td className="py-3.5 px-4 text-slate-500">{row.complexPos}</td>
+                    <td className="py-3.5 px-4 sm:px-6 font-bold text-emerald-700 bg-emerald-50/40">
+                      ✓ {row.dukaanSaathi}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
       </section>
 
       {/* FAQ Section */}
-      <section className="py-16 bg-white border-t border-slate-200">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6">
-          <h2 className="text-2xl font-black text-slate-900 text-center mb-8">
-            अक्सर पूछे जाने वाले सवाल (FAQ)
+      <section className="py-16 md:py-20 max-w-4xl mx-auto px-4 sm:px-6">
+        <div className="text-center mb-10">
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+            अक्सर पूछे जाने वाले सवाल (FAQs)
           </h2>
+          <p className="text-xs sm:text-sm text-slate-500 mt-1 font-medium">
+            दुकानदारों के सामान्य सवालों के स्पष्ट और सीधे जवाब
+          </p>
+        </div>
 
-          <div className="space-y-3">
-            {faqs.map((faq, idx) => {
-              const isOpen = activeFaq === idx;
-              return (
-                <div 
-                  key={idx}
-                  className="border border-slate-200 rounded-2xl overflow-hidden transition"
+        <div className="space-y-3">
+          {faqs.map((faq, index) => {
+            const isOpen = activeFaq === index;
+            return (
+              <div 
+                key={index}
+                className="rounded-xl border border-slate-200 bg-white overflow-hidden transition-all shadow-2xs"
+              >
+                <button
+                  onClick={() => setActiveFaq(isOpen ? null : index)}
+                  className="w-full py-4 px-5 text-left flex items-center justify-between gap-4 font-bold text-sm sm:text-base text-slate-900 hover:text-emerald-700 transition-colors cursor-pointer"
                 >
-                  <button
-                    onClick={() => setActiveFaq(isOpen ? null : idx)}
-                    className="w-full p-4 text-left font-bold text-sm text-slate-800 flex justify-between items-center hover:bg-slate-50"
-                  >
-                    <span>{faq.q}</span>
-                    <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
-                  </button>
-                  {isOpen && (
-                    <div className="px-4 pb-4 pt-1 text-xs text-slate-600 leading-relaxed border-t border-slate-100 bg-slate-50/50">
-                      {faq.a}
-                    </div>
-                  )}
-                </div>
-              );
-            })}
+                  <span>{faq.q}</span>
+                  <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${isOpen ? 'rotate-180 text-emerald-700' : ''}`} />
+                </button>
+                {isOpen && (
+                  <div className="px-5 pb-4 text-xs sm:text-sm text-slate-600 leading-relaxed font-medium border-t border-slate-100 pt-3">
+                    {faq.a}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* Bottom CTA Banner */}
+      <section className="py-12 bg-emerald-800 text-white">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 text-center">
+          <h2 className="text-2xl sm:text-3xl font-black tracking-tight">
+            आज ही अपनी दुकान को डिजिटल और स्मार्ट बनाएं
+          </h2>
+          <p className="mt-2 text-sm text-emerald-100 max-w-xl mx-auto font-medium">
+            कोई क्रेडिट कार्ड या भारी सेटअप नहीं। सीधे ब्राउज़र में चलाएं और पहले दिन से समय बचाएं।
+          </p>
+          <div className="mt-6">
+            <button
+              onClick={onGetStarted}
+              className="px-8 py-3.5 rounded-xl bg-white hover:bg-emerald-50 text-emerald-900 font-extrabold text-sm shadow-md transition-all active:scale-95 cursor-pointer"
+            >
+              POS काउंटर खोलें (Open POS Counter)
+            </button>
           </div>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="bg-slate-900 text-white py-12 border-t border-slate-800 text-xs">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-6">
-          <div>
-            <div className="flex items-center space-x-2 font-bold text-base">
-              <span>🏪</span>
-              <span>Dukan Sathi (दुकान साथी)</span>
-            </div>
-            <p className="text-slate-400 mt-1 text-xs">
-              AI-powered business management platform for Indian small shopkeepers.
-            </p>
-          </div>
-
-          <div className="flex items-center space-x-6 text-slate-300">
-            <button onClick={onGetStarted} className="hover:text-amber-400 transition">Billing POS</button>
-            <button onClick={onOpenVoiceDemo} className="hover:text-amber-400 transition">Voice Demo</button>
-            <span className="text-slate-600">•</span>
-            <span className="text-slate-500">Built for Great Indian AI Internship Challenge by Gnani AI</span>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 };

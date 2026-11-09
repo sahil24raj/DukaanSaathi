@@ -1,5 +1,5 @@
 import React from 'react';
-import { Mic, Cpu, Brain, CheckSquare, Volume2, AlertCircle, Sparkles } from 'lucide-react';
+import { Mic, Cpu, Brain, CheckSquare, Volume2, AlertCircle, Radio } from 'lucide-react';
 import { ProcessingState } from '../types';
 
 interface StatusIndicatorProps {
@@ -15,28 +15,30 @@ export const StatusIndicator: React.FC<StatusIndicatorProps> = ({
 }) => {
   if (state === 'idle') {
     return (
-      <div className="flex items-center justify-center space-x-2 text-slate-500 text-sm py-2">
-        <Sparkles className="w-4 h-4 text-amber-500 animate-bounce" />
-        <span>माइक दबाएं और हिंदी या हिंग्लिश में ऑर्डर बोलें (Click mic to speak in Hindi/Hinglish)</span>
+      <div className="flex items-center justify-center space-x-2 text-slate-500 text-xs sm:text-sm py-2">
+        <Radio className="w-4 h-4 text-emerald-600 animate-pulse" />
+        <span className="font-medium">
+          माइक दबाएं और हिंदी या हिंग्लिश में ऑर्डर बोलें (Click mic to speak Hindi/Hinglish order)
+        </span>
       </div>
     );
   }
 
   if (state === 'error') {
     return (
-      <div className="flex items-center justify-center space-x-2 bg-red-50 text-red-700 border border-red-200 px-4 py-2.5 rounded-xl text-sm max-w-lg mx-auto">
-        <AlertCircle className="w-5 h-5 shrink-0" />
-        <span>{errorMessage || 'त्रुटि हुई। कृपया दोबारा प्रयास करें (Something went wrong. Please try again.)'}</span>
+      <div className="flex items-center justify-center space-x-2 bg-rose-50 text-rose-800 border border-rose-200 px-4 py-3 rounded-xl text-xs sm:text-sm max-w-lg mx-auto shadow-2xs">
+        <AlertCircle className="w-5 h-5 shrink-0 text-rose-600" />
+        <span className="font-semibold">{errorMessage || 'त्रुटि हुई। कृपया दोबारा प्रयास करें (Something went wrong. Please try again.)'}</span>
       </div>
     );
   }
 
   const steps = [
     { key: 'listening', label: 'Listening', labelHi: 'सुन रहे हैं...', icon: Mic },
-    { key: 'transcribing', label: 'Transcribing', labelHi: 'Gnani Prisma v2.5...', icon: Cpu },
-    { key: 'parsing', label: 'Understanding', labelHi: 'ऑर्डर समझ रहे हैं...', icon: Brain },
-    { key: 'checking_stock', label: 'Checking Stock', labelHi: 'स्टॉक जांच...', icon: CheckSquare },
-    { key: 'speaking', label: 'Speaking', labelHi: 'Gnani Timbre v2.5 बोल रहा है...', icon: Volume2 },
+    { key: 'transcribing', label: 'STT Audio', labelHi: 'Gnani Prisma v2.5', icon: Cpu },
+    { key: 'parsing', label: 'Understanding', labelHi: 'आर्डर निकाल रहे हैं', icon: Brain },
+    { key: 'checking_stock', label: 'Inventory', labelHi: 'स्टॉक जांच...', icon: CheckSquare },
+    { key: 'speaking', label: 'Voice TTS', labelHi: 'Gnani Timbre v2.5 बोल रहा है', icon: Volume2 },
   ];
 
   const getCurrentStepIndex = () => {
@@ -55,11 +57,11 @@ export const StatusIndicator: React.FC<StatusIndicatorProps> = ({
 
   return (
     <div className="w-full max-w-2xl mx-auto py-2">
-      {/* Visual pill steps */}
+      {/* Visual Progress Line */}
       <div className="flex items-center justify-between relative">
         <div className="absolute left-0 top-1/2 -translate-y-1/2 w-full h-1 bg-slate-200 -z-0 rounded-full" />
         <div 
-          className="absolute left-0 top-1/2 -translate-y-1/2 h-1 bg-gradient-to-r from-amber-500 to-emerald-500 -z-0 rounded-full transition-all duration-500"
+          className="absolute left-0 top-1/2 -translate-y-1/2 h-1 bg-emerald-600 -z-0 rounded-full transition-all duration-300"
           style={{ width: `${Math.min(100, (currentIndex / 4) * 100)}%` }}
         />
 
@@ -73,16 +75,16 @@ export const StatusIndicator: React.FC<StatusIndicatorProps> = ({
               <div
                 className={`w-9 h-9 rounded-full flex items-center justify-center transition-all ${
                   isCurrent
-                    ? 'bg-amber-500 text-white shadow-lg shadow-amber-500/30 ring-4 ring-amber-100 scale-110'
+                    ? 'bg-emerald-600 text-white shadow-sm ring-4 ring-emerald-100 scale-105'
                     : isDone
-                    ? 'bg-emerald-600 text-white'
+                    ? 'bg-emerald-700 text-white'
                     : 'bg-white text-slate-400 border border-slate-300'
                 }`}
               >
                 <Icon className={`w-4 h-4 ${isCurrent ? 'animate-pulse' : ''}`} />
               </div>
-              <span className={`text-[11px] mt-1 font-medium transition-colors ${
-                isCurrent ? 'text-amber-700 font-semibold' : isDone ? 'text-emerald-700' : 'text-slate-400'
+              <span className={`text-[10px] mt-1.5 font-bold tracking-tight ${
+                isCurrent ? 'text-emerald-700' : isDone ? 'text-slate-800' : 'text-slate-400'
               }`}>
                 {s.label}
               </span>
@@ -92,11 +94,12 @@ export const StatusIndicator: React.FC<StatusIndicatorProps> = ({
       </div>
 
       {sourceInfo && (
-        <p className="text-center text-xs text-slate-500 mt-2 font-mono">
-          Engine: {sourceInfo}
-        </p>
+        <div className="text-center mt-3">
+          <span className="text-[11px] font-mono font-medium text-emerald-800 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
+            Active Engine: {sourceInfo}
+          </span>
+        </div>
       )}
     </div>
   );
 };
-
