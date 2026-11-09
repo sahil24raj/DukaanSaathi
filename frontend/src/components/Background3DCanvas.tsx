@@ -321,3 +321,4 @@ export const Background3DCanvas: React.FC<Background3DCanvasProps> = ({
     />
   );
 };
+
