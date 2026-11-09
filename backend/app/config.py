@@ -14,7 +14,7 @@ class Settings(BaseSettings):
     MOCK_GNANI_APIS: bool = False
     APP_ENV: str = "development"
     PORT: int = 8000
-    DATABASE_URL: str = "sqlite:///./dukaan_saathi.db"
+    DATABASE_URL: str = "sqlite:////tmp/dukaan_saathi.db" if os.environ.get("VERCEL") else "sqlite:///./dukaan_saathi.db"
 
     model_config = SettingsConfigDict(
         env_file=(".env", "../.env"),

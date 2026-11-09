@@ -74,3 +74,4 @@ Dukan Sathi is a distinctive, trustworthy, and modern Indian retail technology p
 2. **Tabular Ledgers**: Clean, border-lined transaction rows with right-aligned numerical amounts.
 3. **Hero Voice Interaction Element**: Central, distinct mic affordance with state-driven visual feedback (Idle, Listening, Processing, Speaking).
 4. **Print-Friendly Bill Structure**: Invoices render cleanly in both high-contrast screen mode and black-and-white standard 80mm thermal receipt and A4 printouts.
+

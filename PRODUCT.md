@@ -57,3 +57,4 @@ Unlike generic SaaS point-of-sale systems built for Western supermarkets or mode
 3. **Clarity Over Cleverness**: Numbers, currency symbols, and quantities must be legible from 3 feet away on a low-brightness counter screen.
 4. **Honest Bahi-Khata Trust**: Udhaar and cash accounting must mirror traditional Indian ledger habits with zero hidden calculations.
 5. **Robust Without Internet Surprises**: The shop continues operating even with spotty connectivity or missing cloud keys.
+

@@ -67,6 +67,8 @@ app.include_router(orders.router)
 app.include_router(dashboard.router)
 
 
+@app.get("/")
+@app.get("/api")
 @app.get("/api/health")
 def health_check():
     return {

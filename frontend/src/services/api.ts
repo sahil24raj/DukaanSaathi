@@ -9,7 +9,7 @@ import {
   ParsedOrderItem
 } from '../types';
 
-const API_BASE = '/api';
+const API_BASE = (import.meta as any).env?.VITE_API_URL || '/api';
 
 export const api = {
   // System Status
