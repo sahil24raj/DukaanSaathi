@@ -12,3 +12,4 @@ if backend_dir not in sys.path:
 from app.main import app
 
 handler = app
+

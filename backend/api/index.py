@@ -14,3 +14,4 @@ from app.main import app
 
 # Export app as handler for Vercel Serverless Function
 handler = app
+
