@@ -1,7 +1,7 @@
 import re
 import json
 import logging
-from typing import List, Dict, Any, Tuple
+from typing import List, Dict, Any, Tuple, Optional
 import httpx
 from ..config import settings
 
