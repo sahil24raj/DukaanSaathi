@@ -35,9 +35,7 @@ jobs:
         env:
           PYTHONPATH: .
           MOCK_GNANI_APIS: "true"
-        run: |
-          pip install pytest pytest-asyncio
-          pytest backend/tests/test_api.py -v
+        run: python -c "import sys, os; sys.path.insert(0, os.path.abspath('backend')); sys.path.insert(0, os.path.abspath('.')); import unittest; suite = unittest.defaultTestLoader.loadTestsFromName('backend.tests.test_api'); runner = unittest.TextTestRunner(verbosity=2); res = runner.run(suite); sys.exit(0 if res.wasSuccessful() else 1)"
 
   frontend-build:
     name: Frontend Build & Typecheck
