@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Mic, Square, Upload, Radio, Send } from 'lucide-react';
+import { Mic, Square, Upload, Radio, Send, AlertCircle, Sparkles } from 'lucide-react';
 import { ProcessingState } from '../types';
 
 interface VoiceRecorderProps {
@@ -18,6 +18,7 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
   const [isRecording, setIsRecording] = useState(false);
   const [recordSeconds, setRecordSeconds] = useState(0);
   const [liveSpokenText, setLiveSpokenText] = useState<string>('');
+  const [speechNotice, setSpeechNotice] = useState<string>('');
   const [customText, setCustomText] = useState<string>('');
   
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -25,19 +26,22 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
   const timerRef = useRef<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const recognitionRef = useRef<any>(null);
+  const isRecordingRef = useRef<boolean>(false);
   const recognizedTranscriptRef = useRef<string>('');
   const latestInterimRef = useRef<string>('');
 
   // Real-world Kirana voice queries
   const quickTestOrders = [
+    { label: '5 kg Atta + 2 Biscuits', text: 'Bhaiya, paanch kg atta aur do packet biscuit dena jaldi se.' },
     { label: '2 kg Chawal + 1 L Oil', text: 'Bhaiya, do kilo chawal aur ek litre refined oil chahiye.' },
-    { label: '5 kg Atta + 2 Biscuits', text: 'paanch kg atta aur do packet biscuit dena' },
     { label: '0.5 kg Cheeni + Namak', text: 'aadha kg cheeni aur ek kg namak dena' },
-    { label: 'Shampoo + Toothpaste', text: 'ek bottle shampoo aur do toothpaste de do' }
+    { label: 'Shampoo + Toothpaste', text: 'ek bottle shampoo aur do toothpaste de do' },
+    { label: '1 L Tel + 3 kg Chawal', text: 'ek litre sarso tel aur teen kg basmati chawal' }
   ];
 
   useEffect(() => {
     return () => {
+      isRecordingRef.current = false;
       if (timerRef.current) clearInterval(timerRef.current);
       if (recognitionRef.current) {
         try { recognitionRef.current.stop(); } catch {}
@@ -47,10 +51,12 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
 
   const startRecording = async () => {
     try {
+      setSpeechNotice('');
       audioChunksRef.current = [];
       recognizedTranscriptRef.current = '';
       latestInterimRef.current = '';
       setLiveSpokenText('');
+      isRecordingRef.current = true;
 
       // Initialize Web Speech API native speech recognition (Chrome, Edge, Android Chrome, Safari)
       const SpeechRec = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
@@ -60,6 +66,7 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
           rec.lang = 'hi-IN';
           rec.continuous = true;
           rec.interimResults = true;
+          rec.maxAlternatives = 1;
           
           rec.onresult = (event: any) => {
             let fullFinal = '';
@@ -80,7 +87,17 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
           };
 
           rec.onerror = (e: any) => {
-            console.warn('Speech recognition warning/info:', e);
+            console.warn('Speech recognition status:', e.error);
+            if (e.error === 'not-allowed') {
+              setSpeechNotice('माइक की अनुमति नहीं मिली (Microphone permission denied).');
+            }
+          };
+
+          rec.onend = () => {
+            // Keep listening if recording is still active
+            if (isRecordingRef.current) {
+              try { rec.start(); } catch {}
+            }
           };
 
           rec.start();
@@ -104,17 +121,16 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
       };
 
       mediaRecorder.onstop = () => {
-        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/wav' });
         stream.getTracks().forEach((track) => track.stop());
 
-        // Prioritize what the user actually spoke in real time
+        // Capture what the user actually said in real-time
         setTimeout(() => {
           const finalSpoken = (recognizedTranscriptRef.current || latestInterimRef.current || liveSpokenText).trim();
           if (finalSpoken && onTextOrderDirect) {
             onTextOrderDirect(finalSpoken);
           } else {
-            // If mic audio was recorded without live speech recognition
-            onAudioRecorded(audioBlob, 'mic_recording.wav');
+            // NEVER invent fake 2 kg chawal orders!
+            setSpeechNotice('⚠️ माइक से कोई आवाज़ स्पष्ट सुनाई नहीं दी। कृपया दोबारा माइक दबाकर बोलें या नीचे दिए गए बटन पर टैप करें।');
           }
         }, 150);
       };
@@ -128,14 +144,16 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
       }, 1000);
     } catch (err) {
       console.warn('Microphone access notice:', err);
-      alert('माइक्रोफोन अनुमति नहीं मिली (Microphone access denied). You can still type your order or click any of the quick sample buttons below!');
+      setSpeechNotice('माइक्रोफोन एक्सेस नहीं मिल सका। आप नीचे लिखकर या सैंपल चुनकर ऑर्डर दे सकते हैं।');
+      setIsRecording(false);
+      isRecordingRef.current = false;
     }
   };
 
   const stopRecording = () => {
+    isRecordingRef.current = false;
     if (recognitionRef.current) {
       try { recognitionRef.current.stop(); } catch {}
-      recognitionRef.current = null;
     }
 
     if (mediaRecorderRef.current && isRecording) {
@@ -173,22 +191,38 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
   return (
     <div className="flex flex-col items-center justify-center p-6 sm:p-8 bg-zinc-900/70 backdrop-blur-xl rounded-3xl border border-white/[0.08] shadow-2xl max-w-2xl mx-auto text-white">
       
-      {/* Live Hearing Transcript Display */}
-      {liveSpokenText ? (
-        <div className="w-full mb-4 p-3 bg-emerald-950/50 border border-emerald-500/40 rounded-2xl text-center animate-fadeIn shadow-lg">
-          <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-400 block mb-0.5">
-            🎙️ सुन रहे हैं (Live Speech Detected):
-          </span>
-          <p className="text-sm sm:text-base font-bold text-white italic">
-            &ldquo;{liveSpokenText}&rdquo;
+      {/* Live Google Assistant Style Spoken Transcript Card */}
+      {isRecording && (
+        <div className="w-full mb-5 p-4 bg-emerald-950/70 border border-emerald-500/50 rounded-2xl text-center shadow-lg animate-in fade-in zoom-in-95">
+          <div className="flex items-center justify-center space-x-1.5 text-emerald-400 text-xs font-bold uppercase tracking-wider mb-1.5">
+            <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping" />
+            <span>लाइव सुन रहे हैं (Live Assistant Listening...)</span>
+          </div>
+          <p className="text-base sm:text-lg font-bold text-white min-h-[32px] flex items-center justify-center">
+            {liveSpokenText ? (
+              <span className="text-emerald-200">&ldquo;{liveSpokenText}&rdquo;</span>
+            ) : (
+              <span className="text-zinc-400 font-normal italic text-sm">बोलिए... (उदा: 5 किलो आटा और 2 पैकेट बिस्कुट)</span>
+            )}
           </p>
         </div>
-      ) : null}
+      )}
+
+      {/* Notice if no voice was heard */}
+      {speechNotice && !isRecording && (
+        <div className="w-full mb-4 p-3 bg-amber-950/60 border border-amber-500/40 rounded-xl text-center text-amber-200 text-xs flex items-center justify-center space-x-2 animate-in fade-in">
+          <AlertCircle className="w-4 h-4 text-amber-400 shrink-0" />
+          <span>{speechNotice}</span>
+        </div>
+      )}
 
       {/* Central Tactile Mic Button */}
       <div className="relative my-3 flex items-center justify-center">
         {isRecording && (
-          <div className="absolute -inset-4 rounded-full border-2 border-rose-500/50 animate-ping pointer-events-none" />
+          <>
+            <div className="absolute -inset-5 rounded-full border-2 border-rose-500/40 animate-ping pointer-events-none" />
+            <div className="absolute -inset-10 rounded-full border border-rose-500/20 animate-pulse pointer-events-none" />
+          </>
         )}
 
         <button
@@ -197,7 +231,7 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
           aria-label={isRecording ? 'ऑर्डर रोकना (Stop Recording)' : 'बोलिए (Speak Order)'}
           className={`relative z-10 w-28 h-28 sm:w-32 sm:h-32 rounded-full flex flex-col items-center justify-center transition-all duration-200 shadow-xl ${
             isRecording
-              ? 'bg-rose-600 hover:bg-rose-700 text-white shadow-rose-600/40 ring-4 ring-rose-500/30'
+              ? 'bg-rose-600 hover:bg-rose-700 text-white shadow-rose-600/50 ring-4 ring-rose-500/40 scale-105'
               : 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-600/30 ring-4 ring-emerald-500/20 active:scale-95'
           } ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
         >
@@ -205,7 +239,7 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
             <>
               <Square className="w-8 h-8 fill-white mb-1" />
               <span className="text-xs font-mono font-bold tracking-wider">{formatTime(recordSeconds)}</span>
-              <span className="text-[10px] font-semibold text-rose-100">रोकें (Stop)</span>
+              <span className="text-[10px] font-semibold text-rose-100">रोकें (STOP)</span>
             </>
           ) : (
             <>
@@ -233,13 +267,14 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
 
       {/* Status Instruction */}
       <div className="text-center mt-2">
-        <h3 className="text-base font-bold text-white">
-          {isRecording ? 'सुन रहे हैं... बोलिए (Listening...)' : 'दुकानदार या ग्राहक की आवाज में बोलें'}
+        <h3 className="text-base font-bold text-white flex items-center justify-center gap-1.5">
+          <Sparkles className="w-4 h-4 text-emerald-400" />
+          <span>{isRecording ? 'सुन रहे हैं... बोलिए (Listening...)' : 'दुकानदार या ग्राहक की आवाज में बोलें'}</span>
         </h3>
         <p className="text-xs text-zinc-400 max-w-sm mx-auto mt-1 leading-relaxed">
           {isRecording
-            ? 'उदा: "भैया 2 किलो चावल और 1 लीटर रिफाइंड तेल दे दो"'
-            : 'Hindi / Hinglish Voice AI (Web Speech & Kirana Parser Active)'}
+            ? 'बोलने के बाद लाल बटन दबाएं या रुकें, दुकान साथी तुरंत बिल बनाएगा।'
+            : 'Hindi / Hinglish Live Assistant (Web Speech & Smart Parser Active)'}
         </p>
       </div>
 
@@ -255,7 +290,7 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
               setCustomText('');
             }
           }}
-          placeholder="या यहाँ लिखकर बोलें (उदा: 2 किलो चावल, 1 तेल)..."
+          placeholder="या यहाँ लिखकर बोलें (उदा: 5 किलो आटा, 2 पैकेट बिस्कुट, 1 तेल)..."
           className="flex-1 bg-black/50 border border-white/[0.1] rounded-xl px-3.5 py-2.5 text-xs text-white placeholder:text-zinc-500 focus:outline-none focus:border-emerald-500"
         />
         <button

@@ -58,25 +58,41 @@
 .wave-bar-4 { animation: soundwave 1.0s infinite ease-in-out 0.45s; }
 .wave-bar-5 { animation: soundwave 0.9s infinite ease-in-out 0.2s; }
 
-/* Thermal Receipt Print Styles */
+/* Thermal Receipt & Clean Print Styles */
 @media print {
-  body * {
-    visibility: hidden;
+  @page {
+    size: auto;
+    margin: 4mm;
   }
-  #thermal-receipt, #thermal-receipt * {
-    visibility: visible;
+
+  html, body {
+    background: #ffffff !important;
+    color: #000000 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
+
+  /* When an on-screen thermal receipt exists */
   #thermal-receipt {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 80mm;
-    margin: 0;
-    padding: 10px;
-    font-family: monospace;
-    font-size: 11px;
-    color: #000;
+    display: block !important;
+    width: 80mm !important;
+    max-width: 80mm !important;
+    margin: 0 auto !important;
+    padding: 8px !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, monospace !important;
+    font-size: 11px !important;
   }
+
+  #thermal-receipt * {
+    color: #000000 !important;
+    border-color: #000000 !important;
+    background: transparent !important;
+  }
+
   .no-print {
     display: none !important;
   }

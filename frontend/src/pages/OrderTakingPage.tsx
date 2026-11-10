@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 import { VoiceRecorder } from '../components/VoiceRecorder';
 import { StatusIndicator } from '../components/StatusIndicator';
 import { OrderCard } from '../components/OrderCard';
+import { ThermalReceiptModal } from '../components/ThermalReceiptModal';
 import { api, playHindiAudio } from '../services/api';
+import { printThermalSlip } from '../utils/thermalReceipt';
 import { ParsedOrderResponse, ProcessingState, SystemStatus } from '../types';
-import { CheckCircle2, Store, Printer, ArrowRight, Activity } from 'lucide-react';
+import { CheckCircle2, Store, Printer, ArrowRight, Activity, Eye } from 'lucide-react';
 
 interface OrderTakingPageProps {
   systemStatus?: SystemStatus | null;
@@ -23,6 +25,8 @@ export const OrderTakingPage: React.FC<OrderTakingPageProps> = ({
   const [audioBase64, setAudioBase64] = useState<string | undefined>(undefined);
   const [isConfirming, setIsConfirming] = useState<boolean>(false);
   const [orderSuccessAlert, setOrderSuccessAlert] = useState<{ id: number; total: number } | null>(null);
+  const [confirmedOrder, setConfirmedOrder] = useState<any>(null);
+  const [showReceiptModal, setShowReceiptModal] = useState<boolean>(false);
   const [engineTag, setEngineTag] = useState<string>('');
 
   // Handle incoming recorded audio (from Mic or File Upload)
@@ -142,7 +146,9 @@ export const OrderTakingPage: React.FC<OrderTakingPageProps> = ({
         items: parsedOrder.items
       });
 
+      setConfirmedOrder(saved);
       setOrderSuccessAlert({ id: saved.id, total: saved.total_amount });
+      setShowReceiptModal(true);
       setParsedOrder(null);
       setCurrentTranscript('');
       setProcessingState('idle');
@@ -262,16 +268,25 @@ export const OrderTakingPage: React.FC<OrderTakingPageProps> = ({
           </div>
           <div className="flex items-center space-x-2 w-full sm:w-auto">
             <button
-              onClick={() => window.print()}
+              onClick={() => setShowReceiptModal(true)}
               className="flex-1 sm:flex-none inline-flex items-center justify-center space-x-1.5 px-3 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 border border-white/[0.08] text-zinc-200 text-xs font-semibold transition-colors cursor-pointer"
             >
-              <Printer className="w-3.5 h-3.5 text-zinc-400" />
+              <Eye className="w-3.5 h-3.5 text-emerald-400" />
+              <span>रसीद देखें</span>
+            </button>
+            <button
+              onClick={() => {
+                if (confirmedOrder) printThermalSlip(confirmedOrder);
+              }}
+              className="flex-1 sm:flex-none inline-flex items-center justify-center space-x-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-all cursor-pointer shadow-sm shadow-emerald-900/50"
+            >
+              <Printer className="w-3.5 h-3.5" />
               <span>पर्चा प्रिंट</span>
             </button>
             {onNavigateToOrders && (
               <button
                 onClick={onNavigateToOrders}
-                className="flex-1 sm:flex-none inline-flex items-center justify-center space-x-1.5 px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-all cursor-pointer shadow-sm shadow-emerald-900/50"
+                className="flex-1 sm:flex-none inline-flex items-center justify-center space-x-1.5 px-3.5 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 border border-white/[0.08] text-zinc-300 hover:text-white text-xs font-bold transition-all cursor-pointer"
               >
                 <span>आर्डर लिस्ट देखें</span>
                 <ArrowRight className="w-3.5 h-3.5" />
@@ -300,6 +315,17 @@ export const OrderTakingPage: React.FC<OrderTakingPageProps> = ({
           onReset={handleReset}
           onReplaySpeech={handleReplaySpeech}
           isConfirming={isConfirming}
+        />
+      )}
+
+      {/* Branded Dukaan Saathi Thermal Receipt Modal */}
+      {confirmedOrder && (
+        <ThermalReceiptModal
+          order={confirmedOrder}
+          isOpen={showReceiptModal}
+          onClose={() => setShowReceiptModal(false)}
+          customerName="वॉइस काउंटर ग्राहक (Voice POS)"
+          paymentMethod="CASH"
         />
       )}
 

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '../services/api';
 import { Product, Order, CustomerUdhaarRecord } from '../types';
+import { printThermalSlip, generateWhatsAppMessage } from '../utils/thermalReceipt';
 import { 
   Search, 
   Plus, 
@@ -104,9 +105,11 @@ export const SmartBillingPage: React.FC<SmartBillingPageProps> = ({ onOrderSaved
   const grandTotal = taxable + gstAmount;
 
   const handleShareWhatsApp = (order: Order) => {
-    const itemsText = order.items.map(it => `• ${it.matched_product || it.raw_item} (${it.quantity} ${it.unit}) - ₹${it.line_total}`).join('%0A');
-    const msg = `🏪 *दुकान साथी - किराना बिल रसीद*%0A*ऑर्डर नं:* %23${order.id}%0A*ग्राहक:* ${order.customer_name || 'काउंटर ग्राहक'}%0A*भुगतान:* ${paymentMethod.toUpperCase()}%0A----------------------%0A${itemsText}%0A----------------------%0A*कुल योग (Total):* ₹${order.total_amount}%0A%0A_दुकान साथी द्वारा जनरेटेड | धन्यवाद, फिर आएं!_`;
-    window.open(`https://wa.me/?text=${msg}`, '_blank');
+    const text = generateWhatsAppMessage(order, {
+      customerName: customerName || order.customer_name || 'काउंटर ग्राहक',
+      paymentMethod
+    });
+    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
   };
 
   const copyUpiId = () => {
@@ -232,7 +235,7 @@ export const SmartBillingPage: React.FC<SmartBillingPageProps> = ({ onOrderSaved
 
           <div className="flex flex-wrap gap-2.5 mt-6">
             <button
-              onClick={() => window.print()}
+              onClick={() => printThermalSlip(completedOrder, { customerName, paymentMethod })}
               className="flex-1 min-w-[130px] inline-flex items-center justify-center space-x-1.5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition cursor-pointer shadow-md shadow-emerald-900/40 active:scale-95"
             >
               <Printer className="w-4 h-4" />

@@ -18,63 +18,97 @@ const NOW_ISO = new Date().toISOString();
 
 // Default Kirana product catalog for 100% offline-ready operations
 export const DEFAULT_CATALOG: Product[] = [
-  { id: 1, name: 'Chawal (चावल)', hindi_name: 'चावल', aliases: 'chawal, rice, chaval, chaawal', unit: 'kg', price: 60, stock: 50, created_at: NOW_ISO, updated_at: NOW_ISO },
-  { id: 2, name: 'Atta (आटा)', hindi_name: 'आटा', aliases: 'atta, gehu ka atta, flour, aatta', unit: 'kg', price: 45, stock: 40, created_at: NOW_ISO, updated_at: NOW_ISO },
-  { id: 3, name: 'Toor Dal (तूर दाल)', hindi_name: 'तूर दाल', aliases: 'toor dal, arhar dal, dal, arhar, toor', unit: 'kg', price: 140, stock: 25, created_at: NOW_ISO, updated_at: NOW_ISO },
-  { id: 4, name: 'Refined Oil (रिफाइंड तेल)', hindi_name: 'रिफाइंड तेल', aliases: 'refined oil, tel, oil, refined, cooking oil, mustard oil, sarso tel', unit: 'litre', price: 140, stock: 20, created_at: NOW_ISO, updated_at: NOW_ISO },
-  { id: 5, name: 'Sugar (चीनी)', hindi_name: 'चीनी', aliases: 'sugar, cheeni, chini, shakkar', unit: 'kg', price: 48, stock: 35, created_at: NOW_ISO, updated_at: NOW_ISO },
-  { id: 6, name: 'Salt (नमक)', hindi_name: 'नमक', aliases: 'salt, namak, white salt, tata salt', unit: 'kg', price: 25, stock: 40, created_at: NOW_ISO, updated_at: NOW_ISO },
-  { id: 7, name: 'Biscuit (बिस्कुट)', hindi_name: 'बिस्कुट', aliases: 'biscuit, biscuits, parle-g, parle g, cookies', unit: 'packet', price: 20, stock: 60, created_at: NOW_ISO, updated_at: NOW_ISO },
-  { id: 8, name: 'Detergent (डिटर्जेंट)', hindi_name: 'डिटर्जेंट', aliases: 'detergent, surf, washing powder, tide, ariel', unit: 'kg', price: 85, stock: 30, created_at: NOW_ISO, updated_at: NOW_ISO },
-  { id: 9, name: 'Shampoo (शैम्पू)', hindi_name: 'शैम्पू', aliases: 'shampoo, clinic plus, head and shoulders, sunsilk', unit: 'bottle', price: 120, stock: 25, created_at: NOW_ISO, updated_at: NOW_ISO },
-  { id: 10, name: 'Toothpaste (टूथपेस्ट)', hindi_name: 'टूथपेस्ट', aliases: 'toothpaste, colgate, pepsodent, close up', unit: 'tube', price: 55, stock: 40, created_at: NOW_ISO, updated_at: NOW_ISO },
-  { id: 11, name: 'Haldi Powder (हल्दी)', hindi_name: 'हल्दी पाउडर', aliases: 'haldi, turmeric, haldi powder', unit: 'packet', price: 30, stock: 35, created_at: NOW_ISO, updated_at: NOW_ISO },
-  { id: 12, name: 'Jeera (जीरा)', hindi_name: 'जीरा', aliases: 'jeera, cumin, zeera', unit: 'packet', price: 45, stock: 20, created_at: NOW_ISO, updated_at: NOW_ISO },
-  { id: 13, name: 'Tea (चाय पत्ती)', hindi_name: 'चाय पत्ती', aliases: 'tea, chai, chai patti, taj mahal', unit: 'packet', price: 95, stock: 25, created_at: NOW_ISO, updated_at: NOW_ISO }
+  { id: 1, name: 'Chawal (चावल)', hindi_name: 'चावल', aliases: 'chawal, rice, chaval, chaawal, चावल, राइस, भात', unit: 'kg', price: 60, stock: 50, created_at: NOW_ISO, updated_at: NOW_ISO },
+  { id: 2, name: 'Atta (आटा)', hindi_name: 'आटा', aliases: 'atta, gehu ka atta, flour, aatta, wheat, आटा, गेंहू का आटा, मैदा', unit: 'kg', price: 45, stock: 40, created_at: NOW_ISO, updated_at: NOW_ISO },
+  { id: 3, name: 'Toor Dal (तूर दाल)', hindi_name: 'तूर दाल', aliases: 'toor dal, arhar dal, dal, arhar, toor, daal, तूर दाल, अरहर दाल, दाल, तुअर', unit: 'kg', price: 140, stock: 25, created_at: NOW_ISO, updated_at: NOW_ISO },
+  { id: 4, name: 'Refined Oil (रिफाइंड तेल)', hindi_name: 'रिफाइंड तेल', aliases: 'refined oil, tel, oil, refined, cooking oil, mustard oil, sarso tel, रिफाइंड तेल, तेल, रिफाइंड, सरसों तेल, कुकिंग ऑयल', unit: 'litre', price: 140, stock: 20, created_at: NOW_ISO, updated_at: NOW_ISO },
+  { id: 5, name: 'Sugar (चीनी)', hindi_name: 'चीनी', aliases: 'sugar, cheeni, chini, shakkar, चीनी, शक्कर, चिनी', unit: 'kg', price: 48, stock: 35, created_at: NOW_ISO, updated_at: NOW_ISO },
+  { id: 6, name: 'Salt (नमक)', hindi_name: 'नमक', aliases: 'salt, namak, white salt, tata salt, नमक, सफेद नमक, टाटा नमक', unit: 'kg', price: 25, stock: 40, created_at: NOW_ISO, updated_at: NOW_ISO },
+  { id: 7, name: 'Biscuit (बिस्कुट)', hindi_name: 'बिस्कुट', aliases: 'biscuit, biscuits, parle-g, parle g, cookies, बिस्कुट, बिस्किट, पारले जी, कुकीज', unit: 'packet', price: 20, stock: 60, created_at: NOW_ISO, updated_at: NOW_ISO },
+  { id: 8, name: 'Detergent (डिटर्जेंट)', hindi_name: 'डिटर्जेंट', aliases: 'detergent, surf, washing powder, tide, ariel, डिटर्जेंट, सर्फ, वाशिंग पाउडर, टाइड, एरियल', unit: 'kg', price: 85, stock: 30, created_at: NOW_ISO, updated_at: NOW_ISO },
+  { id: 9, name: 'Shampoo (शैम्पू)', hindi_name: 'शैम्पू', aliases: 'shampoo, clinic plus, head and shoulders, sunsilk, शैम्पू, शैंपू, क्लीनिक प्लस', unit: 'bottle', price: 120, stock: 25, created_at: NOW_ISO, updated_at: NOW_ISO },
+  { id: 10, name: 'Toothpaste (टूथपेस्ट)', hindi_name: 'टूथपेस्ट', aliases: 'toothpaste, colgate, pepsodent, close up, टूथपेस्ट, कोलगेट, पेप्सोडेंट', unit: 'tube', price: 55, stock: 40, created_at: NOW_ISO, updated_at: NOW_ISO },
+  { id: 11, name: 'Haldi Powder (हल्दी)', hindi_name: 'हल्दी पाउडर', aliases: 'haldi, turmeric, haldi powder, हल्दी, हल्दी पाउडर', unit: 'packet', price: 30, stock: 35, created_at: NOW_ISO, updated_at: NOW_ISO },
+  { id: 12, name: 'Jeera (जीरा)', hindi_name: 'जीरा', aliases: 'jeera, cumin, zeera, जीरा', unit: 'packet', price: 45, stock: 20, created_at: NOW_ISO, updated_at: NOW_ISO },
+  { id: 13, name: 'Tea (चाय पत्ती)', hindi_name: 'चाय पत्ती', aliases: 'tea, chai, chai patti, taj mahal, चाय, चाय पत्ती, पत्ती', unit: 'packet', price: 95, stock: 25, created_at: NOW_ISO, updated_at: NOW_ISO }
 ];
 
-// Hindi numeric word mappings
+// Complete Bilingual Number Dictionary (Devanagari, Hindi transliterated, English, Digits)
 const HINDI_NUMBERS: Record<string, number> = {
-  'aadha': 0.5, 'adha': 0.5, 'half': 0.5, 'pao': 0.25,
-  'ek': 1, 'one': 1, '1': 1,
-  'do': 2, 'two': 2, '2': 2,
-  'teen': 3, 'tin': 3, 'three': 3, '3': 3,
-  'chaar': 4, 'char': 4, 'four': 4, '4': 4,
-  'paanch': 5, 'panch': 5, 'five': 5, '5': 5,
-  'chhe': 6, 'chhah': 6, 'six': 6, '6': 6,
-  'saat': 7, 'seven': 7, '7': 7,
-  'aath': 8, 'ath': 8, 'eight': 8, '8': 8,
-  'nau': 9, 'nine': 9, '9': 9,
-  'das': 10, 'dus': 10, 'ten': 10, '10': 10,
-  'dedh': 1.5, 'dhai': 2.5, 'dhayi': 2.5
+  // Fractions
+  'aadha': 0.5, 'adha': 0.5, 'half': 0.5, 'आधा': 0.5,
+  'pao': 0.25, 'paav': 0.25, 'पाव': 0.25,
+  'sawa': 1.25, 'सवा': 1.25,
+  'dedh': 1.5, 'डेढ़': 1.5, 'डेढ': 1.5,
+  'dhai': 2.5, 'dhayi': 2.5, 'ढाई': 2.5,
+
+  // Digits & Numbers 1-10
+  'ek': 1, 'one': 1, '1': 1, 'एक': 1, '१': 1,
+  'do': 2, 'two': 2, '2': 2, 'दो': 2, '२': 2,
+  'teen': 3, 'tin': 3, 'three': 3, '3': 3, 'तीन': 3, '३': 3,
+  'chaar': 4, 'char': 4, 'four': 4, '4': 4, 'चार': 4, '४': 4,
+  'paanch': 5, 'panch': 5, 'five': 5, '5': 5, 'पाँच': 5, 'पांच': 5, '५': 5,
+  'chhe': 6, 'chhah': 6, 'six': 6, '6': 6, 'छह': 6, 'छ': 6, '६': 6,
+  'saat': 7, 'seven': 7, '7': 7, 'सात': 7, '७': 7,
+  'aath': 8, 'ath': 8, 'eight': 8, '8': 8, 'आठ': 8, '८': 8,
+  'nau': 9, 'nine': 9, '9': 9, 'नौ': 9, '९': 9,
+  'das': 10, 'dus': 10, 'ten': 10, '10': 10, 'दस': 10, '१०': 10,
+
+  // Numbers 11-50
+  'gyarah': 11, 'ग्यारह': 11, '11': 11,
+  'barah': 12, 'बारह': 12, '12': 12,
+  'terah': 13, 'तेरह': 13, '13': 13,
+  'chaudah': 14, 'चौदह': 14, '14': 14,
+  'pandrah': 15, 'पंद्रह': 15, '15': 15,
+  'solah': 16, 'सोलह': 16, '16': 16,
+  'satrah': 17, 'सत्रह': 17, '17': 17,
+  'atharah': 18, 'अठारह': 18, '18': 18,
+  'unnis': 19, 'उन्नीस': 19, '19': 19,
+  'bees': 20, 'बीस': 20, '20': 20,
+  'pachis': 25, 'पच्चीस': 25, '25': 25,
+  'tees': 30, 'तीस': 30, '30': 30,
+  'chaalis': 40, 'चालीस': 40, '40': 40,
+  'pachaas': 50, 'पचास': 50, '50': 50,
+  'sau': 100, 'सौ': 100, '100': 100
 };
 
-// Unit normalization dictionary
+// Unit normalization dictionary (English, Hinglish, Devanagari)
 const UNIT_MAP: Record<string, string> = {
-  'kg': 'kg', 'kilo': 'kg', 'kilos': 'kg', 'kilogram': 'kg',
-  'litre': 'litre', 'liter': 'litre', 'litres': 'litre', 'l': 'litre', 'ltr': 'litre',
-  'packet': 'packet', 'packets': 'packet', 'pack': 'packet', 'pkt': 'packet',
-  'bottle': 'bottle', 'bottles': 'bottle',
-  'tube': 'tube', 'tubes': 'tube',
-  'gram': 'gram', 'grams': 'gram', 'gm': 'gram', 'g': 'gram'
+  'kg': 'kg', 'kilo': 'kg', 'kilos': 'kg', 'kilogram': 'kg', 'किलो': 'kg', 'केजी': 'kg', 'किग्रा': 'kg',
+  'litre': 'litre', 'liter': 'litre', 'litres': 'litre', 'l': 'litre', 'ltr': 'litre', 'लीटर': 'litre', 'ली': 'litre',
+  'packet': 'packet', 'packets': 'packet', 'pack': 'packet', 'pkt': 'packet', 'पैकेट': 'packet', 'पैक': 'packet',
+  'bottle': 'bottle', 'bottles': 'bottle', 'बोतल': 'bottle',
+  'tube': 'tube', 'tubes': 'tube', 'ट्यूब': 'tube',
+  'gram': 'gram', 'grams': 'gram', 'gm': 'gram', 'g': 'gram', 'ग्राम': 'gram', 'ग्रा': 'gram',
+  'piece': 'piece', 'pieces': 'piece', 'pc': 'piece', 'pcs': 'piece', 'नग': 'piece', 'पीस': 'piece'
 };
 
 /**
- * Client-Side Deterministic Hindi/Hinglish Rule Parser
- * Guarantees zero failures and sub-10ms response even when offline or backend is unreachable!
+ * Universal Bilingual (Hindi / Hinglish / English) Kirana Parser
+ * Supports Devanagari speech from Chrome/Android as well as Roman Hinglish!
  */
 export function clientSideParseOrder(transcript: string): ParsedOrderResponse {
   const clean = transcript
-    .toLowerCase()
-    .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, ' ')
+    .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?]/g, ' ')
     .replace(/\s+/g, ' ')
     .trim();
 
   const items: ParsedOrderItem[] = [];
-  const recognizedCatalog = DEFAULT_CATALOG;
+  
+  // Load full catalog including custom products saved in localStorage
+  let recognizedCatalog = DEFAULT_CATALOG;
+  try {
+    const custom = localStorage.getItem('dukaan_products');
+    if (custom) {
+      const parsed = JSON.parse(custom);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        recognizedCatalog = parsed;
+      }
+    }
+  } catch (e) {}
 
-  // Split transcript by conjunctions (aur, and, +, plus)
-  const segments = clean.split(/\baur\b|\band\b|\bplus\b|\bke\s+saath\b|,/);
+  // Split transcript by bilingual conjunctions (aur, and, plus, और, व, comma)
+  const segments = clean.split(/\baur\b|\band\b|\bplus\b|\bke\s+saath\b|\bऔर\b|\bतथा\b|\bव\b|,/i);
 
   for (const seg of segments) {
     const s = seg.trim();
@@ -86,15 +120,16 @@ export function clientSideParseOrder(transcript: string): ParsedOrderResponse {
 
     // 1. Identify product in segment
     for (const prod of recognizedCatalog) {
-      const aliases = (prod.aliases + ',' + prod.name + ',' + (prod.hindi_name || ''))
+      const aliasList = (prod.aliases + ',' + prod.name + ',' + (prod.hindi_name || ''))
         .toLowerCase()
         .split(',')
         .map(a => a.trim())
         .filter(Boolean);
 
-      for (const alias of aliases) {
-        const regex = new RegExp(`\\b${alias.replace(/\s+/g, '\\s+')}\\b`, 'i');
-        if (regex.test(s)) {
+      const segLower = s.toLowerCase();
+      for (const alias of aliasList) {
+        if (!alias) continue;
+        if (segLower.includes(alias) || new RegExp(`\\b${alias}\\b`, 'i').test(s)) {
           matchedProduct = prod;
           unit = prod.unit;
           break;
@@ -108,16 +143,21 @@ export function clientSideParseOrder(transcript: string): ParsedOrderResponse {
     // 2. Extract numeric quantity
     const segWords = s.split(' ');
     for (let i = 0; i < segWords.length; i++) {
-      const w = segWords[i];
+      const w = segWords[i].trim();
+      const wLower = w.toLowerCase();
 
       if (HINDI_NUMBERS[w] !== undefined) {
         qty = HINDI_NUMBERS[w];
+      } else if (HINDI_NUMBERS[wLower] !== undefined) {
+        qty = HINDI_NUMBERS[wLower];
       } else if (!isNaN(parseFloat(w))) {
         qty = parseFloat(w);
       }
 
       if (UNIT_MAP[w]) {
         unit = UNIT_MAP[w];
+      } else if (UNIT_MAP[wLower]) {
+        unit = UNIT_MAP[wLower];
       }
     }
 
@@ -141,20 +181,36 @@ export function clientSideParseOrder(transcript: string): ParsedOrderResponse {
     }
   }
 
-  // If segment-based parsing missed an item, run whole-text word scanner fallback
+  // Fallback: If segment split missed items, scan whole text
   if (items.length === 0) {
+    const textLower = clean.toLowerCase();
     for (const prod of recognizedCatalog) {
-      const aliases = (prod.aliases + ',' + prod.name).toLowerCase().split(',').map(a => a.trim());
-      for (const alias of aliases) {
-        if (clean.includes(alias)) {
+      const aliasList = (prod.aliases + ',' + prod.name + ',' + (prod.hindi_name || ''))
+        .toLowerCase()
+        .split(',')
+        .map(a => a.trim())
+        .filter(Boolean);
+
+      for (const alias of aliasList) {
+        if (textLower.includes(alias)) {
+          // Check for nearby number
+          let detectedQty = 1;
+          const words = clean.split(' ');
+          for (const w of words) {
+            const wLower = w.toLowerCase();
+            if (HINDI_NUMBERS[w] !== undefined) detectedQty = HINDI_NUMBERS[w];
+            else if (HINDI_NUMBERS[wLower] !== undefined) detectedQty = HINDI_NUMBERS[wLower];
+            else if (!isNaN(parseFloat(w))) detectedQty = parseFloat(w);
+          }
+
           items.push({
-            raw_item: `1 ${prod.unit} ${prod.name}`,
+            raw_item: `${detectedQty} ${prod.unit} ${prod.name}`,
             matched_product: prod.name,
-            quantity: 1,
+            quantity: detectedQty,
             unit: prod.unit,
             unit_price: prod.price,
-            line_total: prod.price,
-            in_stock: true,
+            line_total: Math.round(detectedQty * prod.price),
+            in_stock: prod.stock >= detectedQty,
             available_stock: prod.stock
           });
           break;
@@ -171,7 +227,7 @@ export function clientSideParseOrder(transcript: string): ParsedOrderResponse {
     const itemSummaries = items.map(it => `${it.quantity} ${it.unit} ${it.matched_product.split(' ')[0]}`).join(' और ');
     hindiReply = `जी भैया, ${itemSummaries} दर्ज कर लिया है। कुल बिल ${grandTotal} रुपये हुआ। क्या आर्डर पक्का करें?`;
   } else {
-    hindiReply = 'माफ़ कीजिए, सामान का नाम ठीक से समझ नहीं आया। कृपया दोबारा बोलें, जैसे: 2 किलो चावल या 1 लीटर तेल।';
+    hindiReply = 'माफ़ कीजिए, सामान का नाम समझ नहीं आया। कृपया दोबारा बोलें, जैसे: 5 किलो आटा या 2 पैकेट बिस्कुट।';
   }
 
   return {
@@ -183,7 +239,7 @@ export function clientSideParseOrder(transcript: string): ParsedOrderResponse {
     transcript,
     parse_method: 'fallback_rules',
     confidence: 0.98,
-    source: 'Deterministic Kirana Fallback Engine'
+    source: 'Bilingual Kirana Speech Engine'
   };
 }
 
@@ -350,23 +406,29 @@ export const api = {
       console.warn('Backend transcription API unreachable, applying smart fallback:', err);
     }
 
-    // High-fidelity fallback based on audio sample or default realistic kirana order
-    let fallbackText = 'Bhaiya, do kilo chawal aur ek litre refined oil chahiye.';
+    // Only apply predefined sample text for recognized pre-recorded demo files
     const fn = filename.toLowerCase();
-    if (fn.includes('noisy') || fn.includes('atta')) {
-      fallbackText = 'Bhaiya, paanch kg atta aur do packet biscuit dena jaldi se.';
-    } else if (fn.includes('phone') || fn.includes('cheeni')) {
-      fallbackText = 'Hello bhaiya, aadha kg cheeni aur ek kg namak pack kar do.';
-    } else if (fn.includes('fast') || fn.includes('shampoo')) {
-      fallbackText = '2 kg chawal aur ek bottle shampoo aur ek packet biscuit.';
+    let sampleText = '';
+    if (fn.includes('clean') || fn.includes('sample_1')) {
+      sampleText = 'Bhaiya, do kilo chawal aur ek litre refined oil chahiye.';
+    } else if (fn.includes('noisy') || fn.includes('atta') || fn.includes('sample_2')) {
+      sampleText = 'Bhaiya, paanch kg atta aur do packet biscuit dena jaldi se.';
+    } else if (fn.includes('phone') || fn.includes('cheeni') || fn.includes('sample_3')) {
+      sampleText = 'Hello bhaiya, aadha kg cheeni aur ek kg namak pack kar do.';
+    } else if (fn.includes('fast') || fn.includes('shampoo') || fn.includes('sample_4')) {
+      sampleText = '2 kg chawal aur ek bottle shampoo aur ek packet biscuit.';
+    }
+
+    if (!sampleText) {
+      throw new Error('माइक से आवाज़ स्पष्ट नहीं आई (No speech detected). कृपया माइक के पास आकर दोबारा बोलें या नीचे लिखकर ऑर्डर दर्ज करें।');
     }
 
     return {
-      transcript: fallbackText,
+      transcript: sampleText,
       language: 'hi',
-      confidence: 0.96,
-      processing_time_ms: 240,
-      source: 'Gnani Prisma v2.5 Fallback'
+      confidence: 0.95,
+      processing_time_ms: 220,
+      source: 'Gnani Demo Sample'
     };
   },
 

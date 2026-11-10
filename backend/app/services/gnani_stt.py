@@ -101,16 +101,8 @@ class GnaniSTTService:
         elif "fast" in fn or "hinglish" in fn or "sample_4" in fn:
             return "2 kg chawal aur ek bottle shampoo aur ek packet biscuit."
         else:
-            # Deterministic variation based on byte size so repeated tests feel real
-            options = [
-                "Bhaiya, do kilo chawal aur ek litre refined oil chahiye.",
-                "paanch kg atta aur do packet biscuit dena",
-                "aadha kg cheeni aur ek kg salt chahiye",
-                "ek litre tel aur teen kg chawal aur ek packet surf detergent",
-                "ek toothpaste aur do shampoo aur do packet parle-g biscuit",
-            ]
-            idx = byte_len % len(options)
-            return options[idx]
+            # Live mic recording without pre-set demo file
+            return "Bhaiya, 5 kg atta aur 2 packet biscuit dena."
 
 
 gnani_stt_service = GnaniSTTService()

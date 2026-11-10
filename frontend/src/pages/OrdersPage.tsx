@@ -1,15 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { api } from '../services/api';
 import { Order } from '../types';
+import { ThermalReceiptModal } from '../components/ThermalReceiptModal';
 import { 
   ShoppingBag, 
   Eye, 
   RefreshCw, 
-  X, 
   Receipt, 
-  Printer, 
-  Trash2, 
-  Share2 
+  Trash2 
 } from 'lucide-react';
 
 export const OrdersPage: React.FC = () => {
@@ -45,11 +43,7 @@ export const OrdersPage: React.FC = () => {
     }
   };
 
-  const handleShareWhatsApp = (order: Order) => {
-    const itemsText = order.items.map(it => `• ${it.matched_product || it.raw_item} (${it.quantity} ${it.unit}) - ₹${it.line_total}`).join('%0A');
-    const msg = `🏪 *दुकान साथी - बिल रसीद*%0A*ऑर्डर नं:* %23${order.id}%0A*दिनांक:* ${formatDate(order.created_at)}%0A----------------------%0A${itemsText}%0A----------------------%0A*कुल योग (Total):* ₹${order.total_amount}%0A%0A_धन्यवाद! फिर पधारें!_`;
-    window.open(`https://wa.me/?text=${msg}`, '_blank');
-  };
+
 
   const formatDate = (dateStr: string) => {
     try {
@@ -169,93 +163,15 @@ export const OrdersPage: React.FC = () => {
         </div>
       )}
 
-      {/* Order Detail & Print Modal */}
+      {/* Authentic Dukaan Saathi Branded Thermal Receipt Modal */}
       {selectedOrder && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-zinc-950/90 backdrop-blur-2xl rounded-2xl border border-white/[0.12] max-w-md w-full p-6 space-y-4 shadow-2xl animate-fadeIn text-white">
-            <div className="flex items-center justify-between pb-3 border-b border-white/[0.08]">
-              <div>
-                <h3 className="font-black text-base text-white">
-                  ऑर्डर रसीद #{selectedOrder.id}
-                </h3>
-                <span className="text-xs text-neutral-400 font-mono">
-                  {formatDate(selectedOrder.created_at)}
-                </span>
-              </div>
-              <button onClick={() => setSelectedOrder(null)} className="text-neutral-400 hover:text-white transition">
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            {/* Transcript Quote */}
-            {selectedOrder.customer_transcript && (
-              <div className="p-3 rounded-xl bg-black/50 border border-white/[0.08]">
-                <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider block">
-                  ग्राहक की आवाज़:
-                </span>
-                <p className="text-xs font-semibold text-emerald-300 mt-1 italic">
-                  &ldquo;{selectedOrder.customer_transcript}&rdquo;
-                </p>
-              </div>
-            )}
-
-            {/* Item Breakdown */}
-            <div className="divide-y divide-white/[0.06] py-2">
-              {selectedOrder.items.map((it, idx) => (
-                <div key={idx} className="py-2 flex justify-between text-xs">
-                  <div>
-                    <span className="font-bold text-neutral-200">{it.matched_product || it.raw_item}</span>
-                    <span className="text-neutral-400 block tabular-nums">
-                      {it.quantity} {it.unit} @ ₹{it.unit_price}
-                    </span>
-                  </div>
-                  <span className="font-bold font-mono tabular-nums text-white">
-                    ₹{it.line_total}
-                  </span>
-                </div>
-              ))}
-            </div>
-
-            {/* Total Callout */}
-            <div className="pt-3 border-t border-white/[0.08] flex justify-between items-center">
-              <span className="font-bold text-neutral-300 text-sm">कुल भुगतान (Paid):</span>
-              <span className="text-2xl font-black font-mono tabular-nums text-emerald-400">
-                ₹{selectedOrder.total_amount}
-              </span>
-            </div>
-
-            {/* Modal Actions */}
-            <div className="flex flex-wrap gap-2 pt-2">
-              <button
-                onClick={() => window.print()}
-                className="flex-1 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-neutral-950 font-bold text-xs flex items-center justify-center space-x-1.5 transition cursor-pointer shadow-md shadow-emerald-500/20 active:scale-95"
-              >
-                <Printer className="w-3.5 h-3.5" />
-                <span>थर्मल प्रिंट</span>
-              </button>
-              <button
-                onClick={() => handleShareWhatsApp(selectedOrder)}
-                className="flex-1 py-2.5 rounded-xl bg-emerald-950/60 hover:bg-emerald-900/60 border border-emerald-500/30 text-emerald-300 font-bold text-xs flex items-center justify-center space-x-1.5 transition cursor-pointer active:scale-95"
-              >
-                <Share2 className="w-3.5 h-3.5" />
-                <span>WhatsApp शेयर</span>
-              </button>
-              <button
-                onClick={() => handleDeleteOrder(selectedOrder.id)}
-                className="py-2.5 px-3 rounded-xl bg-rose-950/40 hover:bg-rose-900/40 border border-rose-500/30 text-rose-300 font-bold text-xs transition cursor-pointer"
-                title="Cancel order"
-              >
-                <Trash2 className="w-3.5 h-3.5" />
-              </button>
-              <button
-                onClick={() => setSelectedOrder(null)}
-                className="py-2.5 px-4 rounded-xl bg-zinc-800/80 hover:bg-zinc-700/80 text-neutral-300 font-bold text-xs transition cursor-pointer border border-white/[0.08]"
-              >
-                बंद करें
-              </button>
-            </div>
-          </div>
-        </div>
+        <ThermalReceiptModal
+          order={selectedOrder}
+          isOpen={Boolean(selectedOrder)}
+          onClose={() => setSelectedOrder(null)}
+          customerName={selectedOrder.customer_name || 'वॉइस / POS काउंटर ग्राहक'}
+          paymentMethod={selectedOrder.payment_method || 'CASH'}
+        />
       )}
     </div>
   );
