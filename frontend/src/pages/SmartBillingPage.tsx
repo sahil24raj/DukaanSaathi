@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '../services/api';
-import { Product, Order } from '../types';
+import { Product, Order, CustomerUdhaarRecord } from '../types';
 import { 
   Search, 
   Plus, 
@@ -12,7 +12,11 @@ import {
   ShoppingBag,
   Receipt,
   ArrowRight,
-  RotateCcw
+  RotateCcw,
+  Share2,
+  QrCode,
+  Copy,
+  CheckCheck
 } from 'lucide-react';
 
 interface SmartBillingPageProps {
@@ -24,11 +28,14 @@ export const SmartBillingPage: React.FC<SmartBillingPageProps> = ({ onOrderSaved
   const [search, setSearch] = useState<string>('');
   const [cart, setCart] = useState<{ product: Product; quantity: number }[]>([]);
   const [customerName, setCustomerName] = useState<string>('');
+  const [customerPhone, setCustomerPhone] = useState<string>('');
   const [paymentMethod, setPaymentMethod] = useState<'cash' | 'upi' | 'udhaar'>('cash');
   const [discountPercent, setDiscountPercent] = useState<number>(0);
   const [applyGst, setApplyGst] = useState<boolean>(false);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [completedOrder, setCompletedOrder] = useState<Order | null>(null);
+  const [khataCustomers, setKhataCustomers] = useState<CustomerUdhaarRecord[]>([]);
+  const [copiedUpi, setCopiedUpi] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchCatalog = async () => {
@@ -40,6 +47,7 @@ export const SmartBillingPage: React.FC<SmartBillingPageProps> = ({ onOrderSaved
       }
     };
     fetchCatalog();
+    setKhataCustomers(api.getKhataCustomers());
   }, []);
 
   const filteredProducts = products.filter(p => 
@@ -95,6 +103,18 @@ export const SmartBillingPage: React.FC<SmartBillingPageProps> = ({ onOrderSaved
   const gstAmount = applyGst ? Math.round(taxable * 0.05) : 0;
   const grandTotal = taxable + gstAmount;
 
+  const handleShareWhatsApp = (order: Order) => {
+    const itemsText = order.items.map(it => `• ${it.matched_product || it.raw_item} (${it.quantity} ${it.unit}) - ₹${it.line_total}`).join('%0A');
+    const msg = `🏪 *दुकान साथी - किराना बिल रसीद*%0A*ऑर्डर नं:* %23${order.id}%0A*ग्राहक:* ${order.customer_name || 'काउंटर ग्राहक'}%0A*भुगतान:* ${paymentMethod.toUpperCase()}%0A----------------------%0A${itemsText}%0A----------------------%0A*कुल योग (Total):* ₹${order.total_amount}%0A%0A_दुकान साथी द्वारा जनरेटेड | धन्यवाद, फिर आएं!_`;
+    window.open(`https://wa.me/?text=${msg}`, '_blank');
+  };
+
+  const copyUpiId = () => {
+    navigator.clipboard.writeText('dukaansaathi@upi');
+    setCopiedUpi(true);
+    setTimeout(() => setCopiedUpi(false), 2500);
+  };
+
   // Checkout submission
   const handleCheckout = async () => {
     if (cart.length === 0) return;
@@ -118,12 +138,19 @@ export const SmartBillingPage: React.FC<SmartBillingPageProps> = ({ onOrderSaved
       const hindiResponse = `Aapka kul bill ₹${grandTotal} hua. Shukriya!`;
 
       const saved = await api.createOrder({
+        customer_name: customerName.trim() || undefined,
+        customer_phone: customerPhone.trim() || undefined,
+        payment_method: paymentMethod,
+        discount: discountAmount,
+        gst: gstAmount,
         customer_transcript: transcriptDesc,
         hindi_response: hindiResponse,
         items: orderItems
       });
 
       setCompletedOrder(saved);
+      // Refresh catalog in background to show decremented stock
+      api.getProducts().then(setProducts);
       clearCart();
       if (onOrderSaved) onOrderSaved();
     } catch (err: any) {
@@ -203,19 +230,26 @@ export const SmartBillingPage: React.FC<SmartBillingPageProps> = ({ onOrderSaved
             </div>
           </div>
 
-          <div className="flex gap-3 mt-6">
+          <div className="flex flex-wrap gap-2.5 mt-6">
             <button
               onClick={() => window.print()}
-              className="flex-1 inline-flex items-center justify-center space-x-1.5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition cursor-pointer shadow-md shadow-emerald-900/40 active:scale-95"
+              className="flex-1 min-w-[130px] inline-flex items-center justify-center space-x-1.5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition cursor-pointer shadow-md shadow-emerald-900/40 active:scale-95"
             >
               <Printer className="w-4 h-4" />
-              <span>पर्चा प्रिंट (Thermal Print)</span>
+              <span>पर्चा प्रिंट (Thermal)</span>
+            </button>
+            <button
+              onClick={() => handleShareWhatsApp(completedOrder)}
+              className="flex-1 min-w-[130px] inline-flex items-center justify-center space-x-1.5 py-2.5 rounded-xl bg-emerald-950/70 hover:bg-emerald-900/70 border border-emerald-500/30 text-emerald-300 font-bold text-xs transition cursor-pointer active:scale-95"
+            >
+              <Share2 className="w-4 h-4 text-emerald-400" />
+              <span>WhatsApp रसीद</span>
             </button>
             <button
               onClick={() => setCompletedOrder(null)}
-              className="flex-1 inline-flex items-center justify-center space-x-1.5 py-2.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-200 border border-white/[0.08] font-bold text-xs transition cursor-pointer"
+              className="flex-1 min-w-[130px] inline-flex items-center justify-center space-x-1.5 py-2.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-200 border border-white/[0.08] font-bold text-xs transition cursor-pointer"
             >
-              <span>नया बिल बनाएं (Next Bill)</span>
+              <span>नया बिल बनाएं</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
@@ -272,9 +306,14 @@ export const SmartBillingPage: React.FC<SmartBillingPageProps> = ({ onOrderSaved
             <div>
               {/* Customer Name Input */}
               <div className="mb-4 space-y-1.5">
-                <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider block">
-                  ग्राहक का नाम / खाता (Customer Name)
-                </label>
+                <div className="flex items-center justify-between">
+                  <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider block">
+                    ग्राहक का नाम / खाता (Customer Name)
+                  </label>
+                  {khataCustomers.length > 0 && (
+                    <span className="text-[10px] text-zinc-500">खाता से चुनें</span>
+                  )}
+                </div>
                 <div className="relative">
                   <User className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
                   <input
@@ -285,6 +324,25 @@ export const SmartBillingPage: React.FC<SmartBillingPageProps> = ({ onOrderSaved
                     className="w-full pl-9 pr-3 py-2 bg-black/40 border border-white/[0.08] rounded-xl text-xs font-medium text-white placeholder:text-zinc-500 focus:outline-none focus:border-emerald-500/50"
                   />
                 </div>
+
+                {/* Quick Customer Chips */}
+                {khataCustomers.length > 0 && !customerName && (
+                  <div className="flex flex-wrap gap-1.5 pt-1">
+                    {khataCustomers.slice(0, 4).map(c => (
+                      <button
+                        key={c.id}
+                        type="button"
+                        onClick={() => {
+                          setCustomerName(c.customer_name);
+                          setCustomerPhone(c.phone);
+                        }}
+                        className="text-[10px] bg-zinc-800/80 hover:bg-zinc-700 text-zinc-300 px-2 py-0.5 rounded-md border border-white/[0.06] transition cursor-pointer"
+                      >
+                        +{c.customer_name}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
 
               {/* Items Table */}
@@ -385,6 +443,35 @@ export const SmartBillingPage: React.FC<SmartBillingPageProps> = ({ onOrderSaved
                     उधार (Credit)
                   </button>
                 </div>
+
+                {/* Dynamic UPI QR Code Display */}
+                {paymentMethod === 'upi' && grandTotal > 0 && (
+                  <div className="mt-3 p-3.5 rounded-xl bg-indigo-950/40 border border-indigo-500/30 flex items-center space-x-3.5 animate-fadeIn">
+                    <div className="p-1.5 bg-white rounded-lg shrink-0 shadow">
+                      <img
+                        src={`https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${encodeURIComponent(`upi://pay?pa=dukaansaathi@upi&pn=Dukaan+Saathi&am=${grandTotal}&cu=INR`)}`}
+                        alt="UPI QR Code"
+                        className="w-18 h-18"
+                      />
+                    </div>
+                    <div className="space-y-1 flex-1 min-w-0">
+                      <div className="flex items-center space-x-1.5">
+                        <QrCode className="w-3.5 h-3.5 text-indigo-400" />
+                        <span className="text-xs font-bold text-white">Dynamic UPI QR Code</span>
+                      </div>
+                      <p className="text-[11px] text-zinc-400">
+                        PhonePe / GPay / Paytm से स्कैन कर ₹{grandTotal} का भुगतान करें
+                      </p>
+                      <button
+                        onClick={copyUpiId}
+                        className="inline-flex items-center space-x-1 text-[10px] text-indigo-300 hover:text-white bg-indigo-900/60 px-2 py-0.5 rounded border border-indigo-400/30 transition cursor-pointer"
+                      >
+                        {copiedUpi ? <CheckCheck className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
+                        <span>{copiedUpi ? 'UPI ID कॉपी हो गया!' : 'dukaansaathi@upi (Copy)'}</span>
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Subtotal & Discounts */}

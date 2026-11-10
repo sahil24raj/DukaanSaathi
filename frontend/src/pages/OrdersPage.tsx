@@ -1,7 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { api } from '../services/api';
 import { Order } from '../types';
-import { ShoppingBag, Eye, RefreshCw, X, Receipt, Printer } from 'lucide-react';
+import { 
+  ShoppingBag, 
+  Eye, 
+  RefreshCw, 
+  X, 
+  Receipt, 
+  Printer, 
+  Trash2, 
+  Share2 
+} from 'lucide-react';
 
 export const OrdersPage: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>([]);
@@ -23,6 +32,24 @@ export const OrdersPage: React.FC = () => {
   useEffect(() => {
     fetchOrders();
   }, []);
+
+  const handleDeleteOrder = async (orderId: number) => {
+    if (confirm(`क्या आप ऑर्डर #${orderId} को रद्द करना चाहते हैं? इससे सामान का स्टॉक वापस जुड़ जाएगा।`)) {
+      try {
+        await api.deleteOrder(orderId, true);
+        setOrders(prev => prev.filter(o => o.id !== orderId));
+        setSelectedOrder(null);
+      } catch (e) {
+        alert('ऑर्डर हटाने में विफल');
+      }
+    }
+  };
+
+  const handleShareWhatsApp = (order: Order) => {
+    const itemsText = order.items.map(it => `• ${it.matched_product || it.raw_item} (${it.quantity} ${it.unit}) - ₹${it.line_total}`).join('%0A');
+    const msg = `🏪 *दुकान साथी - बिल रसीद*%0A*ऑर्डर नं:* %23${order.id}%0A*दिनांक:* ${formatDate(order.created_at)}%0A----------------------%0A${itemsText}%0A----------------------%0A*कुल योग (Total):* ₹${order.total_amount}%0A%0A_धन्यवाद! फिर पधारें!_`;
+    window.open(`https://wa.me/?text=${msg}`, '_blank');
+  };
 
   const formatDate = (dateStr: string) => {
     try {
@@ -116,13 +143,23 @@ export const OrdersPage: React.FC = () => {
                       ₹{o.total_amount}
                     </td>
                     <td className="py-3.5 px-4 sm:px-6 text-center">
-                      <button
-                        onClick={() => setSelectedOrder(o)}
-                        className="inline-flex items-center space-x-1 px-2.5 py-1.5 rounded-lg border border-white/[0.12] bg-zinc-800/80 hover:bg-zinc-700 hover:border-emerald-500/50 text-neutral-200 text-xs font-bold transition cursor-pointer"
-                      >
-                        <Eye className="w-3.5 h-3.5 text-emerald-400" />
-                        <span>रसीद</span>
-                      </button>
+                      <div className="flex items-center justify-center space-x-1.5">
+                        <button
+                          onClick={() => setSelectedOrder(o)}
+                          className="inline-flex items-center space-x-1 px-2.5 py-1.5 rounded-lg border border-white/[0.12] bg-zinc-800/80 hover:bg-zinc-700 hover:border-emerald-500/50 text-neutral-200 text-xs font-bold transition cursor-pointer"
+                          title="View receipt"
+                        >
+                          <Eye className="w-3.5 h-3.5 text-emerald-400" />
+                          <span>रसीद</span>
+                        </button>
+                        <button
+                          onClick={() => handleDeleteOrder(o.id)}
+                          className="p-1.5 rounded-lg border border-white/[0.1] bg-zinc-800/50 hover:bg-rose-950/40 hover:border-rose-500/40 text-neutral-400 hover:text-rose-400 text-xs transition cursor-pointer"
+                          title="Cancel order"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -188,13 +225,27 @@ export const OrdersPage: React.FC = () => {
             </div>
 
             {/* Modal Actions */}
-            <div className="flex gap-2 pt-2">
+            <div className="flex flex-wrap gap-2 pt-2">
               <button
                 onClick={() => window.print()}
                 className="flex-1 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-neutral-950 font-bold text-xs flex items-center justify-center space-x-1.5 transition cursor-pointer shadow-md shadow-emerald-500/20 active:scale-95"
               >
                 <Printer className="w-3.5 h-3.5" />
-                <span>थर्मल प्रिंट (80mm)</span>
+                <span>थर्मल प्रिंट</span>
+              </button>
+              <button
+                onClick={() => handleShareWhatsApp(selectedOrder)}
+                className="flex-1 py-2.5 rounded-xl bg-emerald-950/60 hover:bg-emerald-900/60 border border-emerald-500/30 text-emerald-300 font-bold text-xs flex items-center justify-center space-x-1.5 transition cursor-pointer active:scale-95"
+              >
+                <Share2 className="w-3.5 h-3.5" />
+                <span>WhatsApp शेयर</span>
+              </button>
+              <button
+                onClick={() => handleDeleteOrder(selectedOrder.id)}
+                className="py-2.5 px-3 rounded-xl bg-rose-950/40 hover:bg-rose-900/40 border border-rose-500/30 text-rose-300 font-bold text-xs transition cursor-pointer"
+                title="Cancel order"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
               </button>
               <button
                 onClick={() => setSelectedOrder(null)}

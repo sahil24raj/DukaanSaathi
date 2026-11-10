@@ -71,10 +71,29 @@ def get_orders(limit: int = 50, db: Session = Depends(get_db)):
 
 
 @router.get("/{order_id}", response_model=OrderOut)
-def get_order_by_id(order_id: int, db: Session = Depends(get_db)):
-    """Fetch details for a single order."""
+def get_order(order_id: int, db: Session = Depends(get_db)):
+    """Fetch details of a specific order."""
     order = db.query(Order).filter(Order.id == order_id).first()
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
     return order
+
+
+@router.delete("/{order_id}")
+def delete_order(order_id: int, refund_stock: bool = True, db: Session = Depends(get_db)):
+    """Cancel or delete an order, with optional stock restitution."""
+    order = db.query(Order).filter(Order.id == order_id).first()
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+    
+    if refund_stock:
+        for item in order.items:
+            if item.product_id:
+                prod = db.query(Product).filter(Product.id == item.product_id).first()
+                if prod:
+                    prod.stock += item.quantity
+    
+    db.delete(order)
+    db.commit()
+    return {"status": "success", "message": f"Order #{order_id} cancelled successfully"}
 

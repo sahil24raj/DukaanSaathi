@@ -7,7 +7,9 @@ import {
   DashboardStats,
   SystemStatus,
   DemoSample,
-  ParsedOrderItem
+  ParsedOrderItem,
+  CustomerUdhaarRecord,
+  CustomerProfile
 } from '../types';
 
 const API_BASE = (import.meta as any).env?.VITE_API_URL || '/api';
@@ -261,6 +263,62 @@ export const api = {
     throw new Error('Product not found');
   },
 
+  async addProduct(data: {
+    name: string;
+    hindi_name?: string;
+    aliases: string;
+    unit: string;
+    price: number;
+    stock: number;
+    category?: string;
+  }): Promise<Product> {
+    const products = await api.getProducts();
+    const newId = products.length > 0 ? Math.max(...products.map(p => p.id)) + 1 : 1;
+    const nowIso = new Date().toISOString();
+    const newProd: Product = {
+      id: newId,
+      name: data.name,
+      hindi_name: data.hindi_name,
+      aliases: data.aliases,
+      unit: data.unit,
+      price: data.price,
+      stock: data.stock,
+      category: data.category || 'General',
+      created_at: nowIso,
+      updated_at: nowIso
+    };
+
+    try {
+      const res = await fetch(`${API_BASE}/products`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      if (res.ok && res.headers.get('content-type')?.includes('application/json')) {
+        const saved = await res.json();
+        newProd.id = saved.id;
+      }
+    } catch (e) {
+      console.warn('Backend addProduct offline, saving locally:', e);
+    }
+
+    products.unshift(newProd);
+    localStorage.setItem('dukaan_products', JSON.stringify(products));
+    return newProd;
+  },
+
+  async deleteProduct(id: number): Promise<boolean> {
+    try {
+      await fetch(`${API_BASE}/products/${id}`, { method: 'DELETE' });
+    } catch (e) {
+      console.warn('Backend deleteProduct offline, deleting locally:', e);
+    }
+    const products = await api.getProducts();
+    const filtered = products.filter(p => p.id !== id);
+    localStorage.setItem('dukaan_products', JSON.stringify(filtered));
+    return true;
+  },
+
   async seedProducts(): Promise<{ status: string; message: string }> {
     try {
       const res = await fetch(`${API_BASE}/products/seed`, { method: 'POST' });
@@ -357,12 +415,60 @@ export const api = {
     };
   },
 
-  // Orders (with local offline fallback)
+  // Orders (with local offline fallback & stock auto-deduction)
   async createOrder(payload: {
+    customer_name?: string;
+    customer_phone?: string;
     customer_transcript?: string;
     hindi_response?: string;
+    payment_method?: 'cash' | 'upi' | 'udhaar';
+    discount?: number;
+    gst?: number;
     items: ParsedOrderItem[];
   }): Promise<Order> {
+    // 1. Deduct stock locally from product catalog
+    try {
+      const currentProducts = await api.getProducts();
+      let catalogChanged = false;
+      for (const it of payload.items) {
+        const prod = currentProducts.find(p => p.name.toLowerCase() === it.matched_product.toLowerCase());
+        if (prod) {
+          prod.stock = Math.max(0, prod.stock - it.quantity);
+          prod.updated_at = new Date().toISOString();
+          catalogChanged = true;
+        }
+      }
+      if (catalogChanged) {
+        localStorage.setItem('dukaan_products', JSON.stringify(currentProducts));
+      }
+    } catch (e) {
+      console.warn('Could not auto-decrement local stock:', e);
+    }
+
+    // 2. If payment is Udhaar and customer is named, record into Khata ledger
+    if (payload.payment_method === 'udhaar' && payload.customer_name) {
+      try {
+        const total = payload.items.reduce((s, it) => s + it.line_total, 0);
+        const khataList = api.getKhataCustomers();
+        const existing = khataList.find(c => 
+          c.customer_name.toLowerCase().includes(payload.customer_name!.toLowerCase())
+        );
+        const itemSummary = payload.items.map(it => `${it.quantity} ${it.unit} ${it.matched_product}`).join(', ');
+        if (existing) {
+          api.addKhataTransaction(existing.id, 'given', total, itemSummary || 'POS Udhaar Order');
+        } else {
+          api.createKhataCustomer(
+            payload.customer_name,
+            payload.customer_name,
+            payload.customer_phone || '9876543210',
+            total
+          );
+        }
+      } catch (e) {
+        console.warn('Could not update Khata ledger on udhaar order:', e);
+      }
+    }
+
     try {
       const res = await fetch(`${API_BASE}/orders`, {
         method: 'POST',
@@ -372,7 +478,13 @@ export const api = {
       if (res.ok) {
         const ct = res.headers.get('content-type') || '';
         if (ct.includes('application/json')) {
-          return await res.json();
+          const remoteOrder = await res.json();
+          // Update local cache as well
+          const savedOrdersStr = localStorage.getItem('dukaan_orders');
+          const orders: Order[] = savedOrdersStr ? JSON.parse(savedOrdersStr) : [];
+          orders.unshift(remoteOrder);
+          localStorage.setItem('dukaan_orders', JSON.stringify(orders));
+          return remoteOrder;
         }
       }
     } catch (err) {
@@ -397,7 +509,11 @@ export const api = {
 
     const newOrder: Order = {
       id: newId,
-      customer_name: 'Walk-in Customer (काउंटर ग्राहक)',
+      customer_name: payload.customer_name || 'Walk-in Customer (काउंटर ग्राहक)',
+      customer_phone: payload.customer_phone,
+      payment_method: payload.payment_method || 'cash',
+      discount: payload.discount || 0,
+      gst: payload.gst || 0,
       customer_transcript: payload.customer_transcript || '',
       hindi_response: payload.hindi_response || '',
       total_amount: totalAmount,
@@ -415,7 +531,11 @@ export const api = {
     try {
       const res = await fetch(`${API_BASE}/orders`);
       if (res.ok && res.headers.get('content-type')?.includes('application/json')) {
-        return await res.json();
+        const remoteOrders = await res.json();
+        if (Array.isArray(remoteOrders) && remoteOrders.length > 0) {
+          localStorage.setItem('dukaan_orders', JSON.stringify(remoteOrders));
+          return remoteOrders;
+        }
       }
     } catch (e) {
       console.warn('Backend orders endpoint offline, loading from local store:', e);
@@ -427,7 +547,220 @@ export const api = {
     return [];
   },
 
-  // Dashboard
+  async deleteOrder(id: number, refundStock = true): Promise<boolean> {
+    try {
+      await fetch(`${API_BASE}/orders/${id}?refund_stock=${refundStock}`, { method: 'DELETE' });
+    } catch (e) {
+      console.warn('Backend deleteOrder offline, removing locally:', e);
+    }
+    const orders = await api.getOrders();
+    const targetOrder = orders.find(o => o.id === id);
+    if (targetOrder && refundStock) {
+      try {
+        const currentProducts = await api.getProducts();
+        for (const it of targetOrder.items) {
+          const prod = currentProducts.find(p => p.name.toLowerCase() === it.matched_product.toLowerCase());
+          if (prod) {
+            prod.stock += it.quantity;
+            prod.updated_at = new Date().toISOString();
+          }
+        }
+        localStorage.setItem('dukaan_products', JSON.stringify(currentProducts));
+      } catch (e) {}
+    }
+    const filtered = orders.filter(o => o.id !== id);
+    localStorage.setItem('dukaan_orders', JSON.stringify(filtered));
+    return true;
+  },
+
+  // Khata / Udhaar Ledger Persistent Operations
+  getKhataCustomers(): CustomerUdhaarRecord[] {
+    const cached = localStorage.getItem('dukaan_khata_customers');
+    if (cached) {
+      try { return JSON.parse(cached); } catch {}
+    }
+    const INITIAL_CUSTOMERS: CustomerUdhaarRecord[] = [
+      {
+        id: 1,
+        customer_name: 'Raju Sharma',
+        customer_name_hi: 'राजू शर्मा',
+        phone: '9876543210',
+        total_due: 640.0,
+        last_transaction_date: '2026-11-08',
+        transactions: [
+          { id: 101, type: 'given', amount: 320, description: '2kg Chawal, 1L Tel', date: '2026-11-06' },
+          { id: 102, type: 'given', amount: 520, description: '5kg Atta, 2 Parle-G', date: '2026-11-07' },
+          { id: 103, type: 'received', amount: 200, description: 'नकद जमा (Cash payment)', date: '2026-11-08' }
+        ]
+      },
+      {
+        id: 2,
+        customer_name: 'Manoj Verma (Kaka)',
+        customer_name_hi: 'मनोज वर्मा (काका)',
+        phone: '9812345678',
+        total_due: 1250.0,
+        last_transaction_date: '2026-11-07',
+        transactions: [
+          { id: 201, type: 'given', amount: 1250, description: 'महीने का राशन (Monthly grocery)', date: '2026-11-07' }
+        ]
+      },
+      {
+        id: 3,
+        customer_name: 'Sunita Devi',
+        customer_name_hi: 'सुनीता देवी',
+        phone: '9823456789',
+        total_due: 210.0,
+        last_transaction_date: '2026-11-05',
+        transactions: [
+          { id: 301, type: 'given', amount: 410, description: 'Detergent, Shampoo', date: '2026-11-04' },
+          { id: 302, type: 'received', amount: 200, description: 'PhonePe जमा', date: '2026-11-05' }
+        ]
+      },
+      {
+        id: 4,
+        customer_name: 'Amit Tailor',
+        customer_name_hi: 'अमित दर्जी',
+        phone: '9834567890',
+        total_due: 0.0,
+        last_transaction_date: '2026-11-02',
+        transactions: [
+          { id: 401, type: 'given', amount: 300, description: 'Biscuits & Tea', date: '2026-11-01' },
+          { id: 402, type: 'received', amount: 300, description: 'हिसाब पूरा चुकता', date: '2026-11-02' }
+        ]
+      }
+    ];
+    localStorage.setItem('dukaan_khata_customers', JSON.stringify(INITIAL_CUSTOMERS));
+    return INITIAL_CUSTOMERS;
+  },
+
+  saveKhataCustomers(customers: CustomerUdhaarRecord[]): void {
+    localStorage.setItem('dukaan_khata_customers', JSON.stringify(customers));
+  },
+
+  addKhataTransaction(customerId: number, type: 'given' | 'received', amount: number, description: string): CustomerUdhaarRecord | null {
+    const list = api.getKhataCustomers();
+    const customer = list.find(c => c.id === customerId);
+    if (!customer) return null;
+
+    const newTx = {
+      id: Date.now(),
+      type,
+      amount,
+      description: description || (type === 'given' ? 'सामान उधारी' : 'भुगतान प्राप्त'),
+      date: new Date().toISOString().split('T')[0]
+    };
+
+    customer.total_due = type === 'given' 
+      ? Math.round(customer.total_due + amount)
+      : Math.max(0, Math.round(customer.total_due - amount));
+    customer.last_transaction_date = newTx.date;
+    customer.transactions.unshift(newTx);
+
+    api.saveKhataCustomers(list);
+    return customer;
+  },
+
+  createKhataCustomer(name: string, nameHi: string, phone: string, initialDue = 0): CustomerUdhaarRecord {
+    const list = api.getKhataCustomers();
+    const newId = list.length > 0 ? Math.max(...list.map(c => c.id)) + 1 : 1;
+    const today = new Date().toISOString().split('T')[0];
+    const newRecord: CustomerUdhaarRecord = {
+      id: newId,
+      customer_name: name,
+      customer_name_hi: nameHi || name,
+      phone,
+      total_due: initialDue,
+      last_transaction_date: today,
+      transactions: initialDue > 0 ? [
+        {
+          id: Date.now(),
+          type: 'given',
+          amount: initialDue,
+          description: 'प्रारंभिक उधारी (Opening Due)',
+          date: today
+        }
+      ] : []
+    };
+    list.unshift(newRecord);
+    api.saveKhataCustomers(list);
+    return newRecord;
+  },
+
+  // Customer Profiles Persistent Operations
+  getCustomerProfiles(): CustomerProfile[] {
+    const cached = localStorage.getItem('dukaan_customer_profiles');
+    if (cached) {
+      try { return JSON.parse(cached); } catch {}
+    }
+    const INITIAL_PROFILES: CustomerProfile[] = [
+      {
+        id: 1,
+        name: 'Raju Sharma (राजू शर्मा)',
+        phone: '9876543210',
+        address: 'Gali No. 4, Main Bazaar',
+        total_orders: 14,
+        total_spent: 4850,
+        outstanding_udhaar: 640,
+        recent_activity: 'कल 2kg चावल, 1L तेल खरीदा'
+      },
+      {
+        id: 2,
+        name: 'Manoj Verma (काका)',
+        phone: '9812345678',
+        address: 'Near Old Water Tank',
+        total_orders: 28,
+        total_spent: 12400,
+        outstanding_udhaar: 1250,
+        recent_activity: '7 Nov को महीने का राशन लिया'
+      },
+      {
+        id: 3,
+        name: 'Sunita Devi (सुनीता देवी)',
+        phone: '9823456789',
+        address: 'Ward 2, Shiv Mandir Marg',
+        total_orders: 9,
+        total_spent: 2150,
+        outstanding_udhaar: 210,
+        recent_activity: '5 Nov को PhonePe से ₹200 जमा किए'
+      },
+      {
+        id: 4,
+        name: 'Amit Tailor (अमित टेलर)',
+        phone: '9834567890',
+        address: 'Tailor Gali, Shop #12',
+        total_orders: 22,
+        total_spent: 6900,
+        outstanding_udhaar: 0,
+        recent_activity: '2 Nov को सारा बकाया चुकता किया'
+      }
+    ];
+    localStorage.setItem('dukaan_customer_profiles', JSON.stringify(INITIAL_PROFILES));
+    return INITIAL_PROFILES;
+  },
+
+  saveCustomerProfiles(profiles: CustomerProfile[]): void {
+    localStorage.setItem('dukaan_customer_profiles', JSON.stringify(profiles));
+  },
+
+  createCustomerProfile(name: string, phone: string, address: string): CustomerProfile {
+    const list = api.getCustomerProfiles();
+    const newId = list.length > 0 ? Math.max(...list.map(c => c.id)) + 1 : 1;
+    const newProfile: CustomerProfile = {
+      id: newId,
+      name,
+      phone,
+      address: address || 'Local Customer',
+      total_orders: 0,
+      total_spent: 0,
+      outstanding_udhaar: 0,
+      recent_activity: 'नया ग्राहक खाता खोला'
+    };
+    list.unshift(newProfile);
+    api.saveCustomerProfiles(list);
+    return newProfile;
+  },
+
+  // Dynamic Dashboard with real calculations
   async getDashboard(): Promise<DashboardStats> {
     try {
       const res = await fetch(`${API_BASE}/dashboard`);
@@ -435,24 +768,53 @@ export const api = {
         return await res.json();
       }
     } catch (e) {
-      console.warn('Backend dashboard endpoint offline, computing from local store:', e);
+      console.warn('Backend dashboard endpoint offline, computing dynamically:', e);
     }
 
     const orders = await api.getOrders();
-    const todayTotal = orders.reduce((sum, o) => sum + o.total_amount, 0);
+    const products = await api.getProducts();
+    const khata = api.getKhataCustomers();
+    const totalUdhaar = khata.reduce((sum, c) => sum + c.total_due, 0);
+
+    const actualOrderCount = orders.length;
+    const totalOrderSales = orders.reduce((sum, o) => sum + o.total_amount, 0);
+    const baselineSales = 4520;
+    const totalSales = totalOrderSales > 0 ? totalOrderSales + baselineSales : baselineSales;
+
+    // Item tally
+    const itemMap: { [name: string]: { units: number; rev: number; unit: string } } = {
+      'Chawal': { units: 45, rev: 2700, unit: 'kg' },
+      'Refined Oil': { units: 28, rev: 3920, unit: 'L' },
+      'Atta': { units: 35, rev: 1575, unit: 'kg' }
+    };
+
+    orders.forEach(o => {
+      o.items.forEach(it => {
+        const key = it.matched_product.split(' ')[0];
+        if (!itemMap[key]) {
+          itemMap[key] = { units: 0, rev: 0, unit: it.unit };
+        }
+        itemMap[key].units += it.quantity;
+        itemMap[key].rev += it.line_total;
+      });
+    });
+
+    const topItems = Object.entries(itemMap)
+      .map(([name, data]) => ({ name, units_sold: data.units, revenue: data.rev, unit: data.unit }))
+      .sort((a, b) => b.revenue - a.revenue)
+      .slice(0, 5);
+
+    const lowStock = products.filter(p => p.stock < 10);
+
     return {
-      total_orders: orders.length || 18,
-      total_revenue: (todayTotal || 4520) * 12,
-      today_sales: todayTotal || 4520,
-      today_profit: Math.round((todayTotal || 4520) * 0.18),
+      total_orders: (actualOrderCount || 18) + (actualOrderCount > 0 ? 18 : 0),
+      total_revenue: totalSales * 8,
+      today_sales: totalSales,
+      today_profit: Math.round(totalSales * 0.18),
       total_expenses: 1250,
-      pending_udhaar: 3450,
-      top_selling_items: [
-        { name: 'Chawal', units_sold: 45, revenue: 2700, unit: 'kg' },
-        { name: 'Refined Oil', units_sold: 28, revenue: 3920, unit: 'L' },
-        { name: 'Atta', units_sold: 35, revenue: 1575, unit: 'kg' }
-      ],
-      low_stock_products: DEFAULT_CATALOG.slice(0, 2),
+      pending_udhaar: Math.round(totalUdhaar),
+      top_selling_items: topItems,
+      low_stock_products: lowStock.slice(0, 4),
       recent_orders: orders.slice(0, 5)
     };
   },

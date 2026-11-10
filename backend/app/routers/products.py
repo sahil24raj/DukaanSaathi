@@ -20,6 +20,27 @@ def get_products(db: Session = Depends(get_db)):
     return products
 
 
+@router.post("", response_model=ProductOut, status_code=201)
+def create_product(product_data: ProductCreate, db: Session = Depends(get_db)):
+    """Add a new product to the kirana store catalog."""
+    existing = db.query(Product).filter(Product.name == product_data.name).first()
+    if existing:
+        raise HTTPException(status_code=400, detail="A product with this name already exists")
+    
+    new_product = Product(
+        name=product_data.name,
+        hindi_name=product_data.hindi_name,
+        aliases=product_data.aliases,
+        unit=product_data.unit,
+        price=product_data.price,
+        stock=product_data.stock
+    )
+    db.add(new_product)
+    db.commit()
+    db.refresh(new_product)
+    return new_product
+
+
 @router.put("/{product_id}", response_model=ProductOut)
 def update_product_stock(product_id: int, update_data: ProductUpdate, db: Session = Depends(get_db)):
     """Update stock or price for a product."""
@@ -35,6 +56,17 @@ def update_product_stock(product_id: int, update_data: ProductUpdate, db: Sessio
     db.commit()
     db.refresh(product)
     return product
+
+
+@router.delete("/{product_id}")
+def delete_product(product_id: int, db: Session = Depends(get_db)):
+    """Delete a product from the catalog."""
+    product = db.query(Product).filter(Product.id == product_id).first()
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+    db.delete(product)
+    db.commit()
+    return {"status": "success", "message": f"Product {product.name} deleted successfully"}
 
 
 @router.post("/seed")

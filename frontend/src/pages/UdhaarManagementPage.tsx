@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { CustomerUdhaarRecord } from '../types';
+import { api } from '../services/api';
 import { 
   Search, 
   ArrowDownLeft, 
@@ -8,69 +9,37 @@ import {
   CheckCircle2, 
   X,
   CreditCard,
-  Plus
+  Plus,
+  UserPlus
 } from 'lucide-react';
 
-const INITIAL_CUSTOMERS: CustomerUdhaarRecord[] = [
-  {
-    id: 1,
-    customer_name: 'Raju Sharma',
-    customer_name_hi: 'राजू शर्मा',
-    phone: '9876543210',
-    total_due: 640.0,
-    last_transaction_date: '2026-11-08',
-    transactions: [
-      { id: 101, type: 'given', amount: 320, description: '2kg Chawal, 1L Tel', date: '2026-11-06' },
-      { id: 102, type: 'given', amount: 520, description: '5kg Atta, 2 Parle-G', date: '2026-11-07' },
-      { id: 103, type: 'received', amount: 200, description: 'नकद जमा (Cash payment)', date: '2026-11-08' }
-    ]
-  },
-  {
-    id: 2,
-    customer_name: 'Manoj Verma (Kaka)',
-    customer_name_hi: 'मनोज वर्मा (काका)',
-    phone: '9812345678',
-    total_due: 1250.0,
-    last_transaction_date: '2026-11-07',
-    transactions: [
-      { id: 201, type: 'given', amount: 1250, description: 'महीने का राशन (Monthly grocery)', date: '2026-11-07' }
-    ]
-  },
-  {
-    id: 3,
-    customer_name: 'Sunita Devi',
-    customer_name_hi: 'सुनीता देवी',
-    phone: '9823456789',
-    total_due: 210.0,
-    last_transaction_date: '2026-11-05',
-    transactions: [
-      { id: 301, type: 'given', amount: 410, description: 'Detergent, Shampoo', date: '2026-11-04' },
-      { id: 302, type: 'received', amount: 200, description: 'PhonePe जमा', date: '2026-11-05' }
-    ]
-  },
-  {
-    id: 4,
-    customer_name: 'Amit Tailor',
-    customer_name_hi: 'अमित दर्जी',
-    phone: '9834567890',
-    total_due: 0.0,
-    last_transaction_date: '2026-11-02',
-    transactions: [
-      { id: 401, type: 'given', amount: 300, description: 'Biscuits & Tea', date: '2026-11-01' },
-      { id: 402, type: 'received', amount: 300, description: 'हिसाब पूरा चुकता', date: '2026-11-02' }
-    ]
-  }
-];
-
 export const UdhaarManagementPage: React.FC = () => {
-  const [customers, setCustomers] = useState<CustomerUdhaarRecord[]>(INITIAL_CUSTOMERS);
-  const [selectedCustomer, setSelectedCustomer] = useState<CustomerUdhaarRecord | null>(INITIAL_CUSTOMERS[0]);
+  const [customers, setCustomers] = useState<CustomerUdhaarRecord[]>([]);
+  const [selectedCustomer, setSelectedCustomer] = useState<CustomerUdhaarRecord | null>(null);
   const [search, setSearch] = useState<string>('');
+  
+  // Transaction Modal State
   const [showAddModal, setShowAddModal] = useState<boolean>(false);
   const [txType, setTxType] = useState<'given' | 'received'>('given');
   const [txAmount, setTxAmount] = useState<string>('');
   const [txDesc, setTxDesc] = useState<string>('');
+  
+  // New Customer Modal State
+  const [showNewCustomerModal, setShowNewCustomerModal] = useState<boolean>(false);
+  const [newCustName, setNewCustName] = useState<string>('');
+  const [newCustNameHi, setNewCustNameHi] = useState<string>('');
+  const [newCustPhone, setNewCustPhone] = useState<string>('');
+  const [newCustOpeningDue, setNewCustOpeningDue] = useState<string>('0');
+
   const [reminderToast, setReminderToast] = useState<string | null>(null);
+
+  useEffect(() => {
+    const list = api.getKhataCustomers();
+    setCustomers(list);
+    if (list.length > 0) {
+      setSelectedCustomer(list[0]);
+    }
+  }, []);
 
   const totalPendingUdhaar = customers.reduce((acc, c) => acc + c.total_due, 0);
 
@@ -85,34 +54,44 @@ export const UdhaarManagementPage: React.FC = () => {
     const amt = parseFloat(txAmount);
     if (isNaN(amt) || amt <= 0) return;
 
-    const newTx = {
-      id: Date.now(),
-      type: txType,
-      amount: amt,
-      description: txDesc || (txType === 'given' ? 'सामान उधारी' : 'भुगतान प्राप्त'),
-      date: new Date().toISOString().split('T')[0]
-    };
+    const updated = api.addKhataTransaction(selectedCustomer.id, txType, amt, txDesc);
+    if (updated) {
+      const refreshedList = api.getKhataCustomers();
+      setCustomers(refreshedList);
+      setSelectedCustomer(updated);
+      setShowAddModal(false);
+      setTxAmount('');
+      setTxDesc('');
+    }
+  };
 
-    const updatedDue = txType === 'given' 
-      ? selectedCustomer.total_due + amt 
-      : Math.max(0, selectedCustomer.total_due - amt);
-
-    const updatedCustomer: CustomerUdhaarRecord = {
-      ...selectedCustomer,
-      total_due: updatedDue,
-      last_transaction_date: newTx.date,
-      transactions: [newTx, ...selectedCustomer.transactions]
-    };
-
-    setCustomers(prev => prev.map(c => c.id === updatedCustomer.id ? updatedCustomer : c));
-    setSelectedCustomer(updatedCustomer);
-    setShowAddModal(false);
-    setTxAmount('');
-    setTxDesc('');
+  const handleCreateCustomer = () => {
+    if (!newCustName.trim() || !newCustPhone.trim()) return;
+    const initialDue = parseFloat(newCustOpeningDue) || 0;
+    const created = api.createKhataCustomer(
+      newCustName.trim(),
+      newCustNameHi.trim() || newCustName.trim(),
+      newCustPhone.trim(),
+      initialDue
+    );
+    const refreshed = api.getKhataCustomers();
+    setCustomers(refreshed);
+    setSelectedCustomer(created);
+    setShowNewCustomerModal(false);
+    setNewCustName('');
+    setNewCustNameHi('');
+    setNewCustPhone('');
+    setNewCustOpeningDue('0');
   };
 
   const handleSendReminder = (customer: CustomerUdhaarRecord) => {
-    setReminderToast(`WhatsApp रिमाइंडर भेजा गया: "नमस्ते ${customer.customer_name} जी, दुकान साथी पर आपका ₹${customer.total_due} बाकी है।"`);
+    const text = encodeURIComponent(
+      `नमस्ते ${customer.customer_name} जी, दुकान साथी (किराना स्टोर) पर आपका कुल बकाया हिसाब ₹${customer.total_due} है। कृपया समय पर भुगतान करें। धन्यवाद!`
+    );
+    const cleanPhone = customer.phone.replace(/[^0-9]/g, '');
+    const phoneWithCountry = cleanPhone.length === 10 ? `91${cleanPhone}` : cleanPhone;
+    window.open(`https://wa.me/${phoneWithCountry}?text=${text}`, '_blank');
+    setReminderToast(`WhatsApp खोला गया: ${customer.customer_name} को ₹${customer.total_due} का रिमाइंडर`);
     setTimeout(() => setReminderToast(null), 4000);
   };
 
@@ -162,6 +141,17 @@ export const UdhaarManagementPage: React.FC = () => {
         
         {/* Customer Accounts (Left 5 Columns) */}
         <div className="md:col-span-5 bg-zinc-900/60 rounded-2xl p-4 border border-white/[0.08] backdrop-blur-xl shadow-xl space-y-3">
+          <div className="flex items-center justify-between gap-2">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-400">खाता सूची (Customers)</h3>
+            <button
+              onClick={() => setShowNewCustomerModal(true)}
+              className="inline-flex items-center space-x-1 px-2.5 py-1 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/30 rounded-lg text-xs font-bold transition cursor-pointer"
+            >
+              <UserPlus className="w-3.5 h-3.5" />
+              <span>+ नया खाता</span>
+            </button>
+          </div>
+
           <div className="relative">
             <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
             <input
@@ -362,6 +352,86 @@ export const UdhaarManagementPage: React.FC = () => {
                 className="flex-1 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-xs font-bold text-white transition shadow-md shadow-emerald-900/40 cursor-pointer"
               >
                 दर्ज करें (Save)
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* New Customer Account Modal */}
+      {showNewCustomerModal && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 z-50 animate-fadeIn">
+          <div className="bg-zinc-900 border border-white/[0.1] rounded-2xl p-6 max-w-md w-full shadow-2xl space-y-4">
+            <div className="flex items-center justify-between border-b border-white/[0.08] pb-3">
+              <h3 className="font-bold text-white text-base flex items-center space-x-2">
+                <UserPlus className="w-5 h-5 text-amber-400" />
+                <span>नया ग्राहक खाता जोड़ें (New Khata)</span>
+              </h3>
+              <button
+                onClick={() => setShowNewCustomerModal(false)}
+                className="text-zinc-400 hover:text-white p-1"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div>
+              <label className="text-xs font-bold text-zinc-300 block mb-1">ग्राहक का नाम (English) *</label>
+              <input
+                type="text"
+                value={newCustName}
+                onChange={e => setNewCustName(e.target.value)}
+                placeholder="उदा: Ramesh Kumar"
+                className="w-full px-3 py-2 bg-black/50 border border-white/[0.08] rounded-xl text-xs font-medium text-white placeholder:text-zinc-600 focus:outline-none focus:border-amber-500"
+              />
+            </div>
+
+            <div>
+              <label className="text-xs font-bold text-zinc-300 block mb-1">हिंदी नाम (उदा: रमेश कुमार)</label>
+              <input
+                type="text"
+                value={newCustNameHi}
+                onChange={e => setNewCustNameHi(e.target.value)}
+                placeholder="उदा: रमेश कुमार"
+                className="w-full px-3 py-2 bg-black/50 border border-white/[0.08] rounded-xl text-xs font-medium text-white placeholder:text-zinc-600 focus:outline-none focus:border-amber-500"
+              />
+            </div>
+
+            <div>
+              <label className="text-xs font-bold text-zinc-300 block mb-1">मोबाइल नंबर (Phone) *</label>
+              <input
+                type="tel"
+                value={newCustPhone}
+                onChange={e => setNewCustPhone(e.target.value)}
+                placeholder="उदा: 9876543210"
+                className="w-full px-3 py-2 bg-black/50 border border-white/[0.08] rounded-xl text-xs font-medium text-white placeholder:text-zinc-600 focus:outline-none focus:border-amber-500 font-mono"
+              />
+            </div>
+
+            <div>
+              <label className="text-xs font-bold text-zinc-300 block mb-1">शुरुआती बाकी उधारी (Opening Due ₹)</label>
+              <input
+                type="number"
+                value={newCustOpeningDue}
+                onChange={e => setNewCustOpeningDue(e.target.value)}
+                placeholder="0"
+                className="w-full px-3 py-2 bg-black/50 border border-white/[0.08] rounded-xl text-xs font-bold text-white placeholder:text-zinc-600 focus:outline-none focus:border-amber-500 font-mono"
+              />
+            </div>
+
+            <div className="flex gap-2 pt-2">
+              <button
+                onClick={() => setShowNewCustomerModal(false)}
+                className="flex-1 py-2.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-xs font-bold text-zinc-300 border border-white/[0.06] transition cursor-pointer"
+              >
+                रद्द करें
+              </button>
+              <button
+                onClick={handleCreateCustomer}
+                disabled={!newCustName.trim() || !newCustPhone.trim()}
+                className="flex-1 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-500 disabled:opacity-40 text-xs font-bold text-white transition shadow-md shadow-amber-900/40 cursor-pointer"
+              >
+                खाता बनाएं (Create Khata)
               </button>
             </div>
           </div>

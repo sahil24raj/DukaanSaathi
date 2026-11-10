@@ -1,59 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { CustomerProfile } from '../types';
+import { api } from '../services/api';
 import { 
   Search, 
   UserPlus, 
   Phone, 
   MapPin, 
   X,
-  Users
+  Users,
+  MessageSquare
 } from 'lucide-react';
 
-const INITIAL_PROFILES: CustomerProfile[] = [
-  {
-    id: 1,
-    name: 'Raju Sharma (राजू शर्मा)',
-    phone: '9876543210',
-    address: 'Gali No. 4, Main Bazaar',
-    total_orders: 14,
-    total_spent: 4850,
-    outstanding_udhaar: 640,
-    recent_activity: 'कल 2kg चावल, 1L तेल खरीदा'
-  },
-  {
-    id: 2,
-    name: 'Manoj Verma (काका)',
-    phone: '9812345678',
-    address: 'Near Old Water Tank',
-    total_orders: 28,
-    total_spent: 12400,
-    outstanding_udhaar: 1250,
-    recent_activity: '7 Nov को महीने का राशन लिया'
-  },
-  {
-    id: 3,
-    name: 'Sunita Devi (सुनीता देवी)',
-    phone: '9823456789',
-    address: 'Ward 2, Shiv Mandir Marg',
-    total_orders: 9,
-    total_spent: 2150,
-    outstanding_udhaar: 210,
-    recent_activity: '5 Nov को PhonePe से ₹200 जमा किए'
-  },
-  {
-    id: 4,
-    name: 'Amit Tailor (अमित टेलर)',
-    phone: '9834567890',
-    address: 'Tailor Gali, Shop #12',
-    total_orders: 22,
-    total_spent: 6900,
-    outstanding_udhaar: 0,
-    recent_activity: '2 Nov को सारा बकाया चुकता किया'
-  }
-];
-
 export const CustomersPage: React.FC = () => {
-  const [customers, setCustomers] = useState<CustomerProfile[]>(INITIAL_PROFILES);
+  const [customers, setCustomers] = useState<CustomerProfile[]>([]);
   const [search, setSearch] = useState<string>('');
   const [showAddModal, setShowAddModal] = useState<boolean>(false);
   
@@ -61,6 +20,11 @@ export const CustomersPage: React.FC = () => {
   const [newName, setNewName] = useState<string>('');
   const [newPhone, setNewPhone] = useState<string>('');
   const [newAddress, setNewAddress] = useState<string>('');
+
+  useEffect(() => {
+    const list = api.getCustomerProfiles();
+    setCustomers(list);
+  }, []);
 
   const filtered = customers.filter(c =>
     c.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -70,18 +34,9 @@ export const CustomersPage: React.FC = () => {
 
   const handleCreateCustomer = () => {
     if (!newName.trim() || !newPhone.trim()) return;
-    const newCust: CustomerProfile = {
-      id: Date.now(),
-      name: newName.trim(),
-      phone: newPhone.trim(),
-      address: newAddress.trim() || 'Local Customer',
-      total_orders: 0,
-      total_spent: 0,
-      outstanding_udhaar: 0,
-      recent_activity: 'नया ग्राहक खाता खोला'
-    };
-
-    setCustomers([newCust, ...customers]);
+    api.createCustomerProfile(newName.trim(), newPhone.trim(), newAddress.trim());
+    const refreshed = api.getCustomerProfiles();
+    setCustomers(refreshed);
     setShowAddModal(false);
     setNewName('');
     setNewPhone('');
@@ -137,10 +92,26 @@ export const CustomersPage: React.FC = () => {
               <div className="flex items-start justify-between">
                 <div>
                   <h3 className="font-bold text-base text-white">{cust.name}</h3>
-                  <p className="text-xs text-neutral-400 flex items-center space-x-1.5 mt-0.5">
-                    <Phone className="w-3.5 h-3.5 text-neutral-500" />
-                    <span className="font-mono">{cust.phone}</span>
-                  </p>
+                  <div className="flex items-center space-x-3 mt-1">
+                    <a
+                      href={`tel:${cust.phone}`}
+                      className="text-xs text-neutral-400 hover:text-emerald-400 flex items-center space-x-1.5 transition"
+                      title="Call customer"
+                    >
+                      <Phone className="w-3.5 h-3.5 text-neutral-500" />
+                      <span className="font-mono">{cust.phone}</span>
+                    </a>
+                    <a
+                      href={`https://wa.me/91${cust.phone.replace(/[^0-9]/g, '')}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-[11px] font-bold text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20 px-2 py-0.5 rounded border border-emerald-500/30 flex items-center space-x-1 transition"
+                      title="Chat on WhatsApp"
+                    >
+                      <MessageSquare className="w-3 h-3" />
+                      <span>WhatsApp</span>
+                    </a>
+                  </div>
                 </div>
 
                 <div className="text-right">
