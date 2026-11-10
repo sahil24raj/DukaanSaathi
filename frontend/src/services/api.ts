@@ -386,8 +386,9 @@ export const api = {
     return { status: 'success', message: 'Catalog seeded locally with 13 products' };
   },
 
-  // Voice & Parsing (with Dual-Engine Network + Client Fallback)
+  // Voice & Parsing (Dual-Engine: Backend Proxy + Direct Gnani Prisma v3.0 Fallback)
   async transcribeAudio(audioBlob: Blob, filename = 'recording.wav'): Promise<TranscribeResponse> {
+    // 1. Try via backend /api/transcribe
     try {
       const formData = new FormData();
       formData.append('file', audioBlob, filename);
@@ -399,14 +400,52 @@ export const api = {
       if (res.ok) {
         const ct = res.headers.get('content-type') || '';
         if (ct.includes('application/json')) {
-          return await res.json();
+          const data = await res.json();
+          if (data && data.transcript) {
+            return data;
+          }
         }
       }
     } catch (err) {
-      console.warn('Backend transcription API unreachable, applying smart fallback:', err);
+      console.warn('Backend transcription API unreachable, trying direct Gnani Prisma v3.0:', err);
     }
 
-    // Only apply predefined sample text for recognized pre-recorded demo files
+    // 2. Direct Gnani Prisma v3.0 STT Cloud API (api.vachana.ai)
+    const gnaniKey = localStorage.getItem('gnani_api_key') || 'vach_1ytE2CY5X2DwbxB8oRMBGnFp3MrRDxqJByUdA3Y6h9KEhU49qh5UPrcH9dDHe0Hb4wvoVyEqvvwhuqiVxgTbiHpIRcLTM52W_0a43ce1c1ee430cb0bfe39f047a7f3c5';
+    if (gnaniKey) {
+      try {
+        const directData = new FormData();
+        directData.append('audio_file', audioBlob, filename.endsWith('.wav') ? filename : 'audio.wav');
+        directData.append('model', 'prisma-v3.0');
+        directData.append('language_code', 'indic-auto');
+        directData.append('format', 'transcribe');
+
+        const directRes = await fetch('https://api.vachana.ai/stt/v3', {
+          method: 'POST',
+          headers: {
+            'X-API-Key-ID': gnaniKey
+          },
+          body: directData
+        });
+
+        if (directRes.ok) {
+          const directJson = await directRes.json();
+          if (directJson && directJson.transcript && directJson.transcript.trim()) {
+            return {
+              transcript: directJson.transcript.trim(),
+              language: directJson.language || 'hi',
+              confidence: 0.98,
+              processing_time_ms: Math.round((directJson.processing_time || 0.05) * 1000),
+              source: 'Gnani Prisma v3.0 (Direct AI Cloud)'
+            };
+          }
+        }
+      } catch (directErr) {
+        console.warn('Direct Gnani Prisma STT failed, checking demo samples:', directErr);
+      }
+    }
+
+    // 3. Only apply predefined sample text for recognized pre-recorded demo files
     const fn = filename.toLowerCase();
     let sampleText = '';
     if (fn.includes('clean') || fn.includes('sample_1')) {
@@ -420,7 +459,7 @@ export const api = {
     }
 
     if (!sampleText) {
-      throw new Error('माइक से आवाज़ स्पष्ट नहीं आई (No speech detected). कृपया माइक के पास आकर दोबारा बोलें या नीचे लिखकर ऑर्डर दर्ज करें।');
+      throw new Error('माइक से आवाज़ स्पष्ट नहीं आई (No speech detected). कृपया थोड़ा ज़ोर से बोलें या नीचे लिखकर ऑर्डर दर्ज करें।');
     }
 
     return {
@@ -457,6 +496,7 @@ export const api = {
   },
 
   async speakText(text: string): Promise<{ audio_base64?: string; audio_url?: string; source: string }> {
+    // 1. Try via backend /api/speak
     try {
       const res = await fetch(`${API_BASE}/speak`, {
         method: 'POST',
@@ -470,8 +510,48 @@ export const api = {
         }
       }
     } catch (e) {
-      console.warn('Backend TTS endpoint unreachable, utilizing browser Web Speech API:', e);
+      console.warn('Backend TTS endpoint unreachable, checking direct cloud TTS:', e);
     }
+
+    // 2. Direct Gnani Timbre v2.5 Cloud TTS (api.vachana.ai)
+    const gnaniKey = localStorage.getItem('gnani_api_key') || 'vach_1ytE2CY5X2DwbxB8oRMBGnFp3MrRDxqJByUdA3Y6h9KEhU49qh5UPrcH9dDHe0Hb4wvoVyEqvvwhuqiVxgTbiHpIRcLTM52W_0a43ce1c1ee430cb0bfe39f047a7f3c5';
+    if (gnaniKey) {
+      try {
+        const ttsRes = await fetch('https://api.vachana.ai/api/v1/tts/inference', {
+          method: 'POST',
+          headers: {
+            'X-API-Key-ID': gnaniKey,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            text,
+            voice: 'Nalini',
+            model: 'timbre-v2.5',
+            language: 'hi-IN',
+            speed: 1.0,
+            audio_config: { sample_rate: 24000, encoding: 'linear_pcm', container: 'wav' }
+          })
+        });
+        if (ttsRes.ok) {
+          const blob = await ttsRes.blob();
+          const arrayBuffer = await blob.arrayBuffer();
+          let binary = '';
+          const bytes = new Uint8Array(arrayBuffer);
+          const len = bytes.byteLength;
+          for (let i = 0; i < len; i++) {
+            binary += String.fromCharCode(bytes[i]);
+          }
+          const b64 = window.btoa(binary);
+          return {
+            audio_base64: b64,
+            source: 'Gnani Timbre v2.5 (Direct Cloud TTS)'
+          };
+        }
+      } catch (err) {
+        console.warn('Direct Gnani TTS failed:', err);
+      }
+    }
+
     return {
       source: 'Web Speech API Browser Synthesis'
     };

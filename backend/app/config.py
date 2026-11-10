@@ -35,8 +35,8 @@ def get_default_database_url() -> str:
 
 class Settings(BaseSettings):
     GNANI_API_KEY: Optional[str] = ""
-    GNANI_STT_ENDPOINT: str = "https://api.gnani.ai/v2.5/stt"
-    GNANI_TTS_ENDPOINT: str = "https://api.gnani.ai/v2.5/tts"
+    GNANI_STT_ENDPOINT: str = "https://api.vachana.ai/stt/v3"
+    GNANI_TTS_ENDPOINT: str = "https://api.vachana.ai/api/v1/tts/inference"
     
     EVON_API_KEY: Optional[str] = ""
     EVON_ENDPOINT: str = "https://api.gnani.ai/v3.3/evon"

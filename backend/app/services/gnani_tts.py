@@ -23,25 +23,29 @@ class GnaniTTSService:
         start_time = time.time()
         logger.info(f"TTS synthesis started for text length {len(text)} chars (lang: {language}).")
 
-        # 1. Live Gnani Timbre v2.5 API Call
+        # 1. Live Gnani Timbre v2.5/v3.0 API Call (api.vachana.ai)
         if not self.mock_mode and self.api_key:
             try:
                 headers = {
+                    "X-API-Key-ID": self.api_key,
                     "Authorization": f"Bearer {self.api_key}",
                     "token": self.api_key,
-                    "x-api-key": self.api_key,
                     "Content-Type": "application/json"
                 }
                 payload = {
                     "text": text,
-                    "language": language,
-                    "voice": "hindi_female_natural",
+                    "voice": "Nalini",
                     "model": "timbre-v2.5",
-                    "audio_format": "wav",
-                    "sampling_rate": 16000
+                    "language": "hi-IN",
+                    "speed": 1.0,
+                    "audio_config": {
+                        "sample_rate": 24000,
+                        "encoding": "linear_pcm",
+                        "container": "wav"
+                    }
                 }
 
-                async with httpx.AsyncClient(timeout=10.0) as client:
+                async with httpx.AsyncClient(timeout=12.0) as client:
                     response = await client.post(
                         self.endpoint,
                         json=payload,
@@ -52,14 +56,17 @@ class GnaniTTSService:
 
                     if response.status_code == 200:
                         content_type = response.headers.get("content-type", "")
-                        if "audio" in content_type:
+                        if "audio" in content_type or response.content.startswith(b"RIFF"):
                             audio_bytes = response.content
                             b64 = base64.b64encode(audio_bytes).decode("utf-8")
                         else:
-                            # Might be JSON containing base64 audio
-                            data = response.json()
-                            b64 = data.get("audio_content") or data.get("audio") or data.get("data")
-                            audio_bytes = base64.b64decode(b64) if b64 else b""
+                            try:
+                                data = response.json()
+                                b64 = data.get("audio_content") or data.get("audio") or data.get("data")
+                                audio_bytes = base64.b64decode(b64) if b64 else response.content
+                            except Exception:
+                                audio_bytes = response.content
+                                b64 = base64.b64encode(audio_bytes).decode("utf-8")
 
                         logger.info(f"Gnani Timbre TTS success in {duration_ms}ms ({len(audio_bytes)} bytes).")
                         return {
@@ -71,11 +78,11 @@ class GnaniTTSService:
                         }
                     else:
                         logger.warning(
-                            f"Gnani Timbre TTS returned HTTP {response.status_code}. "
+                            f"Gnani Timbre TTS returned HTTP {response.status_code} ({response.text}). "
                             f"Falling back to synthetic audio generator."
                         )
             except Exception as e:
-                logger.error(f"Gnani Timbre TTS API call failed: {type(e).__name__}. Falling back to synthetic audio.")
+                logger.error(f"Gnani Timbre TTS API call failed: {type(e).__name__}: {e}. Falling back to synthetic audio.")
 
         # 2. Synthetic Audio Generator Fallback
         # Generates a valid 16kHz PCM WAV audio file with speech harmonic cadence

@@ -21,25 +21,24 @@ class GnaniSTTService:
         start_time = time.time()
         logger.info(f"STT transcription started for {filename} ({len(audio_bytes)} bytes).")
 
-        # 1. Live Gnani Prisma v2.5 API Call
+        # 1. Live Gnani Prisma v3.0 API Call (api.vachana.ai)
         if not self.mock_mode and self.api_key:
             try:
                 headers = {
+                    "X-API-Key-ID": self.api_key,
                     "Authorization": f"Bearer {self.api_key}",
-                    "token": self.api_key,
-                    "x-api-key": self.api_key,
+                    "token": self.api_key
                 }
                 files = {
-                    "audio": (filename, audio_bytes, "audio/wav")
+                    "audio_file": (filename, audio_bytes, "audio/wav")
                 }
                 data = {
-                    "language": "hi",
-                    "model": "prisma-v2.5",
-                    "sampling_rate": "16000",
-                    "audio_format": "wav"
+                    "model": "prisma-v3.0",
+                    "language_code": "indic-auto",
+                    "format": "transcribe"
                 }
 
-                async with httpx.AsyncClient(timeout=10.0) as client:
+                async with httpx.AsyncClient(timeout=12.0) as client:
                     response = await client.post(
                         self.endpoint,
                         files=files,
@@ -51,31 +50,30 @@ class GnaniSTTService:
 
                     if response.status_code == 200:
                         res_data = response.json()
-                        # Extract transcript from common Gnani response formats
                         transcript = (
                             res_data.get("transcript") or
                             res_data.get("text") or
                             res_data.get("asr_result") or
                             (res_data.get("result", [{}])[0].get("transcript") if isinstance(res_data.get("result"), list) else "") or
-                            str(res_data)
+                            ""
                         )
-                        confidence = res_data.get("confidence", 0.94)
+                        confidence = res_data.get("confidence", 0.96)
 
-                        logger.info(f"Gnani Prisma STT success in {duration_ms}ms, transcript length: {len(transcript)} chars.")
+                        logger.info(f"Gnani Prisma v3.0 STT success in {duration_ms}ms: '{transcript}'")
                         return {
                             "transcript": transcript.strip(),
-                            "language": "hi",
+                            "language": res_data.get("language", "hi"),
                             "confidence": float(confidence),
                             "processing_time_ms": duration_ms,
-                            "source": "gnani_prisma_v2.5"
+                            "source": "gnani_prisma_v3.0"
                         }
                     else:
                         logger.warning(
-                            f"Gnani Prisma STT returned HTTP {response.status_code}. "
+                            f"Gnani Prisma STT returned HTTP {response.status_code} ({response.text}). "
                             f"Falling back to high-fidelity mock transcription."
                         )
             except Exception as e:
-                logger.error(f"Gnani Prisma STT API call exception: {type(e).__name__}. Falling back to mock transcription.")
+                logger.error(f"Gnani Prisma STT API call exception: {type(e).__name__}: {e}. Falling back to mock transcription.")
 
         # 2. High-fidelity Mock/Demo Mode (Active when API key is missing or testing)
         duration_ms = round((time.time() - start_time) * 1000 + 380, 2)  # realistic latency

@@ -327,3 +327,4 @@ export function generateWhatsAppMessage(order: any, options: PrintReceiptOptions
 
   return msg;
 }
+

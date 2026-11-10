@@ -123,13 +123,15 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
       mediaRecorder.onstop = () => {
         stream.getTracks().forEach((track) => track.stop());
 
-        // Capture what the user actually said in real-time
+        // Process speech: prefer real-time transcription, or send audio to Gnani Prisma v3.0 STT
         setTimeout(() => {
           const finalSpoken = (recognizedTranscriptRef.current || latestInterimRef.current || liveSpokenText).trim();
           if (finalSpoken && onTextOrderDirect) {
             onTextOrderDirect(finalSpoken);
+          } else if (audioChunksRef.current.length > 0) {
+            const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/wav' });
+            onAudioRecorded(audioBlob, 'mic_voice_order.wav');
           } else {
-            // NEVER invent fake 2 kg chawal orders!
             setSpeechNotice('⚠️ माइक से कोई आवाज़ स्पष्ट सुनाई नहीं दी। कृपया दोबारा माइक दबाकर बोलें या नीचे दिए गए बटन पर टैप करें।');
           }
         }, 150);

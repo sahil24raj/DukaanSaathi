@@ -27,9 +27,14 @@ jobs:
           pip install -r backend/requirements.txt
 
       - name: Run Database Seeder
+        env:
+          PYTHONPATH: .
         run: python seed.py
 
       - name: Execute API Unit Tests
+        env:
+          PYTHONPATH: .
+          MOCK_GNANI_APIS: "true"
         run: python -m unittest backend/tests/test_api.py
 
   frontend-build:
