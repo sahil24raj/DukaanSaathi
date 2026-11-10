@@ -35,7 +35,9 @@ jobs:
         env:
           PYTHONPATH: .
           MOCK_GNANI_APIS: "true"
-        run: python backend/tests/test_api.py
+        run: |
+          pip install pytest pytest-asyncio
+          pytest backend/tests/test_api.py -v
 
   frontend-build:
     name: Frontend Build & Typecheck
