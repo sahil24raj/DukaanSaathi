@@ -35,7 +35,7 @@ jobs:
         env:
           PYTHONPATH: .
           MOCK_GNANI_APIS: "true"
-        run: python -m unittest backend/tests/test_api.py
+        run: python backend/tests/test_api.py
 
   frontend-build:
     name: Frontend Build & Typecheck

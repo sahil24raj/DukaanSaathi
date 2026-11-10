@@ -11,6 +11,11 @@ from backend.app.main import app
 class TestDukaanSaathiAPI(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
+        try:
+            from seed import run_seed
+            run_seed()
+        except Exception:
+            pass
         cls.client = TestClient(app)
 
     def test_health_check(self):
