@@ -28,12 +28,12 @@ jobs:
 
       - name: Run Database Seeder
         env:
-          PYTHONPATH: .
+          PYTHONPATH: backend:.
         run: python seed.py
 
       - name: Execute API Unit Tests
         env:
-          PYTHONPATH: .
+          PYTHONPATH: backend:.
           MOCK_GNANI_APIS: "true"
         run: python run_tests.py
 
