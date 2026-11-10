@@ -38,11 +38,11 @@ jobs:
         run: |
           python -u run_tests.py > test_runner_output.txt 2>&1 || true
           cat test_runner_output.txt
-          echo "### Backend Test Execution Log" >> $GITHUB_STEP_SUMMARY
-          echo '```text' >> $GITHUB_STEP_SUMMARY
-          cat test_runner_output.txt >> $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
-          grep -q "ALL 7 TESTS PASSED SUCCESSFULLY!" test_runner_output.txt
+          if ! grep -q "ALL 7 TESTS PASSED SUCCESSFULLY!" test_runner_output.txt; then
+            OUTPUT=$(cat test_runner_output.txt | tr '\n' ' ' | head -c 2000)
+            echo "::error title=Backend Unit Tests Failed::$OUTPUT"
+            exit 1
+          fi
 
   frontend-build:
     name: Frontend Build & Typecheck
