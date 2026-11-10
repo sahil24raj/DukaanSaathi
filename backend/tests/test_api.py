@@ -4,9 +4,16 @@ import unittest
 from fastapi.testclient import TestClient
 
 os.environ.setdefault("DISABLE_SQLALCHEMY_CEXT", "1")
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))
 
-from backend.app.main import app
+# Add both backend and project root to sys.path consistently
+backend_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+
+for p in [backend_dir, root_dir]:
+    if p not in sys.path:
+        sys.path.insert(0, p)
+
+from app.main import app
 
 class TestDukaanSaathiAPI(unittest.TestCase):
     @classmethod
@@ -14,8 +21,8 @@ class TestDukaanSaathiAPI(unittest.TestCase):
         try:
             from seed import run_seed
             run_seed()
-        except Exception:
-            pass
+        except Exception as e:
+            print("Notice during test seed:", e)
         cls.client = TestClient(app)
 
     def test_health_check(self):
