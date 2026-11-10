@@ -1,27 +1,11 @@
 import sys
 import os
-import io
 import unittest
 import traceback
-import atexit
 
-output_buffer = io.StringIO()
-
-def on_exit():
-    full_log = output_buffer.getvalue()
-    summary_file = os.environ.get("GITHUB_STEP_SUMMARY")
-    if summary_file:
-        try:
-            with open(summary_file, "a", encoding="utf-8") as f:
-                f.write("### Dukaan Saathi Test Run Execution\n\n```text\n" + full_log + "\n```\n")
-        except Exception as e:
-            print("Failed to write to GITHUB_STEP_SUMMARY:", e)
-
-atexit.register(on_exit)
-
-def log(msg):
-    print(msg)
-    output_buffer.write(str(msg) + "\n")
+# Ensure unbuffered output
+sys.stdout.reconfigure(line_buffering=True)
+sys.stderr.reconfigure(line_buffering=True)
 
 # Ensure directories are in sys.path
 root_dir = os.path.abspath(os.path.dirname(__file__))
@@ -31,48 +15,62 @@ for p in [backend_dir, root_dir]:
     if p not in sys.path:
         sys.path.insert(0, p)
 
-log(f"Current working dir: {os.getcwd()}")
-log(f"sys.path: {sys.path[:4]}")
+print("=" * 60)
+print("DUKAAN SAATHI BACKEND CI TEST RUNNER")
+print(f"Working directory: {os.getcwd()}")
+print(f"Python: {sys.version}")
+print(f"sys.path: {sys.path[:4]}")
+print("=" * 60)
 
 # 1. Run database seed
+print("\n--- STEP 1: Running Database Seeder ---")
 try:
     from seed import run_seed
     run_seed()
-    log("Database seed completed.")
+    print("Database seed completed successfully.")
 except Exception as e:
-    log(f"Database seed notice: {e}")
-    traceback.print_exc(file=output_buffer)
+    print(f"Database seed exception: {e}")
     traceback.print_exc()
 
 # 2. Import Test Suite
+print("\n--- STEP 2: Importing Test Suite ---")
 test_class = None
 try:
     from backend.tests.test_api import TestDukaanSaathiAPI
     test_class = TestDukaanSaathiAPI
-    log("Successfully imported TestDukaanSaathiAPI from backend.tests.test_api.")
+    print("Successfully imported TestDukaanSaathiAPI from backend.tests.test_api")
 except Exception as e1:
-    log(f"Failed backend.tests.test_api import: {e1}")
+    print(f"Notice: import from backend.tests.test_api failed: {e1}")
     try:
         from tests.test_api import TestDukaanSaathiAPI
         test_class = TestDukaanSaathiAPI
-        log("Successfully imported TestDukaanSaathiAPI from tests.test_api.")
+        print("Successfully imported TestDukaanSaathiAPI from tests.test_api")
     except Exception as e2:
-        log(f"Failed tests.test_api import: {e2}")
-        traceback.print_exc(file=output_buffer)
+        print(f"Fatal: failed to import TestDukaanSaathiAPI: {e2}")
         traceback.print_exc()
         sys.exit(1)
 
+# 3. Execute Tests
+print("\n--- STEP 3: Executing Unit Tests ---")
 if __name__ == "__main__":
     suite = unittest.defaultTestLoader.loadTestsFromTestCase(test_class)
-    runner = unittest.TextTestRunner(stream=output_buffer, verbosity=2)
+    runner = unittest.TextTestRunner(stream=sys.stdout, verbosity=2)
     result = runner.run(suite)
     
-    test_output = output_buffer.getvalue()
-    print(test_output)
+    sys.stdout.flush()
+    sys.stderr.flush()
     
+    print("\n" + "=" * 60)
     if not result.wasSuccessful():
-        log(f"TEST RUN FAILED: {len(result.failures)} failures, {len(result.errors)} errors")
+        print(f"FAILED: {len(result.failures)} failures, {len(result.errors)} errors")
+        for f in result.failures:
+            print(f"FAIL: {f[0]}")
+            print(f[1])
+        for err in result.errors:
+            print(f"ERROR: {err[0]}")
+            print(err[1])
         sys.exit(1)
         
-    log("ALL TESTS PASSED SUCCESSFULLY!")
+    print("ALL 7 TESTS PASSED SUCCESSFULLY!")
+    print("=" * 60)
     sys.exit(0)
