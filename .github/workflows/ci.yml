@@ -35,7 +35,7 @@ jobs:
         env:
           PYTHONPATH: .
           MOCK_GNANI_APIS: "true"
-        run: python -c "import sys, os; sys.path.insert(0, os.path.abspath('backend')); sys.path.insert(0, os.path.abspath('.')); import unittest; suite = unittest.defaultTestLoader.loadTestsFromName('backend.tests.test_api'); runner = unittest.TextTestRunner(verbosity=2); res = runner.run(suite); sys.exit(0 if res.wasSuccessful() else 1)"
+        run: python run_tests.py
 
   frontend-build:
     name: Frontend Build & Typecheck
