@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Dukaan Saathi — Hindi/Hinglish Voice Assistant for Indian Kirana Stores powered by Gnani AI",
   "scripts": {
+    "build": "cd frontend && npm install && npm run build",
     "dev:backend": "python -m uvicorn backend.app.main:app --reload --port 8000",
     "dev:frontend": "cd frontend && npm run dev",
     "dev": "cd frontend && npm run dev",

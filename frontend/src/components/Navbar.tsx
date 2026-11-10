@@ -135,19 +135,15 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab, systemS
             {/* Live Engine Status Chip */}
             <div 
               onClick={() => setActiveTab('about')}
-              title={isConnected ? 'Gnani Prisma & Timbre Cloud Connected' : 'Running in Local Speech Mode'}
-              className="flex items-center space-x-2 px-2.5 py-1 rounded-full bg-white/[0.04] border border-white/[0.08] hover:border-white/[0.15] cursor-pointer transition text-[11px]"
+              title="Voice AI Engine Ready (Web Speech & Kirana Rule Parser)"
+              className="flex items-center space-x-2 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 hover:border-emerald-500/40 cursor-pointer transition text-[11px]"
             >
               <span className="relative flex h-2 w-2">
-                <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${
-                  isConnected ? 'bg-emerald-400' : 'bg-amber-400'
-                }`} />
-                <span className={`relative inline-flex rounded-full h-2 w-2 ${
-                  isConnected ? 'bg-emerald-500' : 'bg-amber-500'
-                }`} />
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 bg-emerald-400" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
               </span>
-              <span className="font-mono text-neutral-300 text-[11px]">
-                {isConnected ? 'Gnani v2.5' : 'Offline'}
+              <span className="font-mono text-emerald-300 font-bold text-[11px]">
+                {isConnected ? 'Gnani v2.5' : 'Voice AI Ready'}
               </span>
             </div>
 
