@@ -35,7 +35,14 @@ jobs:
         env:
           PYTHONPATH: backend:.
           MOCK_GNANI_APIS: "true"
-        run: python -u run_tests.py
+        run: |
+          python -u run_tests.py > test_runner_output.txt 2>&1 || true
+          cat test_runner_output.txt
+          echo "### Backend Test Execution Log" >> $GITHUB_STEP_SUMMARY
+          echo '```text' >> $GITHUB_STEP_SUMMARY
+          cat test_runner_output.txt >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          grep -q "ALL 7 TESTS PASSED SUCCESSFULLY!" test_runner_output.txt
 
   frontend-build:
     name: Frontend Build & Typecheck

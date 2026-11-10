@@ -3,9 +3,14 @@ import os
 import unittest
 import traceback
 
-# Ensure unbuffered output
-sys.stdout.reconfigure(line_buffering=True)
-sys.stderr.reconfigure(line_buffering=True)
+# Ensure unbuffered output safely
+try:
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(line_buffering=True)
+    if hasattr(sys.stderr, "reconfigure"):
+        sys.stderr.reconfigure(line_buffering=True)
+except Exception:
+    pass
 
 # Ensure directories are in sys.path
 root_dir = os.path.abspath(os.path.dirname(__file__))
