@@ -38,12 +38,13 @@ export const OrderTakingPage: React.FC<OrderTakingPageProps> = ({
       setEngineTag('Gnani Prisma v2.5 STT');
       const transcribeRes = await api.transcribeAudio(blob, filename);
       setCurrentTranscript(transcribeRes.transcript);
+      if (transcribeRes.source) setEngineTag(transcribeRes.source);
 
       // Step 2: Understanding Order via LLM / Rules
       setProcessingState('parsing');
-      setEngineTag('Order Extraction Engine');
       const parsedRes = await api.parseOrder(transcribeRes.transcript);
       setParsedOrder(parsedRes);
+      if (parsedRes.source) setEngineTag(parsedRes.source);
 
       // Step 3: Checking stock
       setProcessingState('checking_stock');
@@ -75,9 +76,9 @@ export const OrderTakingPage: React.FC<OrderTakingPageProps> = ({
       setCurrentTranscript(text);
 
       setProcessingState('parsing');
-      setEngineTag('Order Extraction Engine');
       const parsedRes = await api.parseOrder(text);
       setParsedOrder(parsedRes);
+      if (parsedRes.source) setEngineTag(parsedRes.source);
 
       setProcessingState('checking_stock');
       await new Promise((r) => setTimeout(r, 200));

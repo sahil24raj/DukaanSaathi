@@ -21,6 +21,8 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
   const audioChunksRef = useRef<Blob[]>([]);
   const timerRef = useRef<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const recognitionRef = useRef<any>(null);
+  const recognizedTranscriptRef = useRef<string>('');
 
   // Real-world Kirana voice queries
   const quickTestOrders = [
@@ -39,6 +41,29 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
   const startRecording = async () => {
     try {
       audioChunksRef.current = [];
+      recognizedTranscriptRef.current = '';
+
+      // Initialize Web Speech API native speech recognition if available
+      const SpeechRec = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+      if (SpeechRec) {
+        try {
+          const rec = new SpeechRec();
+          rec.lang = 'hi-IN';
+          rec.continuous = false;
+          rec.interimResults = false;
+          rec.onresult = (event: any) => {
+            const transcript = event.results?.[0]?.[0]?.transcript;
+            if (transcript) {
+              recognizedTranscriptRef.current = transcript;
+            }
+          };
+          rec.start();
+          recognitionRef.current = rec;
+        } catch (e) {
+          console.warn('Native speech recognition startup notice:', e);
+        }
+      }
+
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       
       const mediaRecorder = new MediaRecorder(stream, {
@@ -55,7 +80,13 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
       mediaRecorder.onstop = () => {
         const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/wav' });
         stream.getTracks().forEach((track) => track.stop());
-        onAudioRecorded(audioBlob, 'mic_recording.wav');
+
+        // If native recognition captured the Hindi order directly, parse it immediately
+        if (recognizedTranscriptRef.current && onTextOrderDirect) {
+          onTextOrderDirect(recognizedTranscriptRef.current);
+        } else {
+          onAudioRecorded(audioBlob, 'mic_recording.wav');
+        }
       };
 
       mediaRecorder.start(250);
@@ -72,6 +103,11 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
   };
 
   const stopRecording = () => {
+    if (recognitionRef.current) {
+      try { recognitionRef.current.stop(); } catch {}
+      recognitionRef.current = null;
+    }
+
     if (mediaRecorderRef.current && isRecording) {
       mediaRecorderRef.current.stop();
       setIsRecording(false);

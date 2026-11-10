@@ -32,6 +32,7 @@ export interface ParsedOrderResponse {
   transcript: string;
   parse_method: 'evon_llm' | 'fallback_rules';
   confidence: number;
+  source?: string;
 }
 
 export interface TranscribeResponse {
